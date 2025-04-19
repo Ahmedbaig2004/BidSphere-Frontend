@@ -7,6 +7,7 @@ import About from './pages/About'
 import Product from './pages/Product'
 import Cart from './pages/Cart'
 import Login from './pages/Login'
+import Register from './pages/Register'
 import Orders from './pages/Orders'
 import Placeorder from './pages/Placeorder'
 import Navbar from './components/Navbar'
@@ -31,6 +32,7 @@ const App = () => {
       <Route path='/product/:productId' element={<Product/>} />
       <Route path='/cart' element={<Cart/>} />
       <Route path='/login' element={<Login/>} />
+      <Route path='/register' element={<Register/>} />
       <Route path='/orders' element={<Orders/>} />
       <Route path='/place-order' element={<Placeorder/>} />
       <Route path="*" element={<Navigate to="/" replace />}/>

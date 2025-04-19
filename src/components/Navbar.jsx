@@ -41,21 +41,26 @@ const Navbar = () => {
 
         {isLoggedIn ? (
           <>
-          <div className='group relative'>
-          <img src={assets.profile_icon} className='w-5 cursor-pointer' alt="" />
-          <div className='absolute right-0 pt-1 hidden group-hover:block'>
-            <div className='flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded dark:text-white dark:bg-gray-800 shadow-md'>
-              <p className='cursor-pointer hover:text-black'>My Profile</p>
-              <p className='cursor-pointer hover:text-black'>Orders</p>
-              <p onClick={logout} className='cursor-pointer hover:text-black'>LogOut</p>
+            <div className='group relative'>
+              <img src={assets.profile_icon} className='w-5 cursor-pointer' alt="" />
+              <div className='absolute right-0 pt-1 hidden group-hover:block'>
+                <div className='flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded dark:text-white dark:bg-gray-800 shadow-md'>
+                  <p className='cursor-pointer hover:text-black'>My Profile</p>
+                  <p className='cursor-pointer hover:text-black'>Orders</p>
+                  <p onClick={logout} className='cursor-pointer hover:text-black'>LogOut</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
           </>
         ) : (
-          <Link to='/login'>
-            <img src={assets.profile_icon} className='w-5 cursor-pointer' alt="" />
-          </Link>
+          <div className='flex items-center gap-4'>
+            <Link to='/login'>
+              <img src={assets.profile_icon} className='w-5 cursor-pointer' alt="" />
+            </Link>
+            <Link to='/register'>
+              <button className='hidden sm:block px-4 py-2 text-sm font-medium text-white bg-black rounded hover:bg-gray-800 transition'>Register</button>
+            </Link>
+          </div>
         )}
 
         <Link to='/cart' className='relative'>
