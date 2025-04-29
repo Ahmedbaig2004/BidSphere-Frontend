@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
@@ -16,7 +16,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [imageUploadStatus, setImageUploadStatus] = useState('');
   const [debugInfo, setDebugInfo] = useState(null);
-  const [walletAddress,setwalletaddress]=useState("")
+  const [walletAddress, setwalletaddress] = useState("")
   const navigate = useNavigate();
 
   const handleImageUpload = (e) => {
@@ -41,26 +41,26 @@ const Register = () => {
 
   const uploadImage = async () => {
     if (!avatarBase64) return null;
-    
+
     setImageUploadStatus('uploading');
-    
+
     try {
       // Formating the base64 string correctly
       // Keeping only the base64 part after the comma if it's a data URL
-      const formattedImage = avatarBase64.includes(',') 
-        ? avatarBase64.split(',')[1] 
+      const formattedImage = avatarBase64.includes(',')
+        ? avatarBase64.split(',')[1]
         : avatarBase64;
-      
+
       const payload = {
         image: formattedImage
       };
-      
+
       // Logging the payload for debugging
       console.log("Media upload payload format:", {
         ...payload,
         image: payload.image.substring(0, 100) + '...' // Truncate for logging
       });
-      
+
       // Trying the direct API endpoint (port 2278)
       try {
         const mediaRes = await fetch('http://150.136.175.145:2278/api/media/upload', {
@@ -79,8 +79,9 @@ const Register = () => {
           responseData = JSON.parse(responseText);
         } catch (e) {
           responseData = { rawText: responseText };
+          console.log(e);
         }
-        
+
         setDebugInfo({
           endpoint: '2278',
           status: mediaRes.status,
@@ -95,9 +96,10 @@ const Register = () => {
         }
       } catch (e) {
         console.warn(`Media server on port 2278 failed: ${e.message}`);
+        console.log(debugInfo)
       }
-      
-      
+
+
       // If both attempts fail, continue with registration without image
       setImageUploadStatus('error');
       console.warn('Image upload failed with all approaches, continuing with registration without avatar');
@@ -113,10 +115,10 @@ const Register = () => {
     e.preventDefault();
     setErrorMessage('');
     setIsLoading(true);
-    
+
     const userId = uuidv4();
     const generatedAvatarId = avatarId || uuidv4();
-    
+
     try {
       // Try to upload the image first if one was selected
       let finalAvatarId = generatedAvatarId;  // Default to generated ID
@@ -126,7 +128,7 @@ const Register = () => {
           finalAvatarId = uploadedId;
         }
       }
-      
+
       // Prepare registration data - match the exact schema from the documentation
       const payload = {
         profile: {
@@ -166,14 +168,14 @@ const Register = () => {
 
       if (!registerRes.ok) {
         let errorText = `Registration failed with status: ${registerRes.status}`;
-        
+
         try {
           const errorData = await registerRes.json();
           errorText = errorData.message || errorText;
         } catch (e) {
-          // If we can't parse JSON, use default error message
+          console.log(e);
         }
-        
+
         if (registerRes.status === 500) {
           setErrorMessage(`Server error: ${errorText}`);
         } else if (registerRes.status === 409) {
@@ -195,6 +197,24 @@ const Register = () => {
       setIsLoading(false);
     }
   };
+  
+  const connectWallet = async () => {
+    if (typeof window.ethereum === 'undefined') {
+      setErrorMessage('MetaMask is not installed. Please install it to continue.');
+      return;
+    }
+  
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      if (accounts.length > 0) {
+        setwalletaddress(accounts[0]);
+        setErrorMessage('');
+      }
+    } catch (err) {
+      console.error('MetaMask connection error:', err);
+      setErrorMessage('Failed to connect wallet. Please try again.');
+    }
+  };  
 
   return (
     <div className="flex justify-center items-center min-h-screen dark:bg-gray-900">
@@ -258,8 +278,15 @@ const Register = () => {
         </div>
         <div className="mb-4">
           <label className="block mb-1 font-medium dark:text-white">Wallet Address</label>
-          <input type="text" value={walletAddress} onChange={e => setwalletaddress(e.target.value)} required className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:text-white" />
+          <button
+            type="button"
+            onClick={connectWallet}
+            className="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition"
+          >
+            {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connect Wallet'}
+          </button>
         </div>
+
 
         <div className="mb-4">
           <label className="block mb-1 font-medium dark:text-white">Password</label>
@@ -268,10 +295,10 @@ const Register = () => {
 
         <div className="mb-4">
           <label className="block mb-1 font-medium dark:text-white">Upload Avatar (Max 2MB)</label>
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={handleImageUpload} 
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
             className="dark:text-white"
           />
           {avatarBase64 && (
@@ -290,26 +317,26 @@ const Register = () => {
           )}
         </div>
 
-      
 
-        <button 
-          type="submit" 
+
+        <button
+          type="submit"
           className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition flex justify-center items-center"
           disabled={isLoading}
         >
           {isLoading ? 'Registering...' : 'Register'}
         </button>
         <div className="mt-4 text-center">
-  <p className="text-sm dark:text-gray-300">
-    Already have an account?{' '}
-    <Link to="/login" className="text-blue-600 hover:underline dark:text-blue-400">
-      Login
-    </Link>
-  </p>
-</div>
+          <p className="text-sm dark:text-gray-300">
+            Already have an account?{' '}
+            <Link to="/login" className="text-blue-600 hover:underline dark:text-blue-400">
+              Login
+            </Link>
+          </p>
+        </div>
       </form>
     </div>
-    
+
   );
 };
 

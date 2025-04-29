@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
@@ -57,7 +57,7 @@ const About = () => {
             Every transaction is logged immutably, meaning no hidden changes, fake bids, or shady dealings. We’re here to empower <span className="font-semibold text-purple-400">buyers and sellers</span> with the freedom of transparency.
           </motion.p>
           <motion.p initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5, duration: 0.6 }}>
-            <span className="text-yellow-400 font-semibold">PakBid</span> is more than just an auction site — it’s a community where trust meets technology.
+            <span className="text-yellow-400 font-semibold">BidSphere</span> is more than just an auction site — it’s a community where trust meets technology.
           </motion.p>
         </div>
 
@@ -72,7 +72,7 @@ const About = () => {
             to="/register" 
             className="inline-block bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-6 rounded-full transition"
           >
-            Join PakBid Now
+            Join BidSphere Now
           </Link>
         </motion.div>
       </motion.div>

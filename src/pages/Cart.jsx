@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import  { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import Title from '../components/Title.jsx';
 import assets from '../assets/assets';
@@ -25,7 +25,7 @@ const Cart = () => {
   return (
     <div className='border-t pt-14'>
       <div className='text-2xl mb-3'>
-        <Title text1={'YOUR'} text2={'CART'} />
+        <Title text1={'YOUR'} text2={'BID'} />
       </div>
       
       <div>

@@ -1,4 +1,4 @@
-import React, { useState,useContext, useEffect } from 'react'
+import  { useState,useContext, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext';
 import assets from '../assets/assets';
@@ -9,7 +9,7 @@ const Product = () => {
   const[productdata,setproductdata]=useState()
   const {products,currency,addtocart}=useContext(ShopContext)
   const [image,setimage]=useState('')
-  const[size,setsize]=useState('')
+  
 
   const fetchproductdata= async ()=>{
     products.map((item)=>{
@@ -60,7 +60,7 @@ const Product = () => {
             <p className='mt-5 text-3xl font-medium'>{currency}{productdata.price}</p>
             <p className='mt-5 text=gray-500 md:-4/5 '>{productdata.description}</p>
             
-            <button onClick={()=>addtocart(productdata._id,size)}className='bg-black text-white px-8 my-4 py-5 text-sm active:bg-gray-700'>PLACE BID</button>
+            <button onClick={()=>addtocart(productdata._id)}className='bg-black text-white px-8 my-4 py-5 text-sm active:bg-gray-700'>PLACE BID</button>
             <hr className='mt-8 sm:w-4/5' />
             <div className='text-sm text-gray-500 mt-5 flex flex-col gap-1'>
               <p>100% original</p>
@@ -74,7 +74,7 @@ const Product = () => {
         <div className='mt-20'>
           <div className='flex'>
             <b className='border px-5 py-3 text-sm'>Description</b>
-            <p className='border px-5 py-3 text-sm'>Reviews (122)</p>
+          
 
           </div>
           <div className='flex flex-col gap-4 border px-6 py-6 text-sm text-gray-500'>
