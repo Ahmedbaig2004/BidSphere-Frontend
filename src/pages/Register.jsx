@@ -198,6 +198,7 @@ const Register = () => {
     }
   };
   
+  
   const connectWallet = async () => {
     if (typeof window.ethereum === 'undefined') {
       setErrorMessage('MetaMask is not installed. Please install it to continue.');

@@ -13,6 +13,7 @@ import Placeorder from './pages/Placeorder'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import SearchBar from './components/SearchBar'
+import ProductListing from './pages/ProductListing'
 import { Navigate } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -35,6 +36,7 @@ const App = () => {
       <Route path='/register' element={<Register/>} />
       <Route path='/orders' element={<Orders/>} />
       <Route path='/place-order' element={<Placeorder/>} />
+      <Route path='/product-listing' element={<ProductListing/>} />
       <Route path="*" element={<Navigate to="/" replace />}/>
 
 
