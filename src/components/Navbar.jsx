@@ -33,6 +33,10 @@ const Navbar = () => {
           <p>CONTACT</p>
           <hr className='w-2/4 border-none h-[1.5px] bg-gray-700 hidden dark:bg-gray-100' />
         </NavLink>
+        <NavLink to='/dashboard' className='flex flex-col items-center gap-1'>
+          <p>CONTACT</p>
+          <hr className='w-2/4 border-none h-[1.5px] bg-gray-700 hidden dark:bg-gray-100' />
+        </NavLink>
       </ul>
 
       {/* Right Side Icons */}
@@ -51,6 +55,10 @@ const Navbar = () => {
                 </div>
               </div>
             </div>
+            <NavLink to='/dashboard' className='flex flex-col items-center gap-1'>
+              <p>Dashboard</p>
+              <hr className='w-2/4 border-none h-[1.5px] bg-gray-700 hidden dark:bg-gray-100' />
+            </NavLink>
           </>
         ) : (
           <div className='flex items-center gap-4'>

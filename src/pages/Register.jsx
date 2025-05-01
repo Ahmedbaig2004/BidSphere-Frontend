@@ -17,6 +17,7 @@ const Register = () => {
   const [imageUploadStatus, setImageUploadStatus] = useState('');
   const [debugInfo, setDebugInfo] = useState(null);
   const [walletAddress, setwalletaddress] = useState("")
+  const [deliveryLocation, setDeliveryLocation] = useState("")
   const navigate = useNavigate();
 
   const handleImageUpload = (e) => {
@@ -76,7 +77,7 @@ const Register = () => {
         const responseText = await mediaRes.text();
         let responseData;
         try {
-          responseData = JSON.parse(responseText);
+          responseData = responseText;
         } catch (e) {
           responseData = { rawText: responseText };
           console.log(e);
@@ -90,7 +91,7 @@ const Register = () => {
 
         if (mediaRes.ok) {
           setImageUploadStatus('success');
-          return avatarId;
+          return responseData;
         } else {
           throw new Error(`Upload failed with status: ${mediaRes.status}`);
         }
@@ -116,12 +117,10 @@ const Register = () => {
     setErrorMessage('');
     setIsLoading(true);
 
-    const userId = uuidv4();
-    const generatedAvatarId = avatarId || uuidv4();
 
     try {
       // Try to upload the image first if one was selected
-      let finalAvatarId = generatedAvatarId;  // Default to generated ID
+      let finalAvatarId = '';  // Default to generated ID
       if (avatarBase64) {
         const uploadedId = await uploadImage();
         if (uploadedId) {
@@ -131,28 +130,19 @@ const Register = () => {
 
       // Prepare registration data - match the exact schema from the documentation
       const payload = {
-        profile: {
-          user: {
-            id: userId,
+          userDetails: {
             name,
             avatarId: finalAvatarId,
-            registrationDate: new Date().toISOString(),
-            platformAccess: 0,
+
             walletAddress,
-          },
-          customer: role === 'customer' ? { userID: userId } : null,  // Note: userID (uppercase ID) per schema
-          seller: role === 'seller'
-            ? {
-              id: userId,  // Use id here, not userId per schema
-              reputation: 0,
-              pickupLocation,
-            }
-            : null,
+            deliveryLocation,
+      
         },
         username,
         password,
         email,
-      };
+      }
+    
 
       console.log("Sending registration payload:", JSON.stringify(payload, null, 2));
 
@@ -228,34 +218,7 @@ const Register = () => {
           </div>
         )}
 
-        <div className="mb-4">
-          <label className="block mb-1 font-medium dark:text-white">Register as:</label>
-          <div className="flex gap-4">
-            <label className="flex items-center dark:text-white">
-              <input
-                type="radio"
-                name="role"
-                value="customer"
-                checked={role === 'customer'}
-                onChange={() => setRole('customer')}
-                className="mr-2"
-              />
-              Customer
-            </label>
-            <label className="flex items-center dark:text-white">
-              <input
-                type="radio"
-                name="role"
-                value="seller"
-                checked={role === 'seller'}
-                onChange={() => setRole('seller')}
-                className="mr-2"
-              />
-              Seller
-            </label>
-          </div>
-        </div>
-
+        
         <div className="mb-4">
           <label className="block mb-1 font-medium dark:text-white">Name</label>
           <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:text-white" />
@@ -284,14 +247,19 @@ const Register = () => {
             onClick={connectWallet}
             className="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition"
           >
-            {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connect Wallet'}
+            {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connect Wallet?'}
           </button>
         </div>
+       
 
 
         <div className="mb-4">
           <label className="block mb-1 font-medium dark:text-white">Password</label>
           <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:text-white" />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 font-medium dark:text-white">Delivery Location</label>
+          <input type="text" value={deliveryLocation} onChange={e => setDeliveryLocation(e.target.value)} required className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:text-white" />
         </div>
 
         <div className="mb-4">
