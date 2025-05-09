@@ -16,12 +16,41 @@ const Collection = () => {
     "Fashion And Lifestyle": ["Clothing", "Footwear", "Watches", "Jewelry", "Accessories"]
   };
 
-  const { products, search, showsearch } = useContext(ShopContext);
+  const { search, showsearch } = useContext(ShopContext);
   const [showfilter, setshowfilter] = useState(false);
-  const [filterProduct, Setfilterproduct] = useState([]);
+  const [listings, setListings] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [sortType, setsorttype] = useState('relevant');
+  const [page, setPage] = useState(0);
+  const [priceRange, setPriceRange] = useState({ start: 0, end: 0 });
+
+  const fetchCatalog = async () => {
+    try {
+      const response = await fetch('http://150.136.175.145:2278/api/listing/catalog', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          textQuery: search || "",
+          categories: selectedCategory ? [selectedCategory] : [],
+          priceStart: priceRange.start,
+          priceEnd: priceRange.end,
+          page: page
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch catalog');
+      }
+
+      const data = await response.json();
+      setListings(data.listings);
+    } catch (error) {
+      console.error('Error fetching catalog:', error);
+    }
+  };
 
   const toggleCategory = (category) => {
     if (selectedCategory === category) {
@@ -41,49 +70,36 @@ const Collection = () => {
     }
   };
 
-  const applyfilter = () => {
-    let productcopy = products.slice();
-
-    if (search && showsearch) {
-      productcopy = productcopy.filter((item) =>
-        item.name.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    if (selectedCategory) {
-      productcopy = productcopy.filter((item) => item.category === selectedCategory);
-    }
-
-    if (selectedCategory && selectedSubcategories.length > 0) {
-      productcopy = productcopy.filter((item) =>
-        selectedSubcategories.includes(item.subCategory)
-      );
-    }
-
-    Setfilterproduct(productcopy);
-  };
-
   useEffect(() => {
-    applyfilter();
-  }, [showsearch, search, selectedCategory, selectedSubcategories, products]);
+    fetchCatalog();
+  }, [search, selectedCategory, selectedSubcategories, page, priceRange]);
 
-  const sortProduct = () => {
-    let fpCopy = [...filterProduct];
+  const sortListings = () => {
+    let sortedListings = [...listings];
     switch (sortType) {
       case 'low-high':
-        Setfilterproduct(fpCopy.sort((a, b) => a.price - b.price));
+        sortedListings.sort((a, b) => {
+          const priceA = a.latestBid?.bidPrice || a.startingPrice;
+          const priceB = b.latestBid?.bidPrice || b.startingPrice;
+          return priceA - priceB;
+        });
         break;
       case 'high-low':
-        Setfilterproduct(fpCopy.sort((a, b) => b.price - a.price));
+        sortedListings.sort((a, b) => {
+          const priceA = a.latestBid?.bidPrice || a.startingPrice;
+          const priceB = b.latestBid?.bidPrice || b.startingPrice;
+          return priceB - priceA;
+        });
         break;
       default:
-        applyfilter();
-        break;
+        fetchCatalog();
+        return;
     }
+    setListings(sortedListings);
   };
 
   useEffect(() => {
-    sortProduct();
+    sortListings();
   }, [sortType]);
 
   const subcategoriesToShow = selectedCategory ? categorySubcategoriesMap[selectedCategory] || [] : [];
@@ -190,14 +206,14 @@ const Collection = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filterProduct.length > 0 ? (
-                  filterProduct.map((item, index) => (
+                {listings.length > 0 ? (
+                  listings.map((listing) => (
                     <ProductItem
-                      key={index}
-                      id={item._id}
-                      name={item.name}
-                      image={item.image}
-                      price={item.price}
+                      key={listing.listingId}
+                      id={listing.listingId}
+                      name={listing.product.name}
+                      image={`http://150.136.175.145:2280/cdn/${listing.mainImageId}.png`}
+                      price={listing.latestBid?.bidPrice || listing.startingPrice}
                     />
                   ))
                 ) : (
