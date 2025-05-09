@@ -1,10 +1,9 @@
-import React, { useEffect, useContext, useState } from 'react';
+import { useEffect, useContext, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import assets from '../assets/assets';
 import Title from '../components/Title';
 import ProductItem from '../components/ProductItem';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
 
 const Collection = () => {
   const categorySubcategoriesMap = {
