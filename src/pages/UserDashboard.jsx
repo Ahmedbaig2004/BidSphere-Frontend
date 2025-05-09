@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import ProductListing from "./ProductListing";
 
 const UserDashboard = () => {
   const storedProfile = localStorage.getItem("userProfile");
   const id = storedProfile ? JSON.parse(storedProfile).id : null;
 
   const [profile, setProfile] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -68,7 +71,17 @@ const UserDashboard = () => {
           <span className="font-semibold">Reputation:</span> {reputation}
         </div>
       </div>
+      <button
+        onClick={() => setShowModal(true)}
+        className="bg-blue-600 text-white px-4 py-2 text-sm rounded hover:bg-blue-700 transition"
+      >
+        Add Item
+      </button>
+
+      <ProductListing isOpen={showModal} onClose={() => setShowModal(false)} />
+
     </div>
+
   );
 };
 
