@@ -135,69 +135,82 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Sidebar */}
-      <div
-        className={`fixed top-0 right-0 bottom-0 w-full backdrop-blur-lg bg-white/10 border-l border-white/20 transform transition-transform duration-300 ease-in-out ${
-          visible ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-4 border-b border-white/20">
-            <h2 className="text-xl font-bold text-white">Menu</h2>
-            <button
+      {/* Mobile Sidebar & Overlay */}
+      {/* Only render sidebar and overlay on mobile screens */}
+      <div className="block sm:hidden">
+        {visible && (
+          <>
+            {/* Overlay */}
+            <div
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
               onClick={() => setVisible(false)}
-              className="text-white hover:text-blue-300 transition-colors duration-300"
+            />
+            {/* Sidebar */}
+            <div
+              className={`fixed top-0 right-0 bottom-0 w-72 z-50 backdrop-blur-lg bg-white/10 border-l border-white/20 transform transition-transform duration-300 ease-in-out ${
+                visible ? 'translate-x-0' : 'translate-x-full'
+              }`}
             >
-              ✕
-            </button>
-          </div>
-          <nav className="flex-1 p-4">
-            <NavLink
-              onClick={() => setVisible(false)}
-              to="/"
-              className={({ isActive }) =>
-                `block py-3 px-4 text-white hover:text-blue-300 transition-colors duration-300 ${
-                  isActive ? 'text-blue-400' : ''
-                }`
-              }
-            >
-              HOME
-            </NavLink>
-            <NavLink
-              onClick={() => setVisible(false)}
-              to="/collection"
-              className={({ isActive }) =>
-                `block py-3 px-4 text-white hover:text-blue-300 transition-colors duration-300 ${
-                  isActive ? 'text-blue-400' : ''
-                }`
-              }
-            >
-              COLLECTION
-            </NavLink>
-            <NavLink
-              onClick={() => setVisible(false)}
-              to="/about"
-              className={({ isActive }) =>
-                `block py-3 px-4 text-white hover:text-blue-300 transition-colors duration-300 ${
-                  isActive ? 'text-blue-400' : ''
-                }`
-              }
-            >
-              ABOUT
-            </NavLink>
-            <NavLink
-              onClick={() => setVisible(false)}
-              to="/contact"
-              className={({ isActive }) =>
-                `block py-3 px-4 text-white hover:text-blue-300 transition-colors duration-300 ${
-                  isActive ? 'text-blue-400' : ''
-                }`
-              }
-            >
-              CONTACT
-            </NavLink>
-          </nav>
-        </div>
+              <div className="flex flex-col h-full">
+                <div className="flex items-center justify-between p-4 border-b border-white/20">
+                  <h2 className="text-xl font-bold text-white">Menu</h2>
+                  <button
+                    onClick={() => setVisible(false)}
+                    className="text-white hover:text-blue-300 transition-colors duration-300"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <nav className="flex-1 p-4">
+                  <NavLink
+                    onClick={() => setVisible(false)}
+                    to="/"
+                    className={({ isActive }) =>
+                      `block py-3 px-4 text-white hover:text-blue-300 transition-colors duration-300 ${
+                        isActive ? 'text-blue-400' : ''
+                      }`
+                    }
+                  >
+                    HOME
+                  </NavLink>
+                  <NavLink
+                    onClick={() => setVisible(false)}
+                    to="/collection"
+                    className={({ isActive }) =>
+                      `block py-3 px-4 text-white hover:text-blue-300 transition-colors duration-300 ${
+                        isActive ? 'text-blue-400' : ''
+                      }`
+                    }
+                  >
+                    COLLECTION
+                  </NavLink>
+                  <NavLink
+                    onClick={() => setVisible(false)}
+                    to="/about"
+                    className={({ isActive }) =>
+                      `block py-3 px-4 text-white hover:text-blue-300 transition-colors duration-300 ${
+                        isActive ? 'text-blue-400' : ''
+                      }`
+                    }
+                  >
+                    ABOUT
+                  </NavLink>
+                  <NavLink
+                    onClick={() => setVisible(false)}
+                    to="/contact"
+                    className={({ isActive }) =>
+                      `block py-3 px-4 text-white hover:text-blue-300 transition-colors duration-300 ${
+                        isActive ? 'text-blue-400' : ''
+                      }`
+                    }
+                  >
+                    CONTACT
+                  </NavLink>
+                </nav>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
