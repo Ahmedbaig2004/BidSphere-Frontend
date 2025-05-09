@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Register = () => {
   const [role, setRole] = useState('customer');
@@ -16,8 +15,8 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [imageUploadStatus, setImageUploadStatus] = useState('');
   const [debugInfo, setDebugInfo] = useState(null);
-  const [walletAddress, setwalletaddress] = useState("")
-  const [deliveryLocation, setDeliveryLocation] = useState("")
+  const [walletAddress, setwalletaddress] = useState("");
+  const [deliveryLocation, setDeliveryLocation] = useState("");
   const navigate = useNavigate();
 
   const handleImageUpload = (e) => {
@@ -208,104 +207,141 @@ const Register = () => {
   };  
 
   return (
-    <div className="flex justify-center items-center min-h-screen dark:bg-gray-900">
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4 text-center dark:text-white">Register</h2>
+    <div className="min-h-screen flex bg-gradient-to-br from-blue-900 via-black to-blue-900">
+      {/* Left side - Register Form */}
+      <div className="w-1/2 flex items-center justify-center p-8">
+        <div className="w-full max-w-md">
+          <div className="backdrop-blur-lg bg-white/10 p-8 rounded-2xl shadow-2xl border border-white/20 transform transition-all duration-500 hover:scale-[1.02]">
+            <h2 className="text-3xl font-bold mb-8 text-center text-white">Create Account</h2>
 
-        {errorMessage && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {errorMessage}
-          </div>
-        )}
+            {errorMessage && (
+              <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 text-red-200 rounded-lg">
+                {errorMessage}
+              </div>
+            )}
 
-        
-        <div className="mb-4">
-          <label className="block mb-1 font-medium dark:text-white">Name</label>
-          <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:text-white" />
-        </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-blue-200">Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  placeholder="Enter your full name"
+                />
+              </div>
 
-        {role === 'seller' && (
-          <div className="mb-4">
-            <label className="block mb-1 font-medium dark:text-white">Pickup Location</label>
-            <input type="text" value={pickupLocation} onChange={e => setPickupLocation(e.target.value)} required={role === 'seller'} className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:text-white" />
-          </div>
-        )}
-
-        <div className="mb-4">
-          <label className="block mb-1 font-medium dark:text-white">Email</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:text-white" />
-        </div>
-
-        <div className="mb-4">
-          <label className="block mb-1 font-medium dark:text-white">Username</label>
-          <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:text-white" />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 font-medium dark:text-white">Wallet Address</label>
-          <button
-            type="button"
-            onClick={connectWallet}
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition"
-          >
-            {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connect Wallet?'}
-          </button>
-        </div>
-       
-
-
-        <div className="mb-4">
-          <label className="block mb-1 font-medium dark:text-white">Password</label>
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:text-white" />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 font-medium dark:text-white">Delivery Location</label>
-          <input type="text" value={deliveryLocation} onChange={e => setDeliveryLocation(e.target.value)} required className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:text-white" />
-        </div>
-
-        <div className="mb-4">
-          <label className="block mb-1 font-medium dark:text-white">Upload Avatar (Max 2MB)</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="dark:text-white"
-          />
-          {avatarBase64 && (
-            <div className="mt-2 flex items-center">
-              <img src={avatarBase64} alt="Avatar preview" className="w-16 h-16 rounded-full object-cover" />
-              {imageUploadStatus === 'uploading' && (
-                <span className="ml-2 text-yellow-500">Uploading...</span>
+              {role === 'seller' && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-blue-200">Pickup Location</label>
+                  <input
+                    type="text"
+                    value={pickupLocation}
+                    onChange={e => setPickupLocation(e.target.value)}
+                    required={role === 'seller'}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                    placeholder="Enter pickup location"
+                  />
+                </div>
               )}
-              {imageUploadStatus === 'success' && (
-                <span className="ml-2 text-green-500">Upload successful</span>
-              )}
-              {imageUploadStatus === 'error' && (
-                <span className="ml-2 text-red-500">Upload failed, continuing with registration</span>
-              )}
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-blue-200">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  placeholder="Enter your email"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-blue-200">Username</label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  placeholder="Choose a username"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-blue-200">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  placeholder="Create a password"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-blue-200">Wallet Address</label>
+                <button
+                  type="button"
+                  onClick={connectWallet}
+                  className="w-full px-4 py-3 bg-blue-600/20 border border-blue-500/50 rounded-lg text-white hover:bg-blue-600/30 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                >
+                  {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connect Wallet'}
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-blue-200">Profile Picture</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? 'Creating Account...' : 'Create Account'}
+              </button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-sm text-blue-200">
+                Already have an account?{' '}
+                <Link to="/login" className="text-white hover:text-blue-300 font-medium transition-colors duration-300">
+                  Sign In
+                </Link>
+              </p>
             </div>
-          )}
+          </div>
         </div>
+      </div>
 
-
-
-        <button
-          type="submit"
-          className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition flex justify-center items-center"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Registering...' : 'Register'}
-        </button>
-        <div className="mt-4 text-center">
-          <p className="text-sm dark:text-gray-300">
-            Already have an account?{' '}
-            <Link to="/login" className="text-blue-600 hover:underline dark:text-blue-400">
-              Login
-            </Link>
+      {/* Right side - Splash Text */}
+      <div className="w-1/2 flex items-center justify-center p-8 bg-gradient-to-br from-blue-900/50 to-black/50">
+        <div className="max-w-lg text-center">
+          <h1 className="text-5xl font-bold text-white mb-6 animate-fade-in">
+            Join BidNex Today
+          </h1>
+          <p className="text-xl text-blue-200 leading-relaxed animate-fade-in-delay">
+            Experience the future of digital commerce. Create your account and start your journey with BidNex - where innovation meets opportunity.
           </p>
+          <div className="mt-8 flex justify-center space-x-4">
+            <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+          </div>
         </div>
-      </form>
+      </div>
     </div>
-
   );
 };
 

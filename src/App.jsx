@@ -19,36 +19,43 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import UserDashboard from './pages/UserDashboard'
 
-Home
 const App = () => {
   return (
-<div className='px-4 sm:px-[5vw] md:px-[7vw] lg:-px-[9vw] dark:text-white dark:bg-gray-900 '>
-    <ToastContainer/>
-    <Navbar/>
-    <SearchBar/>
-    <Routes>
-      <Route path='/' element={<Home/>} />
-      <Route path='/collection' element={<Collection/>} />
-      <Route path='/about' element={<About/>} />
-      <Route path='/contact' element={<Contact/>} />
-      <Route path='/product/:productId' element={<Product/>} />
-      <Route path='/cart' element={<Cart/>} />
-      <Route path='/login' element={<Login/>} />
-      <Route path='/register' element={<Register/>} />
-      <Route path='/orders' element={<Orders/>} />
-      <Route path='/place-order' element={<Placeorder/>} />
-      <Route path='/product-listing' element={<ProductListing/>} />
-      <Route path='/dashboard' element={<UserDashboard/>} />
-
-      <Route path="*" element={<Navigate to="/" replace />}/>
-
-
-
-
-
-    </Routes>
-    <Footer/>
-      
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-blue-900 overflow-x-hidden">
+      <Navbar/>
+      <SearchBar/>
+      <main className="relative min-h-screen">
+        <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] text-white pb-20">
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
+          />
+          <Routes>
+            <Route path='/' element={<Home/>} />
+            <Route path='/collection' element={<Collection/>} />
+            <Route path='/about' element={<About/>} />
+            <Route path='/contact' element={<Contact/>} />
+            <Route path='/product/:productId' element={<Product/>} />
+            <Route path='/cart' element={<Cart/>} />
+            <Route path='/login' element={<Login/>} />
+            <Route path='/register' element={<Register/>} />
+            <Route path='/orders' element={<Orders/>} />
+            <Route path='/place-order' element={<Placeorder/>} />
+            <Route path='/product-listing' element={<ProductListing/>} />
+            <Route path='/dashboard' element={<UserDashboard/>} />
+            <Route path="*" element={<Navigate to="/" replace />}/>
+          </Routes>
+        </div>
+      </main>
+      <Footer/>
     </div>
   )
 }

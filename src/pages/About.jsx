@@ -42,11 +42,11 @@ const About = () => {
           Welcome to BidSphere
         </h1>
 
-        <p className="text-xl mb-8 text-center dark:text-white text-gray-900">
+        <p className="text-xl mb-8 text-center dark:text-white text-white">
           Revolutionizing online auctions in Pakistan with blockchain innovation.
         </p>
 
-        <div className="space-y-8 text-lg leading-relaxed dark:text-white text-gray-900">
+        <div className="space-y-8 text-lg leading-relaxed dark:text-white text-white">
           <motion.p initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2, duration: 0.6 }}>
             <span className="text-yellow-400 font-semibold">BidSphere</span> is Pakistan’s <span className="text-green-400 font-semibold">first blockchain-based bidding platform</span>, designed to bring a new level of trust, security, and transparency to online auctions.
           </motion.p>
@@ -67,7 +67,7 @@ const About = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6, duration: 0.5 }}
         >
-          <p className="text-xl font-medium dark:text-white text-gray-900 mb-4">Ready to experience the future of online bidding?</p>
+          <p className="text-xl font-medium dark:text-white text-white mb-4">Ready to experience the future of online bidding?</p>
           <Link 
             to="/register" 
             className="inline-block bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-6 rounded-full transition"

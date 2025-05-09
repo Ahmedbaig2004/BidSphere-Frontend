@@ -25,11 +25,11 @@ const Collection = () => {
 
   const toggleCategory = (category) => {
     if (selectedCategory === category) {
-      setSelectedCategory(""); // Deselect category
-      setSelectedSubcategories([]); // Reset subcategories
+      setSelectedCategory("");
+      setSelectedSubcategories([]);
     } else {
       setSelectedCategory(category);
-      setSelectedSubcategories([]); // Reset subcategories when category changes
+      setSelectedSubcategories([]);
     }
   };
 
@@ -44,26 +44,22 @@ const Collection = () => {
   const applyfilter = () => {
     let productcopy = products.slice();
 
-    // Apply search filter if search is active
     if (search && showsearch) {
       productcopy = productcopy.filter((item) =>
         item.name.toLowerCase().includes(search.toLowerCase())
       );
     }
 
-    // Apply category filter
     if (selectedCategory) {
       productcopy = productcopy.filter((item) => item.category === selectedCategory);
     }
 
-    // Apply subcategory filter if subcategories are selected
     if (selectedCategory && selectedSubcategories.length > 0) {
       productcopy = productcopy.filter((item) =>
         selectedSubcategories.includes(item.subCategory)
       );
     }
 
-    // Update filtered products
     Setfilterproduct(productcopy);
   };
 
@@ -93,82 +89,125 @@ const Collection = () => {
   const subcategoriesToShow = selectedCategory ? categorySubcategoriesMap[selectedCategory] || [] : [];
 
   return (
-    <div className='flex flex-col sm:flex-row gap-1 sm:gap-10 border-t-1 pt-10 dark:text-white dark:bg-gray-900'>
-      <div className='min-w-60'>
-        <p onClick={() => setshowfilter(!showfilter)} className='my-2 text-xl flex items-center cursor-pointer gap-2'>
-          FILTERS
-          <img className={`h-3 ${showfilter ? 'rotate-90' : ''}`} src={assets.dropdown_icon} alt='' />
-        </p>
-        <div className={`border border-gray-300 pl-5 py-3 my-4 ${showfilter ? '' : 'hidden'} sm:block`}>
-          <p className='mb-3 text-sm font-medium'>CATEGORIES</p>
-          <div className='flex flex-col gap-2 text-sm font-light'>
-            {Object.keys(categorySubcategoriesMap).map((category) => (
-              <p className='flex gap-2' key={category}>
-                <input
-                  className='w-3'
-                  type='checkbox'
-                  checked={selectedCategory === category}
-                  onChange={() => toggleCategory(category)}
-                />
-                {category}
-              </p>
-            ))}
-          </div>
-        </div>
+    <div className="min-h-screen py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Filters Sidebar */}
+          <div className="w-full lg:w-72 shrink-0">
+            <div className="sticky top-24">
+              <div className="backdrop-blur-lg bg-white/10 rounded-2xl border border-white/20 p-6">
+                <button
+                  onClick={() => setshowfilter(!showfilter)}
+                  className="w-full flex items-center justify-between text-white text-lg font-medium mb-4 hover:text-blue-300 transition-colors duration-300"
+                >
+                  <span>FILTERS</span>
+                  <img
+                    className={`h-3 transition-transform duration-300 ${showfilter ? 'rotate-90' : ''}`}
+                    src={assets.dropdown_icon}
+                    alt=""
+                  />
+                </button>
 
-        {/* Animate the Subcategory Drawer */}
-        <AnimatePresence initial={false}>
-          {selectedCategory && (
-            <motion.div
-              key="subcategories-drawer"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className={`border border-gray-300 pl-5 py-3 my-4 ${showfilter ? '' : 'hidden'} sm:block overflow-hidden`}
-            >
-              <p className='mb-3 text-sm font-medium'>SUBCATEGORIES</p>
-              <div className='flex flex-col gap-2 text-sm font-light'>
-                {subcategoriesToShow.map((subcategory) => (
-                  <p className='flex gap-2' key={subcategory}>
-                    <input
-                      className='w-3'
-                      type='checkbox'
-                      checked={selectedSubcategories.includes(subcategory)}
-                      onChange={() => toggleSubcategory(subcategory)}
-                    />
-                    {subcategory}
-                  </p>
-                ))}
+                <div className={`space-y-6 ${showfilter ? '' : 'hidden'} lg:block`}>
+                  {/* Categories */}
+                  <div>
+                    <h3 className="text-sm font-medium text-blue-200 mb-3">CATEGORIES</h3>
+                    <div className="space-y-2">
+                      {Object.keys(categorySubcategoriesMap).map((category) => (
+                        <label
+                          key={category}
+                          className="flex items-center gap-2 text-white hover:text-blue-300 transition-colors duration-300 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedCategory === category}
+                            onChange={() => toggleCategory(category)}
+                            className="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-blue-600 checked:border-blue-600 focus:ring-blue-500"
+                          />
+                          <span>{category}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Subcategories */}
+                  <AnimatePresence initial={false}>
+                    {selectedCategory && (
+                      <motion.div
+                        key="subcategories-drawer"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <h3 className="text-sm font-medium text-blue-200 mb-3">SUBCATEGORIES</h3>
+                        <div className="space-y-2">
+                          {subcategoriesToShow.map((subcategory) => (
+                            <label
+                              key={subcategory}
+                              className="flex items-center gap-2 text-white hover:text-blue-300 transition-colors duration-300 cursor-pointer"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedSubcategories.includes(subcategory)}
+                                onChange={() => toggleSubcategory(subcategory)}
+                                className="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-blue-600 checked:border-blue-600 focus:ring-blue-500"
+                              />
+                              <span>{subcategory}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
 
-      </div>
-      <div className='flex-1'>
-        <div className='flex justify-between text-base sm:text-2xl mb-4'>
-          <Title text1='ALL' text2='COLLECTIONS' />
-          <Link
-            to='/product-listing'
-            className='bg-blue-600 text-white px-4 py-2 text-sm rounded hover:bg-blue-700 transition'
-          >
-            Add Item
-          </Link>
-          <select onChange={(e) => setsorttype(e.target.value)} className='border-2 border-gray-300 text-sm px-2 dark:text-white dark:bg-gray-900'>
-            <option value='relevant'>Sort By: Relevant</option>
-            <option value='low-high'>Sort By: Low-high</option>
-            <option value='high-low'>Sort By: High-low</option>
-          </select>
-        </div>
-        <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6'>
-          {filterProduct.length > 0 ? (
-            filterProduct.map((item, index) => (
-              <ProductItem key={index} id={item._id} name={item.name} image={item.image} price={item.price} />
-            ))
-          ) : (
-            <p>No products found.</p>
-          )}
+          {/* Products Grid */}
+          <div className="flex-1">
+            <div className="backdrop-blur-lg bg-white/10 rounded-2xl border border-white/20 p-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <Title text1="ALL" text2="COLLECTIONS" />
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                  <Link
+                    to="/product-listing"
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 text-center"
+                  >
+                    Add Item
+                  </Link>
+                  <select
+                    onChange={(e) => setsorttype(e.target.value)}
+                    className="px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="relevant">Sort By: Relevant</option>
+                    <option value="low-high">Sort By: Low to High</option>
+                    <option value="high-low">Sort By: High to Low</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filterProduct.length > 0 ? (
+                  filterProduct.map((item, index) => (
+                    <ProductItem
+                      key={index}
+                      id={item._id}
+                      name={item.name}
+                      image={item.image}
+                      price={item.price}
+                    />
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-12">
+                    <p className="text-white text-lg">No products found.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

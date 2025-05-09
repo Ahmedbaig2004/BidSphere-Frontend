@@ -3,6 +3,7 @@ import { ShopContext } from '../context/ShopContext.jsx';
 import Title from './Title.jsx';
 import ProductItem from './ProductItem.jsx';
 import ProductDrawer from './ProductDrawer.jsx';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const LatestCollection = () => {
   const { products } = useContext(ShopContext);
@@ -52,23 +53,21 @@ const LatestCollection = () => {
   };
 
   return (
-    <div>
-      <div className="my-10">
-        <div className="text-center py-3 text-3xl">
-          <Title text1={'LATEST'} text2={'BIDS'} />
-          <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600 dark:text-white">
-          Discover the most recent items attracting attention. These listings have just received bids and are heating up fast — don’t miss your chance to make a move!
+    <div className="py-16 relative">
+      <div className="text-center mb-12">
+        <Title text1="LATEST" text2="BIDS" />
+        <p className="max-w-2xl mx-auto mt-4 text-sm text-white/70">
+          Discover the most recent items attracting attention. These listings have just received bids and are heating up fast — don't miss your chance to make a move!
         </p>
-          
-        </div>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6">
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {latestProducts.map((item, index) => (
           <div
             key={index}
             onMouseEnter={() => handleMouseEnterProduct(item)}
             onMouseLeave={handleMouseLeaveProduct}
-            className="relative pb-10" // Added padding bottom to make room for consistent button placement
+            className="relative"
           >
             <ProductItem
               id={item._id}
@@ -76,27 +75,38 @@ const LatestCollection = () => {
               name={item.name}
               price={item.price}
             />
-            <div className="absolute bottom-0 left-0 w-full flex justify-center">
-              <button className="bg-black text-white px-4 py-2 text-xs rounded-md border-2 border-indigo-600 hover:bg-gray-800 w-4/5">
-                PLACE BID
-              </button>
-            </div>
           </div>
         ))}
       </div>
       
-      {/* Drawer with improved styling */}
-      {hoveredProduct && isDrawerVisible && (
-        <div
-          className="fixed top-0 right-0 h-full z-50"
-          onMouseEnter={handleDrawerEnter}
-          onMouseLeave={handleDrawerLeave}
-        >
-          <div className="h-full w-72 bg-white dark:bg-[#161b22] shadow-lg border-l border-gray-300 dark:border-gray-700">
-            <ProductDrawer product={hoveredProduct} />
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {hoveredProduct && isDrawerVisible && (
+          <motion.div
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 100, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed top-0 right-0 h-screen z-50 overflow-hidden"
+            onMouseEnter={handleDrawerEnter}
+            onMouseLeave={handleDrawerLeave}
+            style={{ maxWidth: '100vw' }}
+          >
+            <div className="h-full w-80 backdrop-blur-lg bg-white/10 border-l border-white/20 shadow-2xl overflow-y-auto">
+              <div className="sticky top-0 right-0 w-full p-4 bg-white/10 backdrop-blur-lg border-b border-white/20">
+                <button
+                  onClick={() => setIsDrawerVisible(false)}
+                  className="float-right p-2 hover:bg-white/10 rounded-full transition-colors duration-200"
+                >
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <ProductDrawer product={hoveredProduct} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

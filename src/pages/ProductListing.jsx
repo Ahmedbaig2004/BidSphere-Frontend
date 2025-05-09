@@ -151,127 +151,150 @@ const ProductListing = () => {
       
 
     return (
-        <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-6 max-w-xl mx-auto mt-10 p-8 border rounded-2xl shadow-lg bg-white dark:bg-gray-900 dark:text-white"
-        >
-            <h2 className="text-2xl font-bold mb-2 text-center">List a New Product</h2>
+        <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-blue-900 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl mx-auto">
+                <div className="backdrop-blur-lg bg-white/10 p-8 rounded-2xl shadow-2xl border border-white/20 transform transition-all duration-500">
+                    <h2 className="text-3xl font-bold mb-8 text-center text-white animate-fade-in">List a New Product</h2>
 
-            <div className="flex flex-col gap-1">
-                <label className="font-medium">Product Name</label>
-                <input
-                    type="text"
-                    placeholder="Enter product name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="px-3 py-2 border rounded-md dark:bg-gray-800"
-                />
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-blue-200">Product Name</label>
+                            <input
+                                type="text"
+                                placeholder="Enter product name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                required
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-blue-200">Description</label>
+                            <textarea
+                                placeholder="Enter product description"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                required
+                                rows="3"
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-blue-200">Starting Price</label>
+                            <input
+                                type="number"
+                                placeholder="e.g., 100"
+                                value={startingPrice}
+                                onChange={(e) => setStartingPrice(e.target.value)}
+                                required
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-blue-200">Auction Start Date</label>
+                                <input
+                                    type="datetime-local"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    required
+                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-blue-200">Auction End Date</label>
+                                <input
+                                    type="datetime-local"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    required
+                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-blue-200">Category</label>
+                                <select
+                                    value={category}
+                                    onChange={(e) => setCategory(e.target.value)}
+                                    required
+                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                                >
+                                    <option value="">Select Category</option>
+                                    {Object.keys(categoryMap).map((cat) => (
+                                        <option key={cat} value={cat} className="bg-gray-900">
+                                            {cat}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-blue-200">Subcategory</label>
+                                <select
+                                    value={subCategory}
+                                    onChange={(e) => setSubCategory(e.target.value)}
+                                    required
+                                    disabled={!category}
+                                    className={`w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 ${
+                                        !category ? 'opacity-50 cursor-not-allowed' : ''
+                                    }`}
+                                >
+                                    <option value="">Select Subcategory</option>
+                                    {category &&
+                                        categoryMap[category].map((sub) => (
+                                            <option key={sub} value={sub} className="bg-gray-900">
+                                                {sub}
+                                            </option>
+                                        ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-blue-200">Product Image</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600/20 file:text-blue-200 hover:file:bg-blue-600/30"
+                            />
+                            {mainImageBase64 && (
+                                <div className="mt-2 flex items-center space-x-4">
+                                    <img
+                                        src={mainImageBase64}
+                                        alt="Preview"
+                                        className="w-20 h-20 object-cover rounded-lg border border-white/10"
+                                    />
+                                    {imageUploadStatus === 'uploading' && (
+                                        <span className="text-blue-200">Uploading...</span>
+                                    )}
+                                    {imageUploadStatus === 'success' && (
+                                        <span className="text-green-200">Upload successful</span>
+                                    )}
+                                    {imageUploadStatus === 'error' && (
+                                        <span className="text-red-200">Upload failed</span>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            List Product
+                        </button>
+                    </form>
+                </div>
             </div>
-
-            <div className="flex flex-col gap-1">
-                <label className="font-medium">Description</label>
-                <textarea
-                    placeholder="Enter product description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    required
-                    className="px-3 py-2 border rounded-md dark:bg-gray-800"
-                    rows="3"
-                />
-            </div>
-
-            <div className="flex flex-col gap-1">
-                <label className="font-medium">Starting Price</label>
-                <input
-                    type="number"
-                    placeholder="e.g., 100"
-                    value={startingPrice}
-                    onChange={(e) => setStartingPrice(e.target.value)}
-                    required
-                    className="px-3 py-2 border rounded-md dark:bg-gray-800"
-                />
-            </div>
-
-            <div className="flex flex-col gap-1">
-                <label className="font-medium">Auction Start Date</label>
-                <input
-                    type="datetime-local"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    required
-                    className="px-3 py-2 border rounded-md dark:bg-gray-800"
-                />
-            </div>
-
-            <div className="flex flex-col gap-1">
-                <label className="font-medium">Auction End Date</label>
-                <input
-                    type="datetime-local"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    required
-                    className="px-3 py-2 border rounded-md dark:bg-gray-800"
-                />
-            </div>
-
-            <div className="flex flex-col gap-1">
-                <label className="font-medium">Category</label>
-                <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    required
-                    className="px-3 py-2 border rounded-md dark:bg-gray-800"
-                >
-                    <option value="">Select Category</option>
-                    {Object.keys(categoryMap).map((cat) => (
-                        <option key={cat} value={cat}>
-                            {cat}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            <div className="flex flex-col gap-1">
-                <label className="font-medium">Subcategory</label>
-                <select
-                    value={subCategory}
-                    onChange={(e) => setSubCategory(e.target.value)}
-                    required
-                    disabled={!category}
-                    className={`px-3 py-2 border rounded-md ${!category ? 'bg-gray-100 text-gray-500' : 'dark:bg-gray-800'
-                        }`}
-                >
-                    <option value="">Select Subcategory</option>
-                    {category &&
-                        categoryMap[category].map((sub) => (
-                            <option key={sub} value={sub}>
-                                {sub}
-                            </option>
-                        ))}
-                </select>
-            </div>
-
-            <div className="flex flex-col gap-1">
-                <label className="font-medium">Main Image</label>
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    required
-                    className="text-sm"
-                />
-                {errorMessage && <p className="text-red-500 text-sm mt-1">{errorMessage}</p>}
-            </div>
-
-            <button
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-medium transition"
-            >
-                Submit Product
-            </button>
-        </form>
-
+        </div>
     );
 };
 
