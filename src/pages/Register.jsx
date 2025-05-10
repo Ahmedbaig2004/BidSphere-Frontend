@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -9,6 +9,7 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [avatarBase64, setAvatarBase64] = useState('');
   const [avatarId, setAvatarId] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -17,7 +18,197 @@ const Register = () => {
   const [debugInfo, setDebugInfo] = useState(null);
   const [walletAddress, setwalletaddress] = useState("");
   const [deliveryLocation, setDeliveryLocation] = useState("");
+  
+  // Validation states
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [usernameError, setUsernameError] = useState('');
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [walletAddressError, setWalletAddressError] = useState('');
+  const [isCheckingWallet, setIsCheckingWallet] = useState(false);
+  
   const navigate = useNavigate();
+
+  // Password validation function
+  const validatePassword = (pass) => {
+    const hasUpperCase = /[A-Z]/.test(pass);
+    const hasLowerCase = /[a-z]/.test(pass);
+    const hasNumbers = /[0-9]/.test(pass);
+    const hasMinLength = pass.length >= 8;
+    
+    if (!hasUpperCase) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!hasLowerCase) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!hasNumbers) {
+      return 'Password must contain at least one number';
+    }
+    if (!hasMinLength) {
+      return 'Password must be at least 8 characters long';
+    }
+    
+    return '';
+  };
+  
+  // Handle password change
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    setPasswordError(validatePassword(newPassword));
+    
+    // Check confirm password match if it's already filled
+    if (confirmPassword) {
+      setConfirmPasswordError(newPassword === confirmPassword ? '' : 'Passwords do not match');
+    }
+  };
+  
+  // Handle confirm password change
+  const handleConfirmPasswordChange = (e) => {
+    const confirmPass = e.target.value;
+    setConfirmPassword(confirmPass);
+    setConfirmPasswordError(password === confirmPass ? '' : 'Passwords do not match');
+  };
+  
+  // Validation functions using useCallback for stability
+  const validateUsername = useCallback(async () => {
+    if (!username || username.length < 3) return;
+    
+    setIsCheckingUsername(true);
+    setUsernameError('');
+    
+    try {
+      const response = await fetch('http://150.136.175.145:2278/api/registration/verify/username', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: username,
+      });
+      
+      console.log("Username validation response:", response.status);
+      
+      if (response.ok) {
+        const isUnique = await response.json();
+        console.log("Username is unique:", isUnique);
+        
+        if (!isUnique) {
+          setUsernameError('This username is already taken');
+        }
+      } else {
+        console.error('Failed to verify username:', response.status);
+      }
+    } catch (error) {
+      console.error('Error checking username:', error);
+    } finally {
+      setIsCheckingUsername(false);
+    }
+  }, [username]);
+  
+  const validateEmail = useCallback(async () => {
+    if (!email || !email.includes('@')) return;
+    
+    setIsCheckingEmail(true);
+    setEmailError('');
+    
+    try {
+      const response = await fetch('http://150.136.175.145:2278/api/registration/verify/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: email,
+      });
+      
+      console.log("Email validation response:", response.status);
+      
+      if (response.ok) {
+        const isUnique = await response.json();
+        console.log("Email is unique:", isUnique);
+        
+        if (!isUnique) {
+          setEmailError('This email is already registered');
+        }
+      } else {
+        console.error('Failed to verify email:', response.status);
+      }
+    } catch (error) {
+      console.error('Error checking email:', error);
+    } finally {
+      setIsCheckingEmail(false);
+    }
+  }, [email]);
+  
+  // Generate a random wallet address for users who don't provide one
+  const generateRandomWalletAddress = () => {
+    // Create a random hex string that looks like a wallet address
+    const randomHex = '0x' + Array.from({length: 40}, () => 
+      Math.floor(Math.random() * 16).toString(16)
+    ).join('');
+    return randomHex;
+  };
+
+  const validateWallet = useCallback(async (address) => {
+    // Skip validation for empty wallet addresses
+    if (!address || address.trim() === '') return;
+    
+    setIsCheckingWallet(true);
+    setWalletAddressError('');
+    
+    try {
+      const response = await fetch('http://150.136.175.145:2278/api/registration/verify/walletAddress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: address,
+      });
+      
+      console.log("Wallet validation response:", response.status);
+      
+      if (response.ok) {
+        const isUnique = await response.json();
+        console.log("Wallet is unique:", isUnique);
+        
+        if (!isUnique) {
+          setWalletAddressError('This wallet address is already registered');
+        }
+      } else {
+        console.error('Failed to verify wallet address:', response.status);
+      }
+    } catch (error) {
+      console.error('Error checking wallet address:', error);
+    } finally {
+      setIsCheckingWallet(false);
+    }
+  }, []);
+  
+  // Handle field changes
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+    // Clear error when typing again
+    if (usernameError) setUsernameError('');
+  };
+  
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    // Clear error when typing again
+    if (emailError) setEmailError('');
+  };
+  
+  // Handle field blur events
+  const handleUsernameBlur = () => {
+    console.log("Username blur event fired");
+    validateUsername();
+  };
+  
+  const handleEmailBlur = () => {
+    console.log("Email blur event fired");
+    validateEmail();
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -110,83 +301,6 @@ const Register = () => {
       return null;
     }
   };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMessage('');
-    setIsLoading(true);
-
-
-    try {
-      // Try to upload the image first if one was selected
-      let finalAvatarId = '';  // Default to generated ID
-      if (avatarBase64) {
-        const uploadedId = await uploadImage();
-        if (uploadedId) {
-          finalAvatarId = uploadedId;
-        }
-      }
-
-      // Prepare registration data - match the exact schema from the documentation
-      const payload = {
-          userDetails: {
-            name,
-            avatarId: finalAvatarId,
-
-            walletAddress,
-            deliveryLocation,
-      
-        },
-        username,
-        password,
-        email,
-      }
-    
-
-      console.log("Sending registration payload:", JSON.stringify(payload, null, 2));
-
-      // Send registration data
-      const registerRes = await fetch('http://150.136.175.145:2278/api/registration/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(15000), // 15-second timeout
-      });
-
-      if (!registerRes.ok) {
-        let errorText = `Registration failed with status: ${registerRes.status}`;
-
-        try {
-          const errorData = await registerRes.json();
-          errorText = errorData.message || errorText;
-        } catch (e) {
-          console.log(e);
-        }
-
-        if (registerRes.status === 500) {
-          setErrorMessage(`Server error: ${errorText}`);
-        } else if (registerRes.status === 409) {
-          setErrorMessage('Username or email already exists. Please choose a different one.');
-        } else {
-          setErrorMessage(errorText);
-        }
-        throw new Error('Registration failed');
-      }
-
-      alert('Registration successful');
-      navigate('/login');
-    } catch (err) {
-      console.error(err);
-      if (!errorMessage) {
-        setErrorMessage('Error during registration. Please try again later.');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
   
   const connectWallet = async () => {
     if (typeof window.ethereum === 'undefined') {
@@ -197,14 +311,166 @@ const Register = () => {
     try {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       if (accounts.length > 0) {
-        setwalletaddress(accounts[0]);
+        const address = accounts[0];
+        setwalletaddress(address);
+        setWalletAddressError(''); // Clear any previous errors
         setErrorMessage('');
+        
+        // Validate wallet address immediately after connection
+        validateWallet(address);
       }
     } catch (err) {
       console.error('MetaMask connection error:', err);
       setErrorMessage('Failed to connect wallet. Please try again.');
     }
-  };  
+  };
+  
+  const disconnectWallet = () => {
+    setwalletaddress('');
+    setWalletAddressError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage('');
+    
+    // Validate password complexity first
+    const passError = validatePassword(password);
+    if (passError) {
+      setPasswordError(passError);
+      setErrorMessage(passError);
+      return;
+    }
+    
+    // Validate password confirmation
+    if (password !== confirmPassword) {
+      setConfirmPasswordError('Passwords do not match');
+      setErrorMessage('Passwords do not match');
+      return;
+    }
+    
+    // Manually trigger validation for email and username to ensure fresh data
+    console.log("Triggering validations before submit");
+    await validateEmail();
+    await validateUsername();
+    
+    // Only validate wallet if one is provided
+    if (walletAddress && walletAddress.trim() !== '') {
+      await validateWallet(walletAddress);
+    }
+    
+    // We need setTimeout to ensure state updates have completed
+    setTimeout(async () => {
+      // Check for field validation errors after validation
+      if (usernameError || emailError || walletAddressError) {
+        setErrorMessage('Please fix all validation errors before submitting.');
+        return;
+      }
+      
+      setIsLoading(true);
+      
+      try {
+        // Upload the image if one was selected
+        let finalAvatarId = '';  // Default to generated ID
+        if (avatarBase64) {
+          const uploadedId = await uploadImage();
+          if (uploadedId) {
+            finalAvatarId = uploadedId;
+          }
+        }
+        
+        // Handle empty wallet address by generating a random one
+        let finalWalletAddress = walletAddress;
+        if (!finalWalletAddress || finalWalletAddress.trim() === '') {
+          finalWalletAddress = generateRandomWalletAddress();
+          console.log("Generated random wallet address:", finalWalletAddress);
+        }
+  
+        // Send registration data
+        const payload = {
+          userDetails: {
+            name,
+            avatarId: finalAvatarId,
+            walletAddress: finalWalletAddress,
+            deliveryLocation,
+          },
+          username,
+          password,
+          email,
+        };
+      
+        console.log("Sending registration payload:", JSON.stringify(payload, null, 2));
+  
+        const registerRes = await fetch('http://150.136.175.145:2278/api/registration/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(15000), // 15-second timeout
+        });
+  
+        console.log("Registration response status:", registerRes.status);
+  
+        if (!registerRes.ok) {
+          let errorText = `Registration failed with status: ${registerRes.status}`;
+  
+          try {
+            // Get error response text if available
+            const responseText = await registerRes.text();
+            console.log("Registration error response:", responseText);
+            
+            // Handle specific status codes
+            if (registerRes.status === 409) {
+              if (responseText.includes("Username already exists")) {
+                setUsernameError('This username is already taken');
+                errorText = 'Username already exists. Please choose a different one.';
+              } else if (responseText.includes("Email already exists")) {
+                setEmailError('This email is already registered');
+                errorText = 'Email already exists. Please use a different email.';
+              } else if (responseText.includes("Wallet address already exists")) {
+                setWalletAddressError('This wallet address is already registered');
+                errorText = 'Wallet address already registered. Please use a different wallet.';
+              } else {
+                // General conflict error if we can't determine the specific cause
+                errorText = responseText || 'A conflict occurred. One of your details may already be registered.';
+              }
+            } else {
+              // For non-409 errors, use the response text if available
+              errorText = responseText || errorText;
+            }
+          } catch (e) {
+            console.error("Error processing response:", e);
+          }
+  
+          setErrorMessage(errorText);
+          throw new Error('Registration failed');
+        }
+  
+        alert('Registration successful');
+        navigate('/login');
+      } catch (err) {
+        console.error(err);
+        if (!errorMessage) {
+          setErrorMessage('Error during registration. Please try again later.');
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }, 100);
+  };
+  
+  // Debug validation states
+  useEffect(() => {
+    // Debug logs to help troubleshoot validation issues
+    console.log("Validation states:", {
+      usernameError,
+      emailError,
+      walletAddressError,
+      passwordError,
+      confirmPasswordError
+    });
+  }, [usernameError, emailError, walletAddressError, passwordError, confirmPasswordError]);
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-blue-900 via-black to-blue-900">
@@ -230,6 +496,7 @@ const Register = () => {
                   required
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                   placeholder="Enter your full name"
+                  disabled={isLoading}
                 />
               </div>
 
@@ -243,32 +510,49 @@ const Register = () => {
                     required={role === 'seller'}
                     className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                     placeholder="Enter pickup location"
+                    disabled={isLoading}
                   />
                 </div>
               )}
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-blue-200">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                  placeholder="Enter your email"
-                />
+                <div className="relative">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={handleEmailChange}
+                    onBlur={handleEmailBlur}
+                    required
+                    className={`w-full px-4 py-3 bg-white/5 border ${emailError ? 'border-red-500' : 'border-white/10'} rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
+                    placeholder="Enter your email address"
+                    disabled={isLoading}
+                  />
+                  {isCheckingEmail && (
+                    <div className="absolute right-3 top-3 animate-spin w-5 h-5 border-t-2 border-blue-500 rounded-full"></div>
+                  )}
+                </div>
+                {emailError && <p className="text-xs text-red-400 mt-1">{emailError}</p>}
               </div>
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-blue-200">Username</label>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                  placeholder="Choose a username"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={handleUsernameChange}
+                    onBlur={handleUsernameBlur}
+                    required
+                    className={`w-full px-4 py-3 bg-white/5 border ${usernameError ? 'border-red-500' : 'border-white/10'} rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
+                    placeholder="Choose a username"
+                    disabled={isLoading}
+                  />
+                  {isCheckingUsername && (
+                    <div className="absolute right-3 top-3 animate-spin w-5 h-5 border-t-2 border-blue-500 rounded-full"></div>
+                  )}
+                </div>
+                {usernameError && <p className="text-xs text-red-400 mt-1">{usernameError}</p>}
               </div>
 
               <div className="space-y-2">
@@ -276,22 +560,73 @@ const Register = () => {
                 <input
                   type="password"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
                   required
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  className={`w-full px-4 py-3 bg-white/5 border ${passwordError ? 'border-red-500' : 'border-white/10'} rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
                   placeholder="Create a password"
+                  disabled={isLoading}
                 />
+                {passwordError && <p className="text-xs text-red-400 mt-1">{passwordError}</p>}
+                <div className="mt-1">
+                  <ul className="text-xs text-blue-300 space-y-1">
+                    <li className={password.length >= 8 ? 'text-green-400' : ''}>• At least 8 characters</li>
+                    <li className={/[A-Z]/.test(password) ? 'text-green-400' : ''}>• At least one uppercase letter</li>
+                    <li className={/[a-z]/.test(password) ? 'text-green-400' : ''}>• At least one lowercase letter</li>
+                    <li className={/[0-9]/.test(password) ? 'text-green-400' : ''}>• At least one number</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-blue-200">Confirm Password</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  required
+                  className={`w-full px-4 py-3 bg-white/5 border ${confirmPasswordError ? 'border-red-500' : 'border-white/10'} rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
+                  placeholder="Confirm your password"
+                  disabled={isLoading}
+                />
+                {confirmPasswordError && <p className="text-xs text-red-400 mt-1">{confirmPasswordError}</p>}
               </div>
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-blue-200">Wallet Address</label>
-                <button
-                  type="button"
-                  onClick={connectWallet}
-                  className="w-full px-4 py-3 bg-blue-600/20 border border-blue-500/50 rounded-lg text-white hover:bg-blue-600/30 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-                >
-                  {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connect Wallet'}
-                </button>
+                <div className="relative">
+                  {walletAddress ? (
+                    <div className="flex flex-col space-y-2">
+                      <div className={`w-full px-4 py-3 bg-blue-600/20 border ${walletAddressError ? 'border-red-500' : 'border-blue-500/50'} rounded-lg text-white`}>
+                        Connected: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={disconnectWallet}
+                        className="w-full px-4 py-2 bg-red-600/20 border border-red-500/50 rounded-lg text-white hover:bg-red-600/30 transition-all duration-300 focus:outline-none"
+                        disabled={isLoading}
+                      >
+                        Disconnect Wallet
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={connectWallet}
+                      className="w-full px-4 py-3 bg-blue-600/20 border border-blue-500/50 rounded-lg text-white hover:bg-blue-600/30 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                      disabled={isLoading}
+                    >
+                      Connect Wallet
+                    </button>
+                  )}
+                  {isCheckingWallet && (
+                    <div className="absolute right-3 top-3 animate-spin w-5 h-5 border-t-2 border-blue-500 rounded-full"></div>
+                  )}
+                </div>
+                {walletAddressError && (
+                  <p className="text-xs text-red-400 mt-1">
+                    {walletAddressError} Please disconnect and try a different wallet.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -301,15 +636,21 @@ const Register = () => {
                   accept="image/*"
                   onChange={handleImageUpload}
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  disabled={isLoading}
                 />
               </div>
 
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || passwordError || confirmPasswordError || emailError || usernameError || walletAddressError}
                 className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? 'Creating Account...' : 'Create Account'}
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="mr-2 animate-spin w-5 h-5 border-t-2 border-white rounded-full"></div>
+                    <span>Creating Account...</span>
+                  </div>
+                ) : 'Create Account'}
               </button>
             </form>
 
