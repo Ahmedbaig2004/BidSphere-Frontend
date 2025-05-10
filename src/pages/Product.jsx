@@ -617,7 +617,7 @@ const Product = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-blue-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="backdrop-blur-lg bg-white/10 p-8 rounded-2xl shadow-2xl border border-white/20 transform transition-all duration-500">
           {/* Listing Status */}
@@ -702,8 +702,6 @@ const Product = () => {
                   {listingData.product.subCategory}
                 </span>
               </div>
-
-              <p className="text-blue-200 leading-relaxed">{listingData.product.description}</p>
 
               {/* Auction Dates */}
               <div className="space-y-2 text-blue-200">

@@ -2,6 +2,18 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ProductListing from "./ProductListing";
 
+// Status code mapping
+const LISTING_STATUS_MAP = {
+  0: 'UNLISTED',
+  1: 'WAITING',
+  2: 'ACTIVE',
+  3: 'COMPLETED',
+  4: 'CLOSED',
+  5: 'TERMINATED',
+  6: 'ERRORED',
+  7: 'MODERATED',
+};
+
 const UserDashboard = () => {
   const storedProfile = localStorage.getItem("userProfile");
   const id = storedProfile ? JSON.parse(storedProfile).id : null;
@@ -156,7 +168,6 @@ const UserDashboard = () => {
           </div>
           <div>
             <h2 className="text-3xl font-bold text-white mb-2">{name}</h2>
-            <p className="text-blue-200 text-sm mb-1">Wallet: {walletAddress}</p>
             <p className="text-blue-200 text-sm">Registered: {new Date(registrationDate).toLocaleDateString()}</p>
           </div>
         </div>
@@ -208,7 +219,22 @@ const UserDashboard = () => {
                     )}
                     <div>
                       <h3 className="text-lg font-medium text-white">{listing.product ? listing.product.name : "Unnamed Product"}</h3>
-                      <p className="text-blue-200 text-sm">Status: {listing.status || "Unknown"}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-full text-xs font-semibold"
+                          style={{
+                            backgroundColor: listing.status === 2 ? '#22c55e' : '#64748b',
+                            color: 'white',
+                          }}
+                        >
+                          {LISTING_STATUS_MAP[listing.status] || 'UNKNOWN'}
+                        </span>
+                        {listing.status !== 2 && (
+                          <span className="text-red-400 text-xs">Inactive</span>
+                        )}
+                        {listing.status === 2 && (
+                          <span className="text-green-400 text-xs">Active</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -286,7 +312,22 @@ const UserDashboard = () => {
                     )}
                     <div>
                       <h3 className="text-lg font-medium text-white">{listing.product ? listing.product.name : "Unnamed Product"}</h3>
-                      <p className="text-blue-200 text-sm">Status: {listing.status || "Unknown"}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-full text-xs font-semibold"
+                          style={{
+                            backgroundColor: listing.status === 2 ? '#22c55e' : '#64748b',
+                            color: 'white',
+                          }}
+                        >
+                          {LISTING_STATUS_MAP[listing.status] || 'UNKNOWN'}
+                        </span>
+                        {listing.status !== 2 && (
+                          <span className="text-red-400 text-xs">Inactive</span>
+                        )}
+                        {listing.status === 2 && (
+                          <span className="text-green-400 text-xs">Active</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
@@ -338,7 +379,7 @@ const UserDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-blue-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen from-blue-900 via-black to-blue-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="backdrop-blur-lg bg-white/10 p-8 rounded-2xl shadow-2xl border border-white/20">
           {/* Tabs Navigation */}

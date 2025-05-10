@@ -1,17 +1,86 @@
-import { useContext, useState } from "react"
+import { useContext, useState, useRef, useEffect } from "react"
 import { Link, NavLink } from "react-router-dom"
+import ReactDOM from "react-dom"
 import assets from "../assets/assets.js"
 import { ShopContext } from "../context/ShopContext.jsx"
 import { AuthContext } from "../context/AuthContext"
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 })
+  const profileRef = useRef(null)
+  const dropdownTimer = useRef(null)
   const { setshowsearch, getcartsize } = useContext(ShopContext)
   const { isLoggedIn, logout } = useContext(AuthContext)
 
+  useEffect(() => {
+    if (showDropdown && profileRef.current) {
+      const rect = profileRef.current.getBoundingClientRect()
+      setDropdownPos({
+        top: rect.bottom + window.scrollY + 8, // 8px margin
+        left: rect.right - 160, // align right edge, dropdown min-width 160px
+        width: rect.width
+      })
+    }
+  }, [showDropdown])
+
+  const handleProfileEnter = () => {
+    if (dropdownTimer.current) clearTimeout(dropdownTimer.current)
+    setShowDropdown(true)
+  }
+  const handleProfileLeave = () => {
+    dropdownTimer.current = setTimeout(() => setShowDropdown(false), 120)
+  }
+  const handleDropdownEnter = () => {
+    if (dropdownTimer.current) clearTimeout(dropdownTimer.current)
+    setShowDropdown(true)
+  }
+  const handleDropdownLeave = () => {
+    dropdownTimer.current = setTimeout(() => setShowDropdown(false), 120)
+  }
+
+  const dropdownMenu = showDropdown
+    ? ReactDOM.createPortal(
+        <div
+          style={{
+            position: "absolute",
+            top: dropdownPos.top,
+            left: dropdownPos.left,
+            minWidth: 160,
+            zIndex: 9999
+          }}
+          onMouseEnter={handleDropdownEnter}
+          onMouseLeave={handleDropdownLeave}
+        >
+          <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-lg shadow-xl p-3">
+            <Link
+              to="/dashboard"
+              className="block px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"
+            >
+              Dashboard
+            </Link>
+            <Link
+              to="/orders"
+              className="block px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"
+            >
+              Orders
+            </Link>
+            <button
+              onClick={logout}
+              className="w-full text-left px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"
+            >
+              Logout
+            </button>
+          </div>
+        </div>,
+        document.body
+      )
+    : null
+
   return (
     <div className="backdrop-blur-lg bg-white/10 border-b border-white/20 py-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
         <Link to="/" className="flex items-center">
           <img src={assets.bidsphere || "/placeholder.svg"} className="w-36" alt="Logo" />
         </Link>
@@ -74,31 +143,14 @@ const Navbar = () => {
           </button>
 
           {isLoggedIn ? (
-            <div className="group relative">
+            <div
+              className="relative"
+              ref={profileRef}
+              onMouseEnter={handleProfileEnter}
+              onMouseLeave={handleProfileLeave}
+            >
               <div className="text-white hover:text-blue-300 transition-colors duration-300 cursor-pointer p-1">
                 <img src={assets.profile_icon || "/placeholder.svg"} className="w-5" alt="Profile" />
-              </div>
-              <div className="absolute right-0 top-full mt-2 z-50 invisible group-hover:visible hover:visible min-w-[160px]">
-                <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-lg shadow-xl p-3">
-                  <Link
-                    to="/dashboard"
-                    className="block px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    to="/orders"
-                    className="block px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"
-                  >
-                    Orders
-                  </Link>
-                  <button
-                    onClick={logout}
-                    className="w-full text-left px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"
-                  >
-                    Logout
-                  </button>
-                </div>
               </div>
             </div>
           ) : (
@@ -106,6 +158,8 @@ const Navbar = () => {
               <img src={assets.profile_icon || "/placeholder.svg"} className="w-5" alt="Login" />
             </Link>
           )}
+
+          {dropdownMenu}
 
           <Link to="/cart" className="relative">
             <img src={assets.cart_icon || "/placeholder.svg"} className="w-5" alt="Cart" />
