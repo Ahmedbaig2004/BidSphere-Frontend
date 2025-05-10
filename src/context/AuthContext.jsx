@@ -1,9 +1,11 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+  const navigate = useNavigate();
 
   // useEffect(() => {
   //   const token = localStorage.getItem('token');
@@ -15,10 +17,25 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(true);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        await fetch('http://150.136.175.145:2278/api/session/delete', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      } catch (err) {
+        // Optionally handle error (e.g., show toast)
+      }
+    }
     localStorage.removeItem('token');
-    localStorage.removeItem('userProfile'); // optional cleanup
+    localStorage.removeItem('userProfile');
     setIsLoggedIn(false);
+    navigate('/login');
   };
 
   return (

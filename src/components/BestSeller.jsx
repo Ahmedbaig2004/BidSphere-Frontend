@@ -124,18 +124,6 @@ const BestSeller = () => {
                 category={item.product ? item.product.category : ''}
                 subCategory={item.product ? item.product.subCategory : ''}
               />
-              <div className="absolute bottom-0 left-0 w-full flex justify-center">
-                <Link 
-                  to={`/product/${item.listingId}`}
-                  state={{ 
-                    category: item.product?.category || '', 
-                    subCategory: item.product?.subCategory || '' 
-                  }}
-                  className="bg-blue-600 text-white px-4 py-2 text-xs rounded-lg hover:bg-blue-700 w-4/5 text-center transition-colors duration-300"
-                >
-                  PLACE BID
-                </Link>
-              </div>
             </div>
           ))}
         </div>

@@ -644,7 +644,14 @@ const UserDashboard = () => {
             </div>
           )}
 
-          <ProductListing isOpen={showModal} onClose={() => setShowModal(false)} />
+          <ProductListing 
+            isOpen={showModal} 
+            onClose={() => setShowModal(false)} 
+            onSuccess={() => {
+              setInventory([]);
+              fetchInventory();
+            }}
+          />
         </div>
       </div>
 

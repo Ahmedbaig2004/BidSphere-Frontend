@@ -11,7 +11,7 @@ const categoryMap = {
     "Fashion And Lifestyle": ["Clothing", "Footwear", "Watches", "Jewelry", "Accessories"]
 };
 
-const ProductListing = ({ isOpen, onClose }) => {
+const ProductListing = ({ isOpen, onClose, onSuccess }) => {
     // First form states
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -167,6 +167,9 @@ const ProductListing = ({ isOpen, onClose }) => {
 
             toast.success('Auction created successfully');
             onClose();
+            if (onSuccess) {
+                onSuccess();
+            }
         } catch (err) {
             console.error(err);
             toast.error('Failed to create auction');
@@ -233,7 +236,7 @@ const ProductListing = ({ isOpen, onClose }) => {
                                 value={category}
                                 onChange={e => setCategory(e.target.value)}
                                 required
-                                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-white"
+                                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-gray-600"
                             >
                                 <option value="">Select Category</option>
                                 {Object.keys(categoryMap).map(cat => (
@@ -251,7 +254,7 @@ const ProductListing = ({ isOpen, onClose }) => {
                                 onChange={e => setSubCategory(e.target.value)}
                                 required
                                 disabled={!category}
-                                className={`w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-white ${
+                                className={`w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-gray-600 ${
                                     !category ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                             >
