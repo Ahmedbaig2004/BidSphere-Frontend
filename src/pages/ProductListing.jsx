@@ -178,209 +178,202 @@ const ProductListing = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-            <div className="flex items-center justify-center min-h-screen px-4">
-                <div 
-                    className="fixed inset-0 bg-black bg-opacity-30 transition-opacity"
-                    onClick={onClose}
-                />
-                
-                <div className="relative w-full max-w-xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                            {currentStep === 1 ? 'Create New Product' : 'Set Auction Details'}
-                        </h2>
-                        <button
-                            onClick={onClose}
-                            className="text-gray-400 hover:text-gray-500 focus:outline-none"
-                        >
-                            <span className="sr-only">Close</span>
-                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    {currentStep === 1 ? (
-                        <form onSubmit={handleFirstStep} className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Product Name
-                                </label>
-                                <input
-                                    type="text"
-                                    value={name}
-                                    onChange={e => setName(e.target.value)}
-                                    required
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    placeholder="Enter product name"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Description
-                                </label>
-                                <textarea
-                                    value={description}
-                                    onChange={e => setDescription(e.target.value)}
-                                    required
-                                    rows="4"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    placeholder="Enter product description"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Category
-                                </label>
-                                <select
-                                    value={category}
-                                    onChange={e => setCategory(e.target.value)}
-                                    required
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                >
-                                    <option value="">Select Category</option>
-                                    {Object.keys(categoryMap).map(cat => (
-                                        <option key={cat} value={cat}>{cat}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Subcategory
-                                </label>
-                                <select
-                                    value={subCategory}
-                                    onChange={e => setSubCategory(e.target.value)}
-                                    required
-                                    disabled={!category}
-                                    className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                                        !category ? 'opacity-50 cursor-not-allowed' : ''
-                                    }`}
-                                >
-                                    <option value="">Select Subcategory</option>
-                                    {category && categoryMap[category].map(sub => (
-                                        <option key={sub} value={sub}>{sub}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="flex justify-end space-x-4 pt-4">
-                                <button
-                                    type="button"
-                                    onClick={onClose}
-                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isSubmitting ? 'Creating...' : 'Next'}
-                                </button>
-                            </div>
-                        </form>
-                    ) : (
-                        <form onSubmit={handleSecondStep} className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Starting Price
-                                </label>
-                                <input
-                                    type="number"
-                                    value={startingPrice}
-                                    onChange={e => setStartingPrice(e.target.value)}
-                                    required
-                                    min="0"
-                                    step="0.01"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Start Date
-                                </label>
-                                <input
-                                    type="datetime-local"
-                                    value={startDate}
-                                    onChange={e => setStartDate(e.target.value)}
-                                    required
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    End Date
-                                </label>
-                                <input
-                                    type="datetime-local"
-                                    value={endDate}
-                                    onChange={e => setEndDate(e.target.value)}
-                                    required
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Main Image
-                                </label>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => handleImageUpload(e, true)}
-                                    required
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                />
-                                {mainImageBase64 && (
-                                    <img src={mainImageBase64} alt="Main" className="mt-2 w-32 h-32 object-cover rounded-lg" />
-                                )}
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Display Images
-                                </label>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => handleImageUpload(e, false)}
-                                    multiple
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                />
-                                <div className="grid grid-cols-4 gap-2 mt-2">
-                                    {displayImagesBase64.map((img, index) => (
-                                        <img key={index} src={img} alt={`Display ${index + 1}`} className="w-24 h-24 object-cover rounded-lg" />
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="flex justify-end space-x-4 pt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentStep(1)}
-                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                                >
-                                    Back
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isSubmitting ? 'Creating...' : 'Create Auction'}
-                                </button>
-                            </div>
-                        </form>
-                    )}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="relative w-full max-w-xl mx-4 bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {currentStep === 1 ? 'Create New Product' : 'Set Auction Details'}
+                    </h2>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-gray-500 focus:outline-none"
+                    >
+                        <span className="sr-only">Close</span>
+                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
+
+                {currentStep === 1 ? (
+                    <form onSubmit={handleFirstStep} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Product Name
+                            </label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={e => setName(e.target.value)}
+                                required
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                                placeholder="Enter product name"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Description
+                            </label>
+                            <textarea
+                                value={description}
+                                onChange={e => setDescription(e.target.value)}
+                                required
+                                rows="4"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                                placeholder="Enter product description"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Category
+                            </label>
+                            <select
+                                value={category}
+                                onChange={e => setCategory(e.target.value)}
+                                required
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                            >
+                                <option value="">Select Category</option>
+                                {Object.keys(categoryMap).map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Subcategory
+                            </label>
+                            <select
+                                value={subCategory}
+                                onChange={e => setSubCategory(e.target.value)}
+                                required
+                                disabled={!category}
+                                className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black ${
+                                    !category ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
+                            >
+                                <option value="">Select Subcategory</option>
+                                {category && categoryMap[category].map(sub => (
+                                    <option key={sub} value={sub}>{sub}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="flex justify-end space-x-4 pt-4">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className=" px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className=" px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isSubmitting ? 'Creating...' : 'Next'}
+                            </button>
+                        </div>
+                    </form>
+                ) : (
+                    <form onSubmit={handleSecondStep} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-black ">
+                                Starting Price
+                            </label>
+                            <input
+                                type="number"
+                                value={startingPrice}
+                                onChange={e => setStartingPrice(e.target.value)}
+                                required
+                                min="0"
+                                step="0.01"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black "
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-black ">
+                                Start Date
+                            </label>
+                            <input
+                                type="datetime-local"
+                                value={startDate}
+                                onChange={e => setStartDate(e.target.value)}
+                                required
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black "
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-black ">
+                                End Date
+                            </label>
+                            <input
+                                type="datetime-local"
+                                value={endDate}
+                                onChange={e => setEndDate(e.target.value)}
+                                required
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black "
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-black ">
+                                Main Image
+                            </label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(e, true)}
+                                required
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black "
+                            />
+                            {mainImageBase64 && (
+                                <img src={mainImageBase64} alt="Main" className="mt-2 w-32 h-32 object-cover rounded-lg" />
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Display Images
+                            </label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(e, false)}
+                                multiple
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            />
+                            <div className="grid grid-cols-4 gap-2 mt-2">
+                                {displayImagesBase64.map((img, index) => (
+                                    <img key={index} src={img} alt={`Display ${index + 1}`} className="w-24 h-24 object-cover rounded-lg" />
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end space-x-4 pt-4">
+                            <button
+                                type="button"
+                                onClick={() => setCurrentStep(1)}
+                                className="     px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                            >
+                                Back
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className=" px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isSubmitting ? 'Creating...' : 'Create Auction'}
+                            </button>
+                        </div>
+                    </form>
+                )}
             </div>
         </div>
     );

@@ -6,16 +6,47 @@ import ProductDrawer from './ProductDrawer.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LatestCollection = () => {
-  const { products } = useContext(ShopContext);
   const [latestProducts, setLatestProducts] = useState([]);
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [isDrawerHovered, setIsDrawerHovered] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const drawerTimer = useRef(null);
 
   useEffect(() => {
-    setLatestProducts(products.slice(0, 10));
-  }, [products]);
+    fetchHomepageData();
+  }, []);
+
+  const fetchHomepageData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://150.136.175.145:2278/api/listing/homepage', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch homepage data');
+      }
+
+      const data = await response.json();
+      if (data && data.newListings && Array.isArray(data.newListings)) {
+        setLatestProducts(data.newListings);
+      } else {
+        setLatestProducts([]);
+      }
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching homepage data:', err);
+      setError('Unable to load latest listings. Please try again later.');
+      setLatestProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Clean up timeout when component unmounts
   useEffect(() => {
@@ -61,23 +92,41 @@ const LatestCollection = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {latestProducts.map((item, index) => (
-          <div
-            key={index}
-            onMouseEnter={() => handleMouseEnterProduct(item)}
-            onMouseLeave={handleMouseLeaveProduct}
-            className="relative"
-          >
-            <ProductItem
-              id={item._id}
-              image={item.image}
-              name={item.name}
-              price={item.price}
-            />
-          </div>
-        ))}
-      </div>
+      {loading ? (
+        <div className="text-center py-10">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
+          <p className="mt-2 text-white">Loading latest listings...</p>
+        </div>
+      ) : error ? (
+        <div className="text-center py-10">
+          <p className="text-red-400">{error}</p>
+        </div>
+      ) : latestProducts.length === 0 ? (
+        <div className="text-center py-10">
+          <p className="text-white">No listings available at the moment.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {latestProducts.map((item, index) => (
+            <div
+              key={item.listingId || `new-listing-${index}`}
+              onMouseEnter={() => handleMouseEnterProduct(item)}
+              onMouseLeave={handleMouseLeaveProduct}
+              className="relative"
+            >
+              <ProductItem
+                item={item}
+                id={item.listingId}
+                image={item.mainImageId ? `http://150.136.175.145:2280/cdn/${item.mainImageId}.png` : '/placeholder.svg'}
+                name={item.product ? item.product.name : 'Unnamed Product'}
+                price={item.startingPrice || 0}
+                category={item.product ? item.product.category : ''}
+                subCategory={item.product ? item.product.subCategory : ''}
+              />
+            </div>
+          ))}
+        </div>
+      )}
       
       <AnimatePresence>
         {hoveredProduct && isDrawerVisible && (

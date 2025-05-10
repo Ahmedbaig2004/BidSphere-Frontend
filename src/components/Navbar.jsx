@@ -1,19 +1,19 @@
-import React, { useContext, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import assets from '../assets/assets.js';
-import { ShopContext } from '../context/ShopContext.jsx';
-import { AuthContext } from '../context/AuthContext';
+import { useContext, useState } from "react"
+import { Link, NavLink } from "react-router-dom"
+import assets from "../assets/assets.js"
+import { ShopContext } from "../context/ShopContext.jsx"
+import { AuthContext } from "../context/AuthContext"
 
 const Navbar = () => {
-  const [visible, setVisible] = useState(false);
-  const { setshowsearch, getcartsize } = useContext(ShopContext);
-  const { isLoggedIn, logout } = useContext(AuthContext);
+  const [visible, setVisible] = useState(false)
+  const { setshowsearch, getcartsize } = useContext(ShopContext)
+  const { isLoggedIn, logout } = useContext(AuthContext)
 
   return (
     <div className="backdrop-blur-lg bg-white/10 border-b border-white/20 py-4">
       <div className="flex items-center justify-between">
         <Link to="/" className="flex items-center">
-          <img src={assets.bidsphere} className="w-36" alt="Logo" />
+          <img src={assets.bidsphere || "/placeholder.svg"} className="w-36" alt="Logo" />
         </Link>
 
         {/* Desktop NavLinks */}
@@ -22,7 +22,7 @@ const Navbar = () => {
             to="/"
             className={({ isActive }) =>
               `flex flex-col items-center gap-1 transition-colors duration-300 ${
-                isActive ? 'text-blue-400' : 'text-white hover:text-blue-300'
+                isActive ? "text-blue-400" : "text-white hover:text-blue-300"
               }`
             }
           >
@@ -33,7 +33,7 @@ const Navbar = () => {
             to="/collection"
             className={({ isActive }) =>
               `flex flex-col items-center gap-1 transition-colors duration-300 ${
-                isActive ? 'text-blue-400' : 'text-white hover:text-blue-300'
+                isActive ? "text-blue-400" : "text-white hover:text-blue-300"
               }`
             }
           >
@@ -44,7 +44,7 @@ const Navbar = () => {
             to="/about"
             className={({ isActive }) =>
               `flex flex-col items-center gap-1 transition-colors duration-300 ${
-                isActive ? 'text-blue-400' : 'text-white hover:text-blue-300'
+                isActive ? "text-blue-400" : "text-white hover:text-blue-300"
               }`
             }
           >
@@ -55,7 +55,7 @@ const Navbar = () => {
             to="/contact"
             className={({ isActive }) =>
               `flex flex-col items-center gap-1 transition-colors duration-300 ${
-                isActive ? 'text-blue-400' : 'text-white hover:text-blue-300'
+                isActive ? "text-blue-400" : "text-white hover:text-blue-300"
               }`
             }
           >
@@ -70,57 +70,45 @@ const Navbar = () => {
             onClick={() => setshowsearch(true)}
             className="text-white hover:text-blue-300 transition-colors duration-300"
           >
-            <img src={assets.search_icon} className="w-5" alt="Search" />
+            <img src={assets.search_icon || "/placeholder.svg"} className="w-5" alt="Search" />
           </button>
 
           {isLoggedIn ? (
-            <>
-              <div className="group relative">
-                <button className="text-white hover:text-blue-300 transition-colors duration-300">
-                  <img src={assets.profile_icon} className="w-5" alt="Profile" />
-                </button>
-                <div className="absolute right-0 pt-1 hidden group-hover:block">
-                  <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-lg shadow-xl p-3 min-w-[200px]">
-                    <Link
-                      to="/dashboard"
-                      className="block px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"
-                    >
-                      Dashboard
-                    </Link>
-                    <Link
-                      to="/orders"
-                      className="block px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"
-                    >
-                      Orders
-                    </Link>
-                    <button
-                      onClick={logout}
-                      className="w-full text-left px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"
-                    >
-                      Logout
-                    </button>
-                  </div>
+            <div className="group relative">
+              <div className="text-white hover:text-blue-300 transition-colors duration-300 cursor-pointer p-1">
+                <img src={assets.profile_icon || "/placeholder.svg"} className="w-5" alt="Profile" />
+              </div>
+              <div className="absolute right-0 top-full mt-2 z-50 invisible group-hover:visible hover:visible min-w-[160px]">
+                <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-lg shadow-xl p-3">
+                  <Link
+                    to="/dashboard"
+                    className="block px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    to="/orders"
+                    className="block px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"
+                  >
+                    Orders
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="w-full text-left px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"
+                  >
+                    Logout
+                  </button>
                 </div>
               </div>
-            </>
-          ) : (
-            <div className="flex items-center gap-4">
-              <Link
-                to="/login"
-                className="text-white hover:text-blue-300 transition-colors duration-300"
-              >
-                <img src={assets.profile_icon} className="w-5" alt="Login" />
-              </Link>
-              <Link to="/register">
-                <button className="hidden sm:block px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-300">
-                  Register
-                </button>
-              </Link>
             </div>
+          ) : (
+            <Link to="/login" className="text-white hover:text-blue-300 transition-colors duration-300">
+              <img src={assets.profile_icon || "/placeholder.svg"} className="w-5" alt="Login" />
+            </Link>
           )}
 
           <Link to="/cart" className="relative">
-            <img src={assets.cart_icon} className="w-5" alt="Cart" />
+            <img src={assets.cart_icon || "/placeholder.svg"} className="w-5" alt="Cart" />
             <span className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center bg-blue-600 text-white text-xs rounded-full">
               {getcartsize()}
             </span>
@@ -130,7 +118,7 @@ const Navbar = () => {
             onClick={() => setVisible(true)}
             className="sm:hidden text-white hover:text-blue-300 transition-colors duration-300"
           >
-            <img src={assets.menu_icon} className="w-5" alt="Menu" />
+            <img src={assets.menu_icon || "/placeholder.svg"} className="w-5" alt="Menu" />
           </button>
         </div>
       </div>
@@ -141,14 +129,11 @@ const Navbar = () => {
         {visible && (
           <>
             {/* Overlay */}
-            <div
-              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-              onClick={() => setVisible(false)}
-            />
+            <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={() => setVisible(false)} />
             {/* Sidebar */}
             <div
               className={`fixed top-0 right-0 bottom-0 w-72 z-50 backdrop-blur-lg bg-white/10 border-l border-white/20 transform transition-transform duration-300 ease-in-out ${
-                visible ? 'translate-x-0' : 'translate-x-full'
+                visible ? "translate-x-0" : "translate-x-full"
               }`}
             >
               <div className="flex flex-col h-full">
@@ -167,7 +152,7 @@ const Navbar = () => {
                     to="/"
                     className={({ isActive }) =>
                       `block py-3 px-4 text-white hover:text-blue-300 transition-colors duration-300 ${
-                        isActive ? 'text-blue-400' : ''
+                        isActive ? "text-blue-400" : ""
                       }`
                     }
                   >
@@ -178,7 +163,7 @@ const Navbar = () => {
                     to="/collection"
                     className={({ isActive }) =>
                       `block py-3 px-4 text-white hover:text-blue-300 transition-colors duration-300 ${
-                        isActive ? 'text-blue-400' : ''
+                        isActive ? "text-blue-400" : ""
                       }`
                     }
                   >
@@ -189,7 +174,7 @@ const Navbar = () => {
                     to="/about"
                     className={({ isActive }) =>
                       `block py-3 px-4 text-white hover:text-blue-300 transition-colors duration-300 ${
-                        isActive ? 'text-blue-400' : ''
+                        isActive ? "text-blue-400" : ""
                       }`
                     }
                   >
@@ -200,7 +185,7 @@ const Navbar = () => {
                     to="/contact"
                     className={({ isActive }) =>
                       `block py-3 px-4 text-white hover:text-blue-300 transition-colors duration-300 ${
-                        isActive ? 'text-blue-400' : ''
+                        isActive ? "text-blue-400" : ""
                       }`
                     }
                   >
@@ -213,7 +198,7 @@ const Navbar = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

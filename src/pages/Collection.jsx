@@ -7,6 +7,16 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Collection = () => {
+  // Define categories with proper formatting for API compatibility
+  const categoryMap = {
+    "Electronics": "ELECTRONICS",
+    "Collectibles And Antiques": "COLLECTIBLES_AND_ANTIQUES",
+    "Home and Living": "HOME_AND_LIVING",
+    "Sports And Fitness": "SPORTS_AND_FITNESS",
+    "Vehicle Accessories": "VEHICLE_ACCESSORIES",
+    "Fashion And Lifestyle": "FASHION_AND_LIFESTYLE"
+  };
+
   const categorySubcategoriesMap = {
     "Electronics": ["Smartphones", "Laptops", "Cameras", "Tablets", "Wearable Devices"],
     "Collectibles And Antiques": ["Coins", "Stamps", "Paintings", "Music", "Home Decor"],
@@ -24,31 +34,67 @@ const Collection = () => {
   const [sortType, setsorttype] = useState('relevant');
   const [page, setPage] = useState(0);
   const [priceRange, setPriceRange] = useState({ start: 0, end: 0 });
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchCatalog = async () => {
+    setIsLoading(true);
     try {
+      // Simplify the request to avoid enum parsing issues
+      const requestBody = {
+        textQuery: search || "",
+        // Instead of sending string values that should be enums, just send empty array
+        categories: [],
+        // Don't send subcategories either
+        subCategories: [],
+        priceStart: priceRange.start || 0,
+        priceEnd: priceRange.end || 0,
+        page: page || 0
+      };
+      
+      console.log("Sending catalog request:", requestBody);
+      
       const response = await fetch('http://150.136.175.145:2278/api/listing/catalog', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          textQuery: search || "",
-          categories: selectedCategory ? [selectedCategory] : [],
-          priceStart: priceRange.start,
-          priceEnd: priceRange.end,
-          page: page
-        })
+        body: JSON.stringify(requestBody)
       });
       
       if (!response.ok) {
-        throw new Error('Failed to fetch catalog');
+        const errorText = await response.text();
+        console.error('API error response:', errorText);
+        throw new Error(`Failed to fetch catalog: ${response.status}`);
       }
 
       const data = await response.json();
-      setListings(data.listings);
+      console.log("Received catalog data:", data);
+      
+      // Since we're not sending category filters to backend, apply filtering client-side
+      let filteredListings = data.listings || [];
+      
+      // Apply category filter if selected
+      if (selectedCategory && filteredListings.length > 0) {
+        console.log("Filtering by category:", selectedCategory);
+        filteredListings = filteredListings.filter(listing => 
+          listing.product.category === selectedCategory
+        );
+      }
+      
+      // Apply subcategory filter if selected
+      if (selectedSubcategories.length > 0 && filteredListings.length > 0) {
+        console.log("Filtering by subcategories:", selectedSubcategories);
+        filteredListings = filteredListings.filter(listing => 
+          selectedSubcategories.includes(listing.product.subCategory)
+        );
+      }
+      
+      setListings(filteredListings);
     } catch (error) {
       console.error('Error fetching catalog:', error);
+      // Don't clear existing listings on error
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,7 +121,14 @@ const Collection = () => {
   }, [search, selectedCategory, selectedSubcategories, page, priceRange]);
 
   const sortListings = () => {
+    if (sortType === 'relevant') {
+      fetchCatalog();
+      return;
+    }
+    
     let sortedListings = [...listings];
+    
+    // Apply the sort
     switch (sortType) {
       case 'low-high':
         sortedListings.sort((a, b) => {
@@ -92,9 +145,9 @@ const Collection = () => {
         });
         break;
       default:
-        fetchCatalog();
-        return;
+        break;
     }
+    
     setListings(sortedListings);
   };
 
@@ -185,43 +238,46 @@ const Collection = () => {
           {/* Products Grid */}
           <div className="flex-1">
             <div className="backdrop-blur-lg bg-white/10 rounded-2xl border border-white/20 p-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+              <div className="text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <Title text1="ALL" text2="COLLECTIONS" />
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                  <Link
-                    to="/product-listing"
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 text-center"
-                  >
-                    Add Item
-                  </Link>
+                 
                   <select
                     onChange={(e) => setsorttype(e.target.value)}
                     className="px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="relevant">Sort By: Relevant</option>
-                    <option value="low-high">Sort By: Low to High</option>
-                    <option value="high-low">Sort By: High to Low</option>
+                    <option className='text-black' value="relevant">Sort By: Relevant</option>
+                    <option className='text-black' value="low-high">Sort By: Low to High</option>
+                    <option className='text-black' value="high-low">Sort By: High to Low</option>
                   </select>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {listings.length > 0 ? (
-                  listings.map((listing) => (
-                    <ProductItem
-                      key={listing.listingId}
-                      id={listing.listingId}
-                      name={listing.product.name}
-                      image={`http://150.136.175.145:2280/cdn/${listing.mainImageId}.png`}
-                      price={listing.latestBid?.bidPrice || listing.startingPrice}
-                    />
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12">
-                    <p className="text-white text-lg">No products found.</p>
-                  </div>
-                )}
-              </div>
+              {isLoading ? (
+                <div className="flex justify-center items-center py-20">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {listings.length > 0 ? (
+                    listings.map((listing) => (
+                      <ProductItem
+                        key={listing.listingId}
+                        id={listing.listingId}
+                        name={listing.product.name}
+                        image={`http://150.136.175.145:2280/cdn/${listing.mainImageId}.png`}
+                        price={listing.latestBid?.bidPrice || listing.startingPrice}
+                        category={selectedCategory}
+                        subCategory={selectedSubcategories.length > 0 ? selectedSubcategories.join(',') : ''}
+                      />
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-12">
+                      <p className="text-white text-lg">No products found.</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -38,9 +38,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-blue-900 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-blue-900 overflow-x-hidden flex flex-col md:flex-row">
       {/* Left side - Login Form */}
-      <div className="w-1/2 flex items-center justify-center p-8">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="backdrop-blur-lg bg-white/10 p-8 rounded-2xl shadow-2xl border border-white/20 transform transition-all duration-500 hover:scale-[1.02]">
             <h2 className="text-3xl font-bold mb-8 text-center text-white">Welcome Back</h2>
@@ -91,7 +91,7 @@ const Login = () => {
       </div>
 
       {/* Right side - Splash Text */}
-      <div className="w-1/2 flex items-center justify-center p-8 bg-gradient-to-br from-blue-900/50 to-black/50">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-gradient-to-br from-blue-900/50 to-black/50">
         <div className="max-w-lg text-center">
           <h1 className="text-5xl font-bold text-white mb-6 animate-fade-in">
             Welcome to BidNex
