@@ -33,6 +33,8 @@ const Product = () => {
   const [hasSufficientFunds, setHasSufficientFunds] = useState(true);
   const [showConnectWallet, setShowConnectWallet] = useState(false);
   const [isConnectingWallet, setIsConnectingWallet] = useState(false);
+  const [walletBalance, setWalletBalance] = useState({ eth: 0, usd: 0 });
+  const [isLoadingBalance, setIsLoadingBalance] = useState(false);
   
   // Extract category and subcategory from location state if available
   const categoryFromNav = location.state?.category || '';
@@ -109,6 +111,66 @@ const Product = () => {
     }
   };
 
+  // Function to fetch wallet balance
+  const fetchWalletBalance = async () => {
+    const storedProfile = localStorage.getItem("userProfile");
+    const walletAddress = storedProfile ? JSON.parse(storedProfile).walletAddress : null;
+    
+    if (!walletAddress) {
+      setWalletBalance({ eth: 0, usd: 0 });
+      return;
+    }
+    
+    setIsLoadingBalance(true);
+    try {
+      // Use MetaMask provider to get real balance
+      let ethereum = window.ethereum || 
+                   (window.web3 && window.web3.currentProvider) || 
+                   (window.ethereum && window.ethereum.providers && 
+                    window.ethereum.providers.find(p => p.isMetaMask));
+      
+      if (!ethereum) {
+        setWalletBalance({ eth: 0, usd: 0 });
+        return;
+      }
+      
+      // Get ETH balance in Wei
+      const balanceInWei = await ethereum.request({
+        method: 'eth_getBalance',
+        params: [walletAddress, 'latest']
+      });
+      
+      // Convert Wei to ETH
+      const balanceInEth = parseInt(balanceInWei, 16) / 1e18;
+      
+      // Get current ETH to USD conversion rate
+      let ethPrice;
+      try {
+        // Try to fetch from Coingecko
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+        const data = await response.json();
+        ethPrice = data.ethereum.usd;
+      } catch (error) {
+        // Fallback to a reasonable value if API fails
+        console.error('Error fetching ETH price:', error);
+        ethPrice = 3000; // Fallback price
+      }
+      
+      // Calculate wallet balance in USD
+      const balanceUsd = balanceInEth * ethPrice;
+      
+      setWalletBalance({
+        eth: balanceInEth,
+        usd: balanceUsd
+      });
+    } catch (error) {
+      console.error('Error fetching wallet balance:', error);
+      setWalletBalance({ eth: 0, usd: 0 });
+    } finally {
+      setIsLoadingBalance(false);
+    }
+  };
+
   useEffect(() => {
     let isMounted = true;
     
@@ -117,6 +179,7 @@ const Product = () => {
         await fetchListingData();
         if (isMounted) {
           await checkWalletConnection(); // Check wallet connection on page load
+          await fetchWalletBalance(); // Fetch wallet balance
         }
       } catch (error) {
         console.error("Error in initial data loading:", error);
@@ -217,6 +280,7 @@ const Product = () => {
     if (!walletAddress) {
       setShowConnectWallet(true);
     } else {
+      fetchWalletBalance(); // Refresh balance when opening drawer
       setIsDrawerOpen(true);
     }
   };
@@ -310,6 +374,10 @@ const Product = () => {
           
           toast.success('Wallet connected successfully!');
           setShowConnectWallet(false);
+          
+          // Fetch the updated wallet balance
+          await fetchWalletBalance();
+          
           setIsDrawerOpen(true); // Open bid drawer after wallet is connected
         }
       }
@@ -327,7 +395,7 @@ const Product = () => {
   };
 
   // Add a function to validate bid input
-  const validateBidAmount = (amount) => {
+  const validateBidAmount = async (amount) => {
     const numAmount = Number(amount);
     const minBid = listingData.latestBid?.bidPrice || listingData.startingPrice;
     
@@ -341,31 +409,81 @@ const Product = () => {
       return false;
     }
     
-    // Check user wallet balance - actual implementation will depend on how you store/fetch balance
+    // Get wallet balance directly from MetaMask/web3 provider
     const storedProfile = localStorage.getItem("userProfile");
-    const userBalance = storedProfile ? (JSON.parse(storedProfile).balance || 0) : 0;
+    const walletAddress = storedProfile ? JSON.parse(storedProfile).walletAddress : null;
     
-    if (numAmount > userBalance) {
-      setBidError(`Insufficient funds. Your balance: ${currency}${userBalance}`);
+    if (!walletAddress) {
+      setBidError('Wallet not connected');
       setHasSufficientFunds(false);
       return false;
     }
     
-    setBidError('');
-    setHasSufficientFunds(true);
-    return true;
+    try {
+      // Use MetaMask provider to get real balance
+      let ethereum = window.ethereum || 
+                    (window.web3 && window.web3.currentProvider) || 
+                    (window.ethereum && window.ethereum.providers && 
+                     window.ethereum.providers.find(p => p.isMetaMask));
+      
+      if (!ethereum) {
+        setBidError('Cannot access wallet');
+        setHasSufficientFunds(false);
+        return false;
+      }
+      
+      // Get ETH balance in Wei
+      const balanceInWei = await ethereum.request({
+        method: 'eth_getBalance',
+        params: [walletAddress, 'latest']
+      });
+      
+      // Convert Wei to ETH
+      const balanceInEth = parseInt(balanceInWei, 16) / 1e18;
+      
+      // Get current ETH to USD conversion rate
+      let ethPrice;
+      try {
+        // Try to fetch from Coingecko
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+        const data = await response.json();
+        ethPrice = data.ethereum.usd;
+      } catch (error) {
+        // Fallback to a reasonable value if API fails
+        console.error('Error fetching ETH price:', error);
+        ethPrice = 3000; // Fallback price
+      }
+      
+      // Calculate wallet balance in USD
+      const balanceUsd = balanceInEth * ethPrice;
+      
+      if (numAmount > balanceUsd) {
+        setBidError(`Insufficient funds. Your wallet balance: ${currency}${balanceUsd.toFixed(2)} (${balanceInEth.toFixed(4)} ETH)`);
+        setHasSufficientFunds(false);
+        return false;
+      }
+      
+      setBidError('');
+      setHasSufficientFunds(true);
+      return true;
+    } catch (error) {
+      console.error('Error checking wallet balance:', error);
+      setBidError('Error checking wallet balance');
+      setHasSufficientFunds(false);
+      return false;
+    }
   };
 
   // Handle bid amount change with validation
   const handleBidAmountChange = (e) => {
     const value = e.target.value;
     setBidAmount(value);
-    validateBidAmount(value);
+    validateBidAmount(value); // This is now async but we don't need to await it here
   };
 
   const handlePlaceBid = async () => {
-    // Validate before proceeding
-    if (!validateBidAmount(bidAmount)) {
+    // Validate before proceeding - now we need to await the validation
+    if (!(await validateBidAmount(bidAmount))) {
       return;
     }
     
@@ -653,6 +771,40 @@ const Product = () => {
                     <p className="text-white font-medium">{listingData.product.name}</p>
                     <p className="text-blue-200 mt-2">Starting Price: {currency}{listingData.startingPrice}</p>
                   </div>
+                  
+                  {/* Wallet Balance Information */}
+                  <div className="bg-blue-900/20 p-3 rounded-lg border border-blue-500/20">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-blue-200">Your Wallet Balance:</span>
+                      {isLoadingBalance ? (
+                        <div className="animate-pulse flex space-x-1">
+                          <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
+                          <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
+                          <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
+                        </div>
+                      ) : (
+                        <span className="text-sm font-medium text-blue-200">
+                          {walletBalance.eth.toFixed(4)} ETH
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="text-sm text-blue-200">Approx USD Value:</span>
+                      <span className="text-sm font-medium text-blue-200">
+                        {isLoadingBalance ? "Loading..." : `${currency}${walletBalance.usd.toFixed(2)}`}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex justify-end">
+                      <button 
+                        onClick={fetchWalletBalance} 
+                        className="text-xs text-blue-300 hover:text-blue-200"
+                        disabled={isLoadingBalance}
+                      >
+                        {isLoadingBalance ? 'Refreshing...' : 'Refresh Balance'}
+                      </button>
+                    </div>
+                  </div>
+                  
                   <div className="flex flex-col gap-2">
                     <label className="text-blue-200 text-sm">Your Bid Amount</label>
                     <input
