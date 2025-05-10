@@ -409,25 +409,37 @@ const Product = () => {
       return false;
     }
     
-    // Get wallet balance directly from MetaMask/web3 provider
-    const storedProfile = localStorage.getItem("userProfile");
-    const walletAddress = storedProfile ? JSON.parse(storedProfile).walletAddress : null;
+    // Get MetaMask provider
+    let ethereum = window.ethereum || 
+                  (window.web3 && window.web3.currentProvider) || 
+                  (window.ethereum && window.ethereum.providers && 
+                   window.ethereum.providers.find(p => p.isMetaMask));
     
-    if (!walletAddress) {
-      setBidError('Wallet not connected');
+    if (!ethereum) {
+      setBidError('MetaMask not found. Please install MetaMask to continue.');
       setHasSufficientFunds(false);
       return false;
     }
-    
+
     try {
-      // Use MetaMask provider to get real balance
-      let ethereum = window.ethereum || 
-                    (window.web3 && window.web3.currentProvider) || 
-                    (window.ethereum && window.ethereum.providers && 
-                     window.ethereum.providers.find(p => p.isMetaMask));
+      // Get connected accounts from MetaMask
+      const accounts = await ethereum.request({ method: 'eth_accounts' });
       
-      if (!ethereum) {
-        setBidError('Cannot access wallet');
+      if (accounts.length === 0) {
+        setBidError('No wallet connected. Please connect your MetaMask wallet.');
+        setHasSufficientFunds(false);
+        return false;
+      }
+
+      const connectedAddress = accounts[0].toLowerCase();
+      
+      // Get stored address from localStorage for comparison
+      const storedProfile = localStorage.getItem("userProfile");
+      const storedAddress = storedProfile ? JSON.parse(storedProfile).walletAddress?.toLowerCase() : null;
+      
+      // If stored address exists but doesn't match connected address
+      if (storedAddress && storedAddress !== connectedAddress) {
+        setBidError('Connected wallet does not match your registered wallet. Please connect the correct wallet.');
         setHasSufficientFunds(false);
         return false;
       }
@@ -435,7 +447,7 @@ const Product = () => {
       // Get ETH balance in Wei
       const balanceInWei = await ethereum.request({
         method: 'eth_getBalance',
-        params: [walletAddress, 'latest']
+        params: [connectedAddress, 'latest']
       });
       
       // Convert Wei to ETH

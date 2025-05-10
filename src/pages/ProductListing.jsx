@@ -179,14 +179,14 @@ const ProductListing = ({ isOpen, onClose }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="relative w-full max-w-xl mx-4 bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6">
+            <div className="relative w-full max-w-xl mx-4 bg-gradient-to-b from-gray-900 to-black rounded-xl shadow-2xl p-6 border border-white/20">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <h2 className="text-2xl font-bold text-white">
                         {currentStep === 1 ? 'Create New Product' : 'Set Auction Details'}
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-500 focus:outline-none"
+                        className="text-gray-400 hover:text-gray-300 focus:outline-none"
                     >
                         <span className="sr-only">Close</span>
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -198,7 +198,7 @@ const ProductListing = ({ isOpen, onClose }) => {
                 {currentStep === 1 ? (
                     <form onSubmit={handleFirstStep} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <label className="block text-sm font-medium text-blue-200">
                                 Product Name
                             </label>
                             <input
@@ -206,13 +206,13 @@ const ProductListing = ({ isOpen, onClose }) => {
                                 value={name}
                                 onChange={e => setName(e.target.value)}
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-white placeholder-gray-400"
                                 placeholder="Enter product name"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <label className="block text-sm font-medium text-blue-200">
                                 Description
                             </label>
                             <textarea
@@ -220,20 +220,20 @@ const ProductListing = ({ isOpen, onClose }) => {
                                 onChange={e => setDescription(e.target.value)}
                                 required
                                 rows="4"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-white placeholder-gray-400"
                                 placeholder="Enter product description"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <label className="block text-sm font-medium text-blue-200">
                                 Category
                             </label>
                             <select
                                 value={category}
                                 onChange={e => setCategory(e.target.value)}
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-white"
                             >
                                 <option value="">Select Category</option>
                                 {Object.keys(categoryMap).map(cat => (
@@ -243,7 +243,7 @@ const ProductListing = ({ isOpen, onClose }) => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <label className="block text-sm font-medium text-blue-200">
                                 Subcategory
                             </label>
                             <select
@@ -251,7 +251,7 @@ const ProductListing = ({ isOpen, onClose }) => {
                                 onChange={e => setSubCategory(e.target.value)}
                                 required
                                 disabled={!category}
-                                className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black ${
+                                className={`w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-white ${
                                     !category ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                             >
@@ -266,14 +266,14 @@ const ProductListing = ({ isOpen, onClose }) => {
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className=" px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                                className="px-4 py-2 text-sm font-medium text-white bg-white/10 rounded-lg hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/20"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className=" px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Creating...' : 'Next'}
                             </button>
@@ -282,7 +282,7 @@ const ProductListing = ({ isOpen, onClose }) => {
                 ) : (
                     <form onSubmit={handleSecondStep} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-black ">
+                            <label className="block text-sm font-medium text-blue-200">
                                 Starting Price
                             </label>
                             <input
@@ -292,12 +292,12 @@ const ProductListing = ({ isOpen, onClose }) => {
                                 required
                                 min="0"
                                 step="0.01"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black "
+                                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-white placeholder-gray-400"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-black ">
+                            <label className="block text-sm font-medium text-blue-200">
                                 Start Date
                             </label>
                             <input
@@ -305,12 +305,12 @@ const ProductListing = ({ isOpen, onClose }) => {
                                 value={startDate}
                                 onChange={e => setStartDate(e.target.value)}
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black "
+                                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-white"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-black ">
+                            <label className="block text-sm font-medium text-blue-200">
                                 End Date
                             </label>
                             <input
@@ -318,12 +318,12 @@ const ProductListing = ({ isOpen, onClose }) => {
                                 value={endDate}
                                 onChange={e => setEndDate(e.target.value)}
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black "
+                                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-white"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-black ">
+                            <label className="block text-sm font-medium text-blue-200">
                                 Main Image
                             </label>
                             <input
@@ -331,15 +331,15 @@ const ProductListing = ({ isOpen, onClose }) => {
                                 accept="image/*"
                                 onChange={(e) => handleImageUpload(e, true)}
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black "
+                                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                             />
                             {mainImageBase64 && (
-                                <img src={mainImageBase64} alt="Main" className="mt-2 w-32 h-32 object-cover rounded-lg" />
+                                <img src={mainImageBase64} alt="Main" className="mt-2 w-32 h-32 object-cover rounded-lg border border-white/20" />
                             )}
                         </div>
 
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <label className="block text-sm font-medium text-blue-200">
                                 Display Images
                             </label>
                             <input
@@ -347,11 +347,11 @@ const ProductListing = ({ isOpen, onClose }) => {
                                 accept="image/*"
                                 onChange={(e) => handleImageUpload(e, false)}
                                 multiple
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/5 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                             />
                             <div className="grid grid-cols-4 gap-2 mt-2">
                                 {displayImagesBase64.map((img, index) => (
-                                    <img key={index} src={img} alt={`Display ${index + 1}`} className="w-24 h-24 object-cover rounded-lg" />
+                                    <img key={index} src={img} alt={`Display ${index + 1}`} className="w-24 h-24 object-cover rounded-lg border border-white/20" />
                                 ))}
                             </div>
                         </div>
@@ -360,14 +360,14 @@ const ProductListing = ({ isOpen, onClose }) => {
                             <button
                                 type="button"
                                 onClick={() => setCurrentStep(1)}
-                                className="     px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                                className="px-4 py-2 text-sm font-medium text-white bg-white/10 rounded-lg hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/20"
                             >
                                 Back
                             </button>
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className=" px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Creating...' : 'Create Auction'}
                             </button>
