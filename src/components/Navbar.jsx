@@ -9,9 +9,10 @@ const Navbar = () => {
   const [visible, setVisible] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 })
+  const [username, setUsername] = useState("")
   const profileRef = useRef(null)
   const dropdownTimer = useRef(null)
-  const { setshowsearch, getcartsize } = useContext(ShopContext)
+  const { setshowsearch } = useContext(ShopContext)
   const { isLoggedIn, logout } = useContext(AuthContext)
 
   useEffect(() => {
@@ -24,6 +25,12 @@ const Navbar = () => {
       })
     }
   }, [showDropdown])
+
+  useEffect(() => {
+    const storedProfile = localStorage.getItem("userProfile");
+    const storedUser = storedProfile ? JSON.parse(storedProfile).name : null;
+    if (storedUser) setUsername(storedUser)
+  }, [isLoggedIn])
 
   const handleProfileEnter = () => {
     if (dropdownTimer.current) clearTimeout(dropdownTimer.current)
@@ -144,7 +151,7 @@ const Navbar = () => {
 
           {isLoggedIn ? (
             <div
-              className="relative"
+              className="relative flex items-center"
               ref={profileRef}
               onMouseEnter={handleProfileEnter}
               onMouseLeave={handleProfileLeave}
@@ -152,6 +159,7 @@ const Navbar = () => {
               <div className="text-white hover:text-blue-300 transition-colors duration-300 cursor-pointer p-1">
                 <img src={assets.profile_icon || "/placeholder.svg"} className="w-5" alt="Profile" />
               </div>
+              <span className="text-white mr-2 ps-2 hidden sm:inline-block max-w-[120px] truncate">{username}</span>
             </div>
           ) : (
             <Link to="/login" className="text-white hover:text-blue-300 transition-colors duration-300">
@@ -160,13 +168,6 @@ const Navbar = () => {
           )}
 
           {dropdownMenu}
-
-          <Link to="/cart" className="relative">
-            <img src={assets.cart_icon || "/placeholder.svg"} className="w-5" alt="Cart" />
-            <span className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center bg-blue-600 text-white text-xs rounded-full">
-              {getcartsize()}
-            </span>
-          </Link>
 
           <button
             onClick={() => setVisible(true)}
