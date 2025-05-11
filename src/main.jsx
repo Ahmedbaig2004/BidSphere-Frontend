@@ -8,7 +8,7 @@ import { AuthProvider } from './context/AuthContext.jsx'
 
 
 createRoot(document.getElementById('root')).render(
-  <BrowserRouter basename="/bidsphere">
+  <BrowserRouter basename="/">
   <AuthProvider>
   <ShopContextProvider>
       <App />

@@ -1,28 +1,122 @@
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
+import { useEffect, useState } from "react";
 import assets from "../assets/assets";
 
-const Hero = () => {
+// Particle component for background effect
+const Particle = ({ className }) => {
   return (
-    <div className="flex flex-col items-center justify-center border border-gray-400 py-[150px] ">
-      {/* Animated Logo */}
-      <motion.img
-        className="w-full sm:w-1/2"
-        src={assets.bidsphere}
-        alt="Logo"
-        initial={{ rotate: 0, scale: 0 }}
-        animate={{ rotate: 360, scale: 1 }}
-        transition={{ duration: 1 }}
-      />
+    <motion.div
+      className={`absolute rounded-full bg-blue-400 opacity-70 ${className}`}
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ 
+        opacity: [0, 0.4, 0], 
+        scale: [0, 1, 0.5],
+        y: [0, -100],
+        x: Math.random() > 0.5 ? [0, 50] : [0, -50] 
+      }}
+      transition={{ 
+        duration: 5 + Math.random() * 7,
+        repeat: Infinity,
+        repeatType: "loop",
+        ease: "easeInOut",
+        delay: Math.random() * 5
+      }}
+    />
+  );
+};
 
-      {/* Slogan with Delay */}
-      <motion.p
-        className="text-l font-semibold mt-5 opacity-0 dark:text-white"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.5, duration: 1 }}
-      >
-        "The Future of Bidding Starts Here!"
-      </motion.p>
+const Hero = () => {
+  const [isHovered, setIsHovered] = useState(false);
+  const controls = useAnimation();
+  
+  // Generate an array of letters from the slogan for letter animation
+  const slogan = "The Future of Bidding Starts Here!";
+  const letters = slogan.split("");
+  
+  // Start the sequence when component mounts
+  useEffect(() => {
+    controls.start(i => ({
+      opacity: 1,
+      y: 0,
+      transition: { 
+        delay: 1 + i * 0.05,
+        duration: 0.3
+      }
+    }));
+  }, [controls]);
+
+  return (
+    <div className="flex flex-col items-center justify-center px-4 py-4 relative overflow-hidden min-h-[50vh]">
+      {/* Particles background */}
+      {[...Array(15)].map((_, i) => (
+        <Particle 
+          key={i} 
+          className={`w-${2 + Math.floor(Math.random() * 8)} h-${2 + Math.floor(Math.random() * 8)}`}
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+          }}
+        />
+      ))}
+      
+      {/* Container with relative positioning for both logo and text */}
+      <div className="relative z-10">
+        {/* Logo with improved animation and hover effect */}
+        <motion.img
+          className="w-full sm:w-1/2 md:w-2/5 lg:w-[1000px] mx-auto cursor-pointer"
+          src={assets.herologo}
+          alt="Logo"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ 
+            scale: 1.05,
+            transition: { duration: 0.3 } 
+          }}
+          onHoverStart={() => setIsHovered(true)}
+          onHoverEnd={() => setIsHovered(false)}
+          transition={{ 
+            duration: 1.2,
+            ease: "easeOut"
+          }}
+        />
+        
+        {/* Glowing effect that appears on hover */}
+        <motion.div
+          className="absolute top-0 left-0 w-full h-full rounded-full bg-blue-500 filter blur-3xl"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isHovered ? 0.15 : 0 }}
+          transition={{ duration: 0.5 }}
+          style={{ zIndex: -1 }}
+        />
+        
+        {/* Animated letter-by-letter slogan */}
+        <div 
+          className="absolute text-center text-xl text-gray-300"
+          style={{ 
+            top: "70%", 
+            right: "13%",
+            width: "50%",
+            marginTop: "5px",
+            display: "flex",
+            justifyContent: "center",
+            flexWrap: "wrap"
+          }}
+        >
+          {letters.map((letter, i) => (
+            <motion.span
+              key={i}
+              custom={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={controls}
+            >
+              {letter === " " ? "\u00A0" : letter}
+            </motion.span>
+          ))}
+        </div>
+      </div>
+      
+      {/* Floating CTA button */}
+      
     </div>
   );
 };

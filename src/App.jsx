@@ -17,6 +17,10 @@ import { Navigate } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import UserDashboard from './pages/UserDashboard'
+import EmailVerification from './pages/EmailVerification'
+import EmailVerificationPending from './pages/EmailVerificationPending'
+import ResendVerification from './pages/ResendVerification'
+import PrivacyPolicy from './pages/PrivacyPolicy'
 
 const App = () => {
   return (
@@ -49,6 +53,10 @@ const App = () => {
             <Route path='/product-listing' element={<ProductListing/>} />
             <Route path='/auctions' element={<Auctions/>} />
             <Route path='/dashboard' element={<UserDashboard/>} />
+            <Route path='/verify-email' element={<EmailVerification/>} />
+            <Route path='/verify-email-pending' element={<EmailVerificationPending/>} />
+            <Route path='/resend-verification' element={<ResendVerification/>} />
+            <Route path='/privacy-policy' element={<PrivacyPolicy/>} />
             <Route path="*" element={<Navigate to="/" replace />}/>
           </Routes>
         </div>

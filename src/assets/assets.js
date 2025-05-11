@@ -55,7 +55,6 @@ import p_img12 from './p_img12.webp'
 // import p_img52 from './p_img52.png'
 
 
-import logo from './logo.png'
 import bin_icon from './bin_icon.png'
 import dropdown_icon from './dropdown_icon.png'
 import exchange_icon from './exchange_icon.png'
@@ -72,9 +71,10 @@ import razorpay_logo from './razorpay_logo.png'
 import stripe_logo from './stripe_logo.png'
 import cross_icon from './cross_icon.png'
 import bidsphere from './bidsphere.png'
+import herologo from './herologo.png'
 
 const assets = {
-    logo,
+    
     
     dropdown_icon,
     exchange_icon,
@@ -90,7 +90,8 @@ const assets = {
     contact_img,
     razorpay_logo,
     stripe_logo,
-    cross_icon,bidsphere
+    cross_icon,bidsphere,
+    herologo
 }
 
 export const products = [

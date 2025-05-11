@@ -86,10 +86,10 @@ const Navbar = () => {
     : null
 
   return (
-    <div className="backdrop-blur-lg bg-white/10 border-b border-white/20 py-4">
-      <div className="flex items-center justify-between px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+    <div className="backdrop-blur-lg bg-white/10 border-b border-white/20 py-3 ">
+      <div className="flex items-center justify-between px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] overflow-hidden">
         <Link to="/" className="flex items-center">
-          <img src={assets.bidsphere || "/placeholder.svg"} className="w-36" alt="Logo" />
+          <img src={assets.bidsphere || "/placeholder.svg"} className="h-8 sm:h-10 md:h-10" alt="Logo" />
         </Link>
 
         {/* Desktop NavLinks */}
@@ -146,7 +146,7 @@ const Navbar = () => {
             onClick={() => setshowsearch(true)}
             className="text-white hover:text-blue-300 transition-colors duration-300"
           >
-            <img src={assets.search_icon || "/placeholder.svg"} className="w-5" alt="Search" />
+            <img src={assets.search_icon || "/placeholder.svg"} className="h-7 w-7" alt="Search" />
           </button>
 
           {isLoggedIn ? (

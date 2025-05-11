@@ -84,7 +84,7 @@ const LatestAuctions = () => {
   };
 
   return (
-    <div className="py-16 relative">
+    <div className="py-20 relative">
       <div className="text-center text-3xl py-8">
         <Title text1="LATEST" text2="AUCTIONS" />
         <p className="max-w-2xl mx-auto mt-4 text-sm text-white/70">

@@ -587,7 +587,7 @@ const Product = () => {
             toast.error('Insufficient funds: Your bid amount exceeds your wallet balance.');
             break;
           default:
-            toast.error(`Failed to place bid: ${response.status}`);
+            toast.error(`Failed to place bid: ${response.message}`);
         }
         throw new Error(`${response.status}`);
       }
