@@ -7,10 +7,10 @@ const ProductItem = ({item, name, id, image, price, category, subCategory}) => {
     const location = useLocation();
     
     // Get current path to determine if we're on the collection page
-    const isCollectionPage = location.pathname === '/collection';
+    const isAuctionPage = location.pathname === '/auctions';
     
     // Create state to pass with Link navigation
-    const linkState = isCollectionPage ? { 
+    const linkState = isAuctionPage ? { 
       category: category || '',
       subCategory: subCategory || '' 
     } : {};

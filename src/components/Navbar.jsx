@@ -106,14 +106,14 @@ const Navbar = () => {
             <hr className="w-2/4 border-none h-[1.5px] bg-blue-400" />
           </NavLink>
           <NavLink
-            to="/collection"
+            to="/auctions"
             className={({ isActive }) =>
               `flex flex-col items-center gap-1 transition-colors duration-300 ${
                 isActive ? "text-blue-400" : "text-white hover:text-blue-300"
               }`
             }
           >
-            <p>COLLECTION</p>
+            <p>AUCTIONS</p>
             <hr className="w-2/4 border-none h-[1.5px] bg-blue-400" />
           </NavLink>
           <NavLink

@@ -1,13 +1,12 @@
 import React from 'react'
 import { Route,Routes } from 'react-router-dom'
 import Home from './pages/Home'
-import Collection from './pages/Collection'
 import Contact from './pages/Contact'
 import About from './pages/About'
 import Product from './pages/Product'
-import Cart from './pages/Cart'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import Auctions from './pages/Auctions'
 import Orders from './pages/Orders'
 import Placeorder from './pages/Placeorder'
 import Navbar from './components/Navbar'
@@ -40,16 +39,15 @@ const App = () => {
           />
           <Routes>
             <Route path='/' element={<Home/>} />
-            <Route path='/collection' element={<Collection/>} />
             <Route path='/about' element={<About/>} />
             <Route path='/contact' element={<Contact/>} />
             <Route path='/product/:productId' element={<Product/>} />
-            <Route path='/cart' element={<Cart/>} />
             <Route path='/login' element={<Login/>} />
             <Route path='/register' element={<Register/>} />
             <Route path='/orders' element={<Orders/>} />
             <Route path='/place-order' element={<Placeorder/>} />
             <Route path='/product-listing' element={<ProductListing/>} />
+            <Route path='/auctions' element={<Auctions/>} />
             <Route path='/dashboard' element={<UserDashboard/>} />
             <Route path="*" element={<Navigate to="/" replace />}/>
           </Routes>

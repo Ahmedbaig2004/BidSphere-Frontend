@@ -11,53 +11,7 @@ const ShopContextProvider = (props) => {
   const [search, setsearch] = useState('');
   const [showsearch, setshowsearch] = useState(false);
   
-  // Now cartItems is a mapping from product _id to a simple quantity (number)
-  const [cartItems, setCartItems] = useState({});
-
-  // Add to cart: simply increments the quantity for a given item
-  const addtocart = async (itemId) => {
-    let cartData = structuredClone(cartItems);
-    if (cartData[itemId]) {
-      cartData[itemId] += 1;
-    } else {
-      cartData[itemId] = 1;
-    }
-    setCartItems(cartData);
-  };
-
-  useEffect(() => {
-    console.log(cartItems);
-  }, [cartItems]);
-
-  // Update the quantity of a given item in the cart
-  const updatequantity = (itemId, quantity) => {
-    const cartdata = structuredClone(cartItems);
-    cartdata[itemId] = quantity;
-    setCartItems(cartdata);
-  };
-
-  // Get total number of items in the cart
-  const getcartsize = () => {
-    let TotalCount = 0;
-    for (const item in cartItems) {
-      if (cartItems[item] > 0) {
-        TotalCount += cartItems[item];
-      }
-    }
-    return TotalCount;
-  };
-
-  // Calculate the total cost of the cart
-  const getcarttotal = () => {
-    let total_price = 0;
-    for (const itemId in cartItems) {
-      const product = products.find((product) => product._id === itemId);
-      if (product) {
-        total_price += product.price * cartItems[itemId];
-      }
-    }
-    return total_price;
-  };
+  // Cart-related state and functions removed
 
   const value = {
     currency,
@@ -67,11 +21,6 @@ const ShopContextProvider = (props) => {
     setsearch,
     showsearch,
     setshowsearch,
-    cartItems,
-    addtocart,
-    getcartsize,
-    updatequantity,
-    getcarttotal,
   };
 
   return (

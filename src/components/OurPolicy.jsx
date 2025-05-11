@@ -3,22 +3,57 @@ import assets from '../assets/assets'
 
 const OurPolicy = () => {
   return (
-    <div className='flex flex-col sm:flex-row justify-around gap-12 sm:gap-2 text-center py-20 text-xs sm:text-sm md:text-base text-gray-700'>
-      <div>
-        <img src={assets.exchange_icon } className='w-12 m-auto mb-5' alt="" />
-        <p className='font-semibold'>Easy Exchange Policy</p>
-        <p className='text-gray-400'>We offer hassle free exchange policy</p>
+    <div className='backdrop-blur-lg bg-white/5 rounded-xl border border-white/10 p-8 shadow-xl'>
+      <h2 className='text-2xl font-bold text-white mb-6 text-center'>Our Auction Policies</h2>
+      
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+        {/* Bidding Policy */}
+        <div className='flex flex-col items-center backdrop-blur-lg bg-blue-900/10 p-6 rounded-xl border border-blue-800/20 hover:border-blue-400/30 transition-all duration-300 hover:bg-blue-900/20'>
+          <div className='w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mb-5'>
+            <img src={assets.exchange_icon} className='w-8 h-8' alt="Bidding Policy" />
+          </div>
+          <p className='font-semibold text-blue-300 mb-2'>Secure Bidding Process</p>
+          <p className='text-blue-200 text-sm text-center'>All bids are binding and secure with our blockchain verification system</p>
+        </div>
+        
+        {/* Quality Assurance */}
+        <div className='flex flex-col items-center backdrop-blur-lg bg-blue-900/10 p-6 rounded-xl border border-blue-800/20 hover:border-blue-400/30 transition-all duration-300 hover:bg-blue-900/20'>
+          <div className='w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mb-5'>
+            <img src={assets.quality_icon} className='w-8 h-8' alt="Quality Assurance" />
+          </div>
+          <p className='font-semibold text-blue-300 mb-2'>Item Authenticity</p>
+          <p className='text-blue-200 text-sm text-center'>All items are verified and authenticated before listing</p>
+        </div>
+        
+        {/* Customer Support */}
+        <div className='flex flex-col items-center backdrop-blur-lg bg-blue-900/10 p-6 rounded-xl border border-blue-800/20 hover:border-blue-400/30 transition-all duration-300 hover:bg-blue-900/20'>
+          <div className='w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mb-5'>
+            <img src={assets.support_img} className='w-8 h-8' alt="Customer Support" />
+          </div>
+          <p className='font-semibold text-blue-300 mb-2'>24/7 Auction Support</p>
+          <p className='text-blue-200 text-sm text-center'>Our team is available 24/7 to assist with any auction-related inquiries</p>
+        </div>
       </div>
-      <div>
-        <img src={assets.quality_icon } className='w-12 m-auto mb-5' alt="" />
-        <p className='font-semibold'>7 days return</p>
-        <p className='text-gray-400'>We provide 7 days free return policy</p>
+      
+      {/* Additional policies section */}
+      <div className='mt-12 grid grid-cols-1 md:grid-cols-2 gap-8'>
+        <div className='backdrop-blur-lg bg-blue-900/10 p-6 rounded-xl border border-blue-800/20'>
+          <h3 className='text-lg font-medium text-white mb-3'>Payment & Escrow</h3>
+          <ul className='space-y-2 text-blue-200 text-sm'>
+            <li className='flex items-start'>
+              <span className='text-blue-400 mr-2'>•</span>
+              <span>Secure escrow system protects both buyers and sellers</span>
+            </li>
+           
+            
+          </ul>
+        </div>
+        
+    
       </div>
-      <div>
-        <img src={assets.support_img } className='w-12 m-auto mb-5' alt="" />
-        <p className='font-semibold'>Customer Support</p>
-        <p className='text-gray-400'>24/7 Customer Support for your needs</p>
-      </div>
+      
+    
+     
     </div>
   )
 }

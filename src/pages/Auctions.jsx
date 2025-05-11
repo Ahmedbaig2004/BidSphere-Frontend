@@ -6,7 +6,7 @@ import ProductItem from '../components/ProductItem';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Collection = () => {
+const Auctions = () => {
   // Define categories with proper formatting for API compatibility
   const categoryMap = {
     "Electronics": "ELECTRONICS",
@@ -238,8 +238,8 @@ const Collection = () => {
           {/* Products Grid */}
           <div className="flex-1">
             <div className="backdrop-blur-lg bg-white/10 rounded-2xl border border-white/20 p-6">
-              <div className="text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                <Title text1="ALL" text2="COLLECTIONS" />
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <Title  text1="ALL" text2="AUCTIONS" />
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                  
                   <select
@@ -286,4 +286,4 @@ const Collection = () => {
   );
 };
 
-export default Collection;
+export default Auctions

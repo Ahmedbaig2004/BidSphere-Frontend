@@ -670,10 +670,10 @@ const Register = () => {
       <div className="w-1/2 flex items-center justify-center p-8 bg-gradient-to-br from-blue-900/50 to-black/50">
         <div className="max-w-lg text-center">
           <h1 className="text-5xl font-bold text-white mb-6 animate-fade-in">
-            Join BidNex Today
+            Join BidSphere Today
           </h1>
           <p className="text-xl text-blue-200 leading-relaxed animate-fade-in-delay">
-            Experience the future of digital commerce. Create your account and start your journey with BidNex - where innovation meets opportunity.
+            Experience the future of digital commerce. Create your account and start your journey with BidSphere - where innovation meets opportunity.
           </p>
           <div className="mt-8 flex justify-center space-x-4">
             <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>

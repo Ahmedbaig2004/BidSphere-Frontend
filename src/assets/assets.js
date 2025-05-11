@@ -56,7 +56,6 @@ import p_img12 from './p_img12.webp'
 
 
 import logo from './logo.png'
-import cart_icon from './cart_icon.png'
 import bin_icon from './bin_icon.png'
 import dropdown_icon from './dropdown_icon.png'
 import exchange_icon from './exchange_icon.png'
@@ -77,7 +76,6 @@ import bidsphere from './bidsphere.png'
 const assets = {
     logo,
     
-    cart_icon,
     dropdown_icon,
     exchange_icon,
     profile_icon,
@@ -230,7 +228,7 @@ export const products = [
     },
     {
         _id: "aaaal",
-        name: "Men’s Running Shoes - Lightweight & Breathable",
+        name: "Men's Running Shoes - Lightweight & Breathable",
         description: "High-quality running shoes with a lightweight design, breathable mesh, and superior grip.",
         price: 120,
         image: [p_img12],

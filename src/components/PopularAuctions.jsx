@@ -5,7 +5,7 @@ import ProductItem from './ProductItem.jsx';
 import ProductDrawer from './ProductDrawer.jsx';
 import { Link } from 'react-router-dom';
 
-const BestSeller = () => {
+const PopularAuctions = () => {
   const { currency } = useContext(ShopContext);
   const [bestSeller, setBestSeller] = useState([]);
   const [hoveredProduct, setHoveredProduct] = useState(null);
@@ -87,7 +87,7 @@ const BestSeller = () => {
   return (
     <div className="my-10">
       <div className="text-center text-3xl py-8">
-        <Title text1={'POPULAR'} text2={'BIDS'} />
+        <Title text1={'POPULAR'} text2={'AUCTIONS'} />
         <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-white/70">
           Explore the most sought-after listings with the highest number of bids. These trending items are in high demand — join the competition before they're gone!
         </p>
@@ -155,4 +155,4 @@ const BestSeller = () => {
   );
 };
 
-export default BestSeller;
+export default PopularAuctions;

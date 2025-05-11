@@ -5,7 +5,7 @@ import ProductItem from './ProductItem.jsx';
 import ProductDrawer from './ProductDrawer.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const LatestCollection = () => {
+const LatestAuctions = () => {
   const [latestProducts, setLatestProducts] = useState([]);
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
@@ -85,8 +85,8 @@ const LatestCollection = () => {
 
   return (
     <div className="py-16 relative">
-      <div className="text-center mb-12">
-        <Title text1="LATEST" text2="BIDS" />
+      <div className="text-center text-3xl py-8">
+        <Title text1="LATEST" text2="AUCTIONS" />
         <p className="max-w-2xl mx-auto mt-4 text-sm text-white/70">
           Discover the most recent items attracting attention. These listings have just received bids and are heating up fast — don't miss your chance to make a move!
         </p>
@@ -160,4 +160,4 @@ const LatestCollection = () => {
   );
 };
 
-export default LatestCollection;
+export default LatestAuctions;
