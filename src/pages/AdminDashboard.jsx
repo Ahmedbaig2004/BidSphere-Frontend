@@ -30,7 +30,7 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
   const fetchListingData = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`http://150.136.175.145:2278/api/listing/${listingId}`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/listing/${listingId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch listing data');
       }
@@ -46,7 +46,7 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
 
   const handleTerminateAuction = async () => {
     try {
-      const response = await fetch(`http://150.136.175.145:2278/api/listing/terminate/${listingId}`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/listing/terminate/${listingId}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -212,7 +212,7 @@ const AdminDashboard = () => {
   const fetchListings = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://150.136.175.145:2278/api/listing/homepage');
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/listing/homepage`);
       if (!response.ok) {
         throw new Error('Failed to fetch listings');
       }
@@ -238,7 +238,7 @@ const AdminDashboard = () => {
         sortDirection: "desc"
       };
 
-      const response = await fetch('http://150.136.175.145:2278/api/listing/catalog', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/listing/catalog`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -369,71 +369,71 @@ const AdminDashboard = () => {
           <h1 className="text-4xl font-bold text-white mb-8">Admin Dashboard</h1>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {/* Listing Statistics */}
-            <div className="backdrop-blur-lg bg-white/5 p-6 rounded-xl border border-white/10">
-              <h3 className="text-lg font-medium text-white mb-4">Listing Statistics</h3>
-              <div className="space-y-4">
+            <div className="backdrop-blur-lg bg-white/5 p-4 rounded-xl border border-white/10">
+              <h3 className="text-base font-medium text-white mb-3">Listing Statistics</h3>
+              <div className="space-y-2">
                 <div>
-                  <p className="text-blue-200 text-sm">Active Listings</p>
-                  <p className="text-2xl font-bold text-white">{listingStats.active}</p>
+                  <p className="text-blue-200 text-xs">Active Listings</p>
+                  <p className="text-xl font-bold text-white">{listingStats.active}</p>
                 </div>
                 <div>
-                  <p className="text-blue-200 text-sm">Completed Listings</p>
-                  <p className="text-2xl font-bold text-white">{listingStats.completed}</p>
+                  <p className="text-blue-200 text-xs">Completed Listings</p>
+                  <p className="text-xl font-bold text-white">{listingStats.completed}</p>
                 </div>
                 <div>
-                  <p className="text-blue-200 text-sm">Terminated Listings</p>
-                  <p className="text-2xl font-bold text-white">{listingStats.terminated}</p>
+                  <p className="text-blue-200 text-xs">Terminated Listings</p>
+                  <p className="text-xl font-bold text-white">{listingStats.terminated}</p>
                 </div>
               </div>
             </div>
 
             {/* User Statistics */}
-            <div className="backdrop-blur-lg bg-white/5 p-6 rounded-xl border border-white/10">
-              <h3 className="text-lg font-medium text-white mb-4">User Statistics</h3>
-              <div className="space-y-4">
+            <div className="backdrop-blur-lg bg-white/5 p-4 rounded-xl border border-white/10">
+              <h3 className="text-base font-medium text-white mb-3">User Statistics</h3>
+              <div className="space-y-2">
                 <div>
-                  <p className="text-blue-200 text-sm">Total Users</p>
-                  <p className="text-2xl font-bold text-white">{userStats.totalUsers}</p>
+                  <p className="text-blue-200 text-xs">Total Users</p>
+                  <p className="text-xl font-bold text-white">{userStats.totalUsers}</p>
                 </div>
                 <div>
-                  <p className="text-blue-200 text-sm">Active Sellers</p>
-                  <p className="text-2xl font-bold text-white">{userStats.activeSellers}</p>
+                  <p className="text-blue-200 text-xs">Active Sellers</p>
+                  <p className="text-xl font-bold text-white">{userStats.activeSellers}</p>
                 </div>
                 <div>
-                  <p className="text-blue-200 text-sm">Active Bidders</p>
-                  <p className="text-2xl font-bold text-white">{userStats.activeBidders}</p>
+                  <p className="text-blue-200 text-xs">Active Bidders</p>
+                  <p className="text-xl font-bold text-white">{userStats.activeBidders}</p>
                 </div>
                 <div>
-                  <p className="text-blue-200 text-sm">New Users (24h)</p>
-                  <p className="text-2xl font-bold text-white">{userStats.newUsers}</p>
+                  <p className="text-blue-200 text-xs">New Users (24h)</p>
+                  <p className="text-xl font-bold text-white">{userStats.newUsers}</p>
                 </div>
               </div>
             </div>
 
             {/* Category Statistics */}
-            <div className="backdrop-blur-lg bg-white/5 p-6 rounded-xl border border-white/10">
-              <h3 className="text-lg font-medium text-white mb-4">Category Statistics</h3>
-              <div className="space-y-4">
+            <div className="backdrop-blur-lg bg-white/5 p-4 rounded-xl border border-white/10">
+              <h3 className="text-base font-medium text-white mb-3">Category Statistics</h3>
+              <div className="space-y-2">
                 <div>
-                  <p className="text-blue-200 text-sm mb-2">Most Popular Categories</p>
-                  <div className="space-y-2">
+                  <p className="text-blue-200 text-xs mb-1">Most Popular Categories</p>
+                  <div className="space-y-1">
                     {categoryStats.popularCategories.map(([category, count]) => (
                       <div key={category} className="flex justify-between items-center">
-                        <span className="text-white text-sm">{category}</span>
-                        <span className="text-blue-200 text-sm">{count}</span>
+                        <span className="text-white text-xs">{category}</span>
+                        <span className="text-blue-200 text-xs">{count}</span>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div className="pt-4">
-                  <p className="text-blue-200 text-sm mb-2">Most Active Categories</p>
-                  <div className="space-y-2">
+                <div className="pt-2">
+                  <p className="text-blue-200 text-xs mb-1">Most Active Categories</p>
+                  <div className="space-y-1">
                     {categoryStats.activeCategories.map(([category, count]) => (
                       <div key={category} className="flex justify-between items-center">
-                        <span className="text-white text-sm">{category}</span>
-                        <span className="text-blue-200 text-sm">{count}</span>
+                        <span className="text-white text-xs">{category}</span>
+                        <span className="text-blue-200 text-xs">{count}</span>
                       </div>
                     ))}
                   </div>
@@ -442,31 +442,31 @@ const AdminDashboard = () => {
             </div>
 
             {/* Time-based Statistics */}
-            <div className="backdrop-blur-lg bg-white/5 p-6 rounded-xl border border-white/10">
-              <h3 className="text-lg font-medium text-white mb-4">Time-based Statistics</h3>
-              <div className="mb-4">
+            <div className="backdrop-blur-lg bg-white/5 p-4 rounded-xl border border-white/10">
+              <h3 className="text-base font-medium text-white mb-3">Time-based Statistics</h3>
+              <div className="mb-3">
                 <select
                   value={timeFilter}
                   onChange={(e) => setTimeFilter(e.target.value)}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
+                  className="w-full bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-gray-400 text-sm"
                 >
                   <option value="week">Last Week</option>
                   <option value="month">Last Month</option>
                   <option value="year">Last Year</option>
                 </select>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div>
-                  <p className="text-blue-200 text-sm">Listings Created</p>
-                  <p className="text-2xl font-bold text-white">{timeStats.created}</p>
+                  <p className="text-blue-200 text-xs">Listings Created</p>
+                  <p className="text-xl font-bold text-white">{timeStats.created}</p>
                 </div>
                 <div>
-                  <p className="text-blue-200 text-sm">Listings Ending</p>
-                  <p className="text-2xl font-bold text-white">{timeStats.ending}</p>
+                  <p className="text-blue-200 text-xs">Listings Ending</p>
+                  <p className="text-xl font-bold text-white">{timeStats.ending}</p>
                 </div>
                 <div>
-                  <p className="text-blue-200 text-sm">Bids Placed</p>
-                  <p className="text-2xl font-bold text-white">{timeStats.bids}</p>
+                  <p className="text-blue-200 text-xs">Bids Placed</p>
+                  <p className="text-xl font-bold text-white">{timeStats.bids}</p>
                 </div>
               </div>
             </div>

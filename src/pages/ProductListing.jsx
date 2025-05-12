@@ -68,7 +68,7 @@ const ProductListing = ({ isOpen, onClose, onSuccess }) => {
                 image: formattedImage
             };
 
-            const mediaRes = await fetch('http://150.136.175.145:2278/api/media/upload', {
+            const mediaRes = await fetch(`${import.meta.env.VITE_BASE_URL}/api/media/upload`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ const ProductListing = ({ isOpen, onClose, onSuccess }) => {
         };
 
         try {
-            const res = await fetch('http://150.136.175.145:2278/api/product/create', {
+            const res = await fetch(`${import.meta.env.VITE_BASE_URL}/api/product/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ const ProductListing = ({ isOpen, onClose, onSuccess }) => {
                 displayImageIds: displayImageUploadIds
             };
 
-            const res = await fetch('http://150.136.175.145:2278/api/product/publish', {
+            const res = await fetch(`${import.meta.env.VITE_BASE_URL}/api/product/publish`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -30,7 +30,7 @@ const SearchBar = () => {
                 sortDirection: "desc"
             };
 
-            const response = await fetch('http://150.136.175.145:2278/api/listing/catalog', {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/listing/catalog`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

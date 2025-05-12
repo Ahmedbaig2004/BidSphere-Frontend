@@ -33,27 +33,25 @@ const Auctions = () => {
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [sortType, setsorttype] = useState('relevant');
   const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [priceRange, setPriceRange] = useState({ start: 0, end: 0 });
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchCatalog = async () => {
     setIsLoading(true);
     try {
-      // Simplify the request to avoid enum parsing issues
       const requestBody = {
         textQuery: search || "",
-        // Instead of sending string values that should be enums, just send empty array
         categories: [],
-        // Don't send subcategories either
         subCategories: [],
         priceStart: priceRange.start || 0,
         priceEnd: priceRange.end || 0,
-        page: page || 0
+        page: page
       };
       
       console.log("Sending catalog request:", requestBody);
       
-      const response = await fetch('http://150.136.175.145:2278/api/listing/catalog', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/listing/catalog`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,29 +68,26 @@ const Auctions = () => {
       const data = await response.json();
       console.log("Received catalog data:", data);
       
-      // Since we're not sending category filters to backend, apply filtering client-side
       let filteredListings = data.listings || [];
       
-      // Apply category filter if selected
       if (selectedCategory && filteredListings.length > 0) {
-        console.log("Filtering by category:", selectedCategory);
         filteredListings = filteredListings.filter(listing => 
           listing.product.category === selectedCategory
         );
       }
       
-      // Apply subcategory filter if selected
       if (selectedSubcategories.length > 0 && filteredListings.length > 0) {
-        console.log("Filtering by subcategories:", selectedSubcategories);
         filteredListings = filteredListings.filter(listing => 
           selectedSubcategories.includes(listing.product.subCategory)
         );
       }
       
       setListings(filteredListings);
+      // Assuming the API returns total count, calculate total pages
+      // If not provided, you might need to adjust this logic
+      setTotalPages(Math.ceil((data.totalCount || 0) / 12)); // Assuming 12 items per page
     } catch (error) {
       console.error('Error fetching catalog:', error);
-      // Don't clear existing listings on error
     } finally {
       setIsLoading(false);
     }
@@ -258,25 +253,72 @@ const Auctions = () => {
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {listings.length > 0 ? (
-                    listings.map((listing) => (
-                      <ProductItem
-                        key={listing.listingId}
-                        id={listing.listingId}
-                        name={listing.product.name}
-                        image={`http://150.136.175.145:2280/cdn/${listing.mainImageId}.png`}
-                        price={listing.latestBid?.bidPrice || listing.startingPrice}
-                        category={selectedCategory}
-                        subCategory={selectedSubcategories.length > 0 ? selectedSubcategories.join(',') : ''}
-                      />
-                    ))
-                  ) : (
-                    <div className="col-span-full text-center py-12">
-                      <p className="text-white text-lg">No products found.</p>
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {listings.length > 0 ? (
+                      listings.map((listing) => (
+                        <ProductItem
+                          key={listing.listingId}
+                          id={listing.listingId}
+                          name={listing.product.name}
+                          image={`http://150.136.175.145:2280/cdn/${listing.mainImageId}.png`}
+                          price={listing.latestBid?.bidPrice || listing.startingPrice}
+                          category={selectedCategory}
+                          subCategory={selectedSubcategories.length > 0 ? selectedSubcategories.join(',') : ''}
+                        />
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center py-12">
+                        <p className="text-white text-lg">No products found.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-2 mt-8">
+                      <button
+                        onClick={() => setPage(prev => Math.max(0, prev - 1))}
+                        disabled={page === 0}
+                        className={`px-4 py-2 rounded-lg ${
+                          page === 0
+                            ? 'bg-white/10 text-white/50 cursor-not-allowed'
+                            : 'bg-white/20 text-white hover:bg-white/30'
+                        }`}
+                      >
+                        Previous
+                      </button>
+                      
+                      <div className="flex items-center gap-2">
+                        {[...Array(totalPages)].map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setPage(index)}
+                            className={`w-8 h-8 rounded-lg ${
+                              page === index
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white/20 text-white hover:bg-white/30'
+                            }`}
+                          >
+                            {index + 1}
+                          </button>
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={() => setPage(prev => Math.min(totalPages - 1, prev + 1))}
+                        disabled={page === totalPages - 1}
+                        className={`px-4 py-2 rounded-lg ${
+                          page === totalPages - 1
+                            ? 'bg-white/10 text-white/50 cursor-not-allowed'
+                            : 'bg-white/20 text-white hover:bg-white/30'
+                        }`}
+                      >
+                        Next
+                      </button>
                     </div>
                   )}
-                </div>
+                </>
               )}
             </div>
           </div>

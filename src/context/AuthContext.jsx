@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        await fetch('http://150.136.175.145:2278/api/session/delete', {
+        await fetch(`${import.meta.env.VITE_BASE_URL}/api/session/delete`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

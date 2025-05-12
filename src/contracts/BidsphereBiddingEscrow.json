@@ -1,0 +1,109 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_holdingAccount",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "listingId",
+          "type": "bytes16"
+        },
+        {
+          "internalType": "uint256",
+          "name": "bidAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "placeBid",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "listingId",
+          "type": "bytes16"
+        }
+      ],
+      "name": "endListing",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "productId",
+          "type": "bytes16"
+        }
+      ],
+      "name": "getCurrentOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "",
+          "type": "bytes16"
+        }
+      ],
+      "name": "listings",
+      "outputs": [
+        {
+          "internalType": "bytes16",
+          "name": "productId",
+          "type": "bytes16"
+        },
+        {
+          "internalType": "address",
+          "name": "sellerWallet",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startingPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "highestBidder",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "highestBid",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "ended",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+} 

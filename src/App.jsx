@@ -22,6 +22,7 @@ import EmailVerificationPending from './pages/EmailVerificationPending'
 import ResendVerification from './pages/ResendVerification'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import AdminDashboard from './pages/AdminDashboard'
+import AdminLogin from './pages/AdminLogin'
 
 const App = () => {
   // Handle redirects for base path issues
@@ -73,6 +74,7 @@ const App = () => {
             <Route path='/resend-verification' element={<ResendVerification/>} />
             <Route path='/privacy-policy' element={<PrivacyPolicy/>} />
             <Route path='/admin-dashboard' element={<AdminDashboard/>} />
+            <Route path='/admin-login' element={<AdminLogin/>} />
             <Route path="*" element={<Navigate to="/" replace />}/>
           </Routes>
         </div>

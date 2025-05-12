@@ -79,7 +79,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
       };
 
       // Use the working endpoint from Register.jsx
-      const mediaRes = await fetch('http://150.136.175.145:2278/api/media/upload', {
+      const mediaRes = await fetch(`${import.meta.env.VITE_BASE_URL}/api/media/upload`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
         currentPassword: currentPassword
       };
 
-      const response = await fetch('http://150.136.175.145:2278/api/user/update', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
         currentPassword: currentPassword
       };
 
-      const response = await fetch('http://150.136.175.145:2278/api/user/update', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -246,7 +246,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
         currentPassword: currentPassword
       };
 
-      const response = await fetch('http://150.136.175.145:2278/api/user/update', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -300,7 +300,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
         newPassword: newPassword
       };
 
-      const response = await fetch('http://150.136.175.145:2278/api/user/update', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -649,7 +649,7 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
   const fetchListingData = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`http://150.136.175.145:2278/api/listing/${listingId}`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/listing/${listingId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch listing data');
       }
@@ -665,7 +665,7 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
 
   const handleTerminateAuction = async () => {
     try {
-      const response = await fetch(`http://150.136.175.145:2278/api/listing/terminate/${listingId}`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/listing/terminate/${listingId}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -884,7 +884,7 @@ const UserDashboard = () => {
   const fetchUserData = async () => {
     setLoading(prev => ({ ...prev, profile: true }));
     try {
-      const res = await fetch(`http://150.136.175.145:2278/api/user/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -903,7 +903,7 @@ const UserDashboard = () => {
   const fetchInventory = async () => {
     setLoading(prev => ({ ...prev, inventory: true }));
     try {
-      const res = await fetch(`http://150.136.175.145:2278/api/user/inventory/${inventoryPage}`, {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/inventory/${inventoryPage}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -925,7 +925,7 @@ const UserDashboard = () => {
   const fetchHistory = async () => {
     setLoading(prev => ({ ...prev, history: true }));
     try {
-      const res = await fetch(`http://150.136.175.145:2278/api/user/history/${historyPage}`, {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/history/${historyPage}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

@@ -83,7 +83,7 @@ const Register = () => {
     setUsernameError('');
     
     try {
-      const response = await fetch('http://150.136.175.145:2278/api/registration/verify/username', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/registration/verify/username`, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain',
@@ -117,7 +117,7 @@ const Register = () => {
     setEmailError('');
     
     try {
-      const response = await fetch('http://150.136.175.145:2278/api/registration/verify/email', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/registration/verify/email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain',
@@ -161,7 +161,7 @@ const Register = () => {
     setWalletAddressError('');
     
     try {
-      const response = await fetch('http://150.136.175.145:2278/api/registration/verify/walletAddress', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/registration/verify/walletAddress`, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain',
@@ -256,7 +256,7 @@ const Register = () => {
 
       // Trying the direct API endpoint (port 2278)
       try {
-        const mediaRes = await fetch('http://150.136.175.145:2278/api/media/upload', {
+        const mediaRes = await fetch(`${import.meta.env.VITE_BASE_URL}/api/media/upload`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -398,7 +398,7 @@ const Register = () => {
       
         console.log("Sending registration payload:", JSON.stringify(payload, null, 2));
   
-        const registerRes = await fetch('http://150.136.175.145:2278/api/registration/create', {
+        const registerRes = await fetch(`${import.meta.env.VITE_BASE_URL}/api/registration/create`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

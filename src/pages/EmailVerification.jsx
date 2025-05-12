@@ -22,7 +22,7 @@ const EmailVerification = () => {
         }
 
         // Call API to verify email
-        const response = await fetch('http://150.136.175.145:2278/api/verification/verify', {
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/verification/verify`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
