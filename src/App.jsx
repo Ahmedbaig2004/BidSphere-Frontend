@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Route,Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import Contact from './pages/Contact'
@@ -7,7 +7,7 @@ import Product from './pages/Product'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Auctions from './pages/Auctions'
-import Orders from './pages/Orders'
+
 import Placeorder from './pages/Placeorder'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -21,8 +21,23 @@ import EmailVerification from './pages/EmailVerification'
 import EmailVerificationPending from './pages/EmailVerificationPending'
 import ResendVerification from './pages/ResendVerification'
 import PrivacyPolicy from './pages/PrivacyPolicy'
+import AdminDashboard from './pages/AdminDashboard'
 
 const App = () => {
+  // Handle redirects for base path issues
+  useEffect(() => {
+    const currentPath = window.location.pathname;
+    const shouldBeOnBasePath = !currentPath.startsWith('/bidsphere') && 
+                               process.env.NODE_ENV === 'production';
+    
+    // If we're in production and not on the base path, redirect
+    if (shouldBeOnBasePath && currentPath !== '/') {
+      window.location.href = `/bidsphere${currentPath}`;
+    } else if (shouldBeOnBasePath && currentPath === '/') {
+      window.location.href = '/bidsphere/';
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-blue-900 overflow-x-hidden">
       <Navbar/>
@@ -48,7 +63,7 @@ const App = () => {
             <Route path='/product/:productId' element={<Product/>} />
             <Route path='/login' element={<Login/>} />
             <Route path='/register' element={<Register/>} />
-            <Route path='/orders' element={<Orders/>} />
+          
             <Route path='/place-order' element={<Placeorder/>} />
             <Route path='/product-listing' element={<ProductListing/>} />
             <Route path='/auctions' element={<Auctions/>} />
@@ -57,6 +72,7 @@ const App = () => {
             <Route path='/verify-email-pending' element={<EmailVerificationPending/>} />
             <Route path='/resend-verification' element={<ResendVerification/>} />
             <Route path='/privacy-policy' element={<PrivacyPolicy/>} />
+            <Route path='/admin-dashboard' element={<AdminDashboard/>} />
             <Route path="*" element={<Navigate to="/" replace />}/>
           </Routes>
         </div>

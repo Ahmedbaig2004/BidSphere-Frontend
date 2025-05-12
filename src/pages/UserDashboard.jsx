@@ -70,7 +70,6 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
     if (!avatarBase64) return avatarId;
 
     try {
-      // Formatting the base64 string correctly
       const formattedImage = avatarBase64.includes(',')
         ? avatarBase64.split(',')[1]
         : avatarBase64;
@@ -79,21 +78,28 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
         image: formattedImage
       };
 
-      const response = await fetch(`http://150.136.175.145:2280/cdn/upload/${avatarId}`, {
+      // Use the working endpoint from Register.jsx
+      const mediaRes = await fetch('http://150.136.175.145:2278/api/media/upload', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(15000), // 15-second timeout
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to upload avatar image');
+      // Get the response text
+      const responseText = await mediaRes.text();
+      console.log('Upload response:', responseText);
+      
+      if (!mediaRes.ok) {
+        throw new Error(`Upload failed with status: ${mediaRes.status}`);
       }
-
-      return avatarId;
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
+      
+      // Return the response text which contains the new image ID
+      return responseText;
+    } catch (err) {
+      console.error('Error uploading image:', err);
       setErrorMessage('Failed to upload avatar. Please try again.');
       return null;
     }
@@ -106,27 +112,28 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
       return;
     }
     
+    if (!avatarBase64) {
+      setErrorMessage('No avatar selected');
+      return;
+    }
+    
     setIsLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
 
     try {
-      // Upload avatar if changed
-      let updatedAvatarId = profile.avatarId;
-      if (avatarBase64) {
-        updatedAvatarId = await uploadImage();
-        if (!updatedAvatarId) {
-          setIsLoading(false);
-          return;
-        }
-      } else {
-        setErrorMessage('No avatar selected');
+      // Upload avatar
+      const newAvatarId = await uploadImage();
+      if (!newAvatarId) {
         setIsLoading(false);
         return;
       }
-
+      
+      console.log('New avatar ID from server:', newAvatarId);
+      
+      // Update profile with new avatar ID
       const updatePayload = {
-        avatarId: updatedAvatarId,
+        avatarId: newAvatarId,
         currentPassword: currentPassword
       };
 
@@ -148,8 +155,10 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
         }
       }
 
+      // Set the new avatar ID locally for immediate display
+      setAvatarId(newAvatarId);
       setSuccessMessage('Profile picture updated successfully');
-      onProfileUpdate();
+      onProfileUpdate(); // Refresh the profile data
       
       // Reset fields
       setAvatarBase64('');
@@ -680,6 +689,9 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
 
   if (!isOpen) return null;
 
+  // Check if auction has started yet
+  const isAuctionStarted = listingData && new Date() >= new Date(listingData.startDate);
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div className="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
@@ -715,7 +727,10 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
                 {listingData.status !== 2 && (
                   <span className="text-red-400 text-sm">This bid is not active.</span>
                 )}
-                {listingData.status === 2 && (
+                {listingData.status === 2 && !isAuctionStarted && (
+                  <span className="text-yellow-400 text-sm">Auction scheduled but not yet started.</span>
+                )}
+                {listingData.status === 2 && isAuctionStarted && (
                   <span className="text-green-400 text-sm">Bidding is active!</span>
                 )}
               </div>
@@ -746,7 +761,10 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
                     <h4 className="text-lg font-medium text-white">Price Information</h4>
                     <p className="text-blue-200">Starting Price: ${listingData.startingPrice}</p>
                     {listingData.latestBid && (
-                      <p className="text-green-400">Latest Bid: ${listingData.latestBid.bidPrice}</p>
+                      <p className="text-green-400">
+                        {listingData.status === 2 ? "Latest Bid: " : "Winning Bid: "}
+                        ${listingData.latestBid.bidPrice}
+                      </p>
                     )}
                   </div>
 
@@ -777,12 +795,14 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
 
               {/* Action Buttons */}
               <div className="mt-8 flex justify-end gap-4">
-                <button
-                  onClick={() => setShowCancelConfirmation(true)}
-                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  Cancel Auction
-                </button>
+                {listingData.status === 2 && isAuctionStarted && (
+                  <button
+                    onClick={() => setShowCancelConfirmation(true)}
+                    className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Cancel Auction
+                  </button>
+                )}
               </div>
             </div>
           ) : (
@@ -1161,9 +1181,12 @@ const UserDashboard = () => {
                       </>
                     )}
                     <div className="mt-4">
-                      <Link to={`/product/${listing.listingId}`} className="text-blue-300 hover:text-blue-100 text-sm transition-colors">
+                      <button
+                        onClick={() => setSelectedListingId(listing.listingId)}
+                        className="text-blue-300 hover:text-blue-100 text-sm transition-colors"
+                      >
                         View details →
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </div>

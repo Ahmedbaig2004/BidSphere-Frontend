@@ -1,5 +1,5 @@
 {
-  "homepage": "https://Ahmedbaig2004.github.io/Ecommerce-frontend/",
+  "homepage": "/",
   "name": "ecommerce",
   "private": true,
   "version": "0.0.0",
@@ -8,7 +8,6 @@
     "dev": "vite",
     "build": "vite build",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
     "lint": "eslint .",
     "preview": "vite preview"
   },

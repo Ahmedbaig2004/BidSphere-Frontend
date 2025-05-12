@@ -67,12 +67,7 @@ const Navbar = () => {
             >
               Dashboard
             </Link>
-            <Link
-              to="/orders"
-              className="block px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"
-            >
-              Orders
-            </Link>
+            
             <button
               onClick={logout}
               className="w-full text-left px-4 py-2 text-white hover:text-blue-300 transition-colors duration-300"

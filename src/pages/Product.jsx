@@ -737,7 +737,7 @@ const Product = () => {
                 </p>
                 <p className="flex items-center">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  Delivery Location: {ownerData?.deliveryLocation || 'Not specified'}
+                  PickUp Location: {ownerData?.deliveryLocation || 'Not specified'}
                 </p>
               </div>
             </div>

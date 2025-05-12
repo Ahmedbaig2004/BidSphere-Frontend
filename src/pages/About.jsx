@@ -51,7 +51,7 @@ const About = () => {
             <span className="text-yellow-400 font-semibold">BidSphere</span> is Pakistan’s <span className="text-green-400 font-semibold">first blockchain-based bidding platform</span>, designed to bring a new level of trust, security, and transparency to online auctions.
           </motion.p>
           <motion.p initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.6 }}>
-            We offer both <span className="text-blue-400 font-medium">traditional</span> and <span className="text-green-400 font-medium">blockchain-powered bidding</span> so everyone can bid with confidence — from casual users to tech-savvy traders.
+            We offer both <span className="text-blue-400 font-medium"></span> <span className="text-green-400 font-medium">blockchain-powered bidding</span> so everyone can bid with confidence 
           </motion.p>
           <motion.p initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4, duration: 0.6 }}>
             Every transaction is logged immutably, meaning no hidden changes, fake bids, or shady dealings. We’re here to empower <span className="font-semibold text-purple-400">buyers and sellers</span> with the freedom of transparency.

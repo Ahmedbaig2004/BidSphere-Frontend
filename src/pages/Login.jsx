@@ -2,15 +2,18 @@ import { Link } from 'react-router-dom';
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const res = await fetch('http://150.136.175.145:2278/api/session/create', {
@@ -21,19 +24,75 @@ const Login = () => {
         body: JSON.stringify({ username, password }),
       });
 
-      if (!res.ok) {
-        throw new Error('Login failed');
+      // Get response text to analyze error messages
+      const responseText = await res.text();
+      let data;
+      
+      try {
+        // Try to parse as JSON if possible
+        data = JSON.parse(responseText);
+      } catch (e) {
+        // If not JSON, use as plain text
+        data = { message: responseText };
       }
 
-      const data = await res.json();
+      if (!res.ok) {
+        // Handle different error status codes
+        if (res.status === 401) {
+          toast.error('Invalid username or password', {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true
+          });
+          throw new Error('Invalid credentials');
+        } else if (res.status === 403) {
+          toast.error('Your account is not verified. Please verify your email first.', {
+            position: "top-right",
+            autoClose: 5000
+          });
+          navigate('/verify-email-pending');
+          return;
+        } else {
+          toast.error(`Login failed: ${data.message || 'Server error'}`, {
+            position: "top-right",
+            autoClose: 3000
+          });
+          throw new Error('Login failed');
+        }
+      }
+
+      // Success case
       login(data.token);
       localStorage.setItem('userProfile', JSON.stringify(data.profile));
-      const profile = JSON.parse(localStorage.getItem('userProfile'));
-      console.log(profile);
-      navigate('/');
+      
+      toast.success('Login successful!', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true
+      });
+      
+      // Navigate after a short delay to allow toast to be seen
+      setTimeout(() => {
+        navigate('/');
+      }, 500);
+      
     } catch (err) {
       console.error('Login error:', err);
-      alert('Invalid credentials or server error');
+      // General error handling (if not already handled above)
+      if (err.message !== 'Invalid credentials' && err.message !== 'Login failed') {
+        toast.error('Connection error. Please try again later.', {
+          position: "top-right",
+          autoClose: 3000
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -53,6 +112,7 @@ const Login = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
+                  disabled={isLoading}
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                   placeholder="Enter your username"
                 />
@@ -65,6 +125,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={isLoading}
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                   placeholder="Enter your password"
                 />
@@ -72,9 +133,15 @@ const Login = () => {
 
               <button
                 type="submit"
-                className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                disabled={isLoading}
+                className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign In
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="mr-2 animate-spin w-5 h-5 border-t-2 border-white rounded-full"></div>
+                    <span>Signing In...</span>
+                  </div>
+                ) : 'Sign In'}
               </button>
             </form>
 
@@ -85,6 +152,7 @@ const Login = () => {
                   Register Now
                 </Link>
               </p>
+              
             </div>
           </div>
         </div>

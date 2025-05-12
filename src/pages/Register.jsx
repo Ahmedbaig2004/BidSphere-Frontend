@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
   const [role, setRole] = useState('customer');
@@ -349,15 +351,17 @@ const Register = () => {
       return;
     }
     
+    // Check for wallet address
+    if (!walletAddress || walletAddress.trim() === '') {
+      setErrorMessage('Wallet address is required. Please connect your wallet.');
+      return;
+    }
+    
     // Manually trigger validation for email and username to ensure fresh data
     console.log("Triggering validations before submit");
     await validateEmail();
     await validateUsername();
-    
-    // Only validate wallet if one is provided
-    if (walletAddress && walletAddress.trim() !== '') {
-      await validateWallet(walletAddress);
-    }
+    await validateWallet(walletAddress);
     
     // We need setTimeout to ensure state updates have completed
     setTimeout(async () => {
@@ -378,20 +382,13 @@ const Register = () => {
             finalAvatarId = uploadedId;
           }
         }
-        
-        // Handle empty wallet address by generating a random one
-        let finalWalletAddress = walletAddress;
-        if (!finalWalletAddress || finalWalletAddress.trim() === '') {
-          finalWalletAddress = generateRandomWalletAddress();
-          console.log("Generated random wallet address:", finalWalletAddress);
-        }
   
         // Send registration data
         const payload = {
           userDetails: {
             name,
             avatarId: finalAvatarId,
-            walletAddress: finalWalletAddress,
+            walletAddress: walletAddress,
             deliveryLocation,
           },
           username,
@@ -447,8 +444,20 @@ const Register = () => {
           throw new Error('Registration failed');
         }
   
-        alert('Registration successful');
-        navigate('/login');
+        // Show success toast and navigate to login
+        toast.success('Registration successful! Please log in with your new account.', {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true
+        });
+        
+        // Navigate to login page after a short delay to allow toast to be seen
+        setTimeout(() => {
+          navigate('/login');
+        }, 1000);
       } catch (err) {
         console.error(err);
         if (!errorMessage) {
@@ -474,6 +483,18 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-blue-900 via-black to-blue-900">
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      
       {/* Left side - Register Form */}
       <div className="w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
@@ -592,7 +613,9 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-200">Wallet Address</label>
+                <label className="block text-sm font-medium text-blue-200">
+                  Wallet Address <span className="text-red-400">*</span> <span className="text-xs">(required)</span>
+                </label>
                 <div className="relative">
                   {walletAddress ? (
                     <div className="flex flex-col space-y-2">
@@ -615,13 +638,18 @@ const Register = () => {
                       className="w-full px-4 py-3 bg-blue-600/20 border border-blue-500/50 rounded-lg text-white hover:bg-blue-600/30 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
                       disabled={isLoading}
                     >
-                      Connect Wallet
+                      Connect Wallet (Required)
                     </button>
                   )}
                   {isCheckingWallet && (
                     <div className="absolute right-3 top-3 animate-spin w-5 h-5 border-t-2 border-blue-500 rounded-full"></div>
                   )}
                 </div>
+                {!walletAddress && (
+                  <p className="text-xs text-red-400 mt-1">
+                    A wallet address is required to register. Please connect your wallet.
+                  </p>
+                )}
                 {walletAddressError && (
                   <p className="text-xs text-red-400 mt-1">
                     {walletAddressError} Please disconnect and try a different wallet.
