@@ -17,7 +17,7 @@ const ResendVerification = () => {
     setErrorMessage('');
     
     try {
-      const response = await fetch('http://150.136.175.145:2278/api/verification/resend-by-email', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/verification/resend-by-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

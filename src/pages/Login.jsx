@@ -16,7 +16,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://150.136.175.145:2278/api/session/create', {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/api/session/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
