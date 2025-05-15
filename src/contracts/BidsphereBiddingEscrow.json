@@ -17,11 +17,6 @@
           "internalType": "bytes16",
           "name": "listingId",
           "type": "bytes16"
-        },
-        {
-          "internalType": "uint256",
-          "name": "bidAmount",
-          "type": "uint256"
         }
       ],
       "name": "placeBid",

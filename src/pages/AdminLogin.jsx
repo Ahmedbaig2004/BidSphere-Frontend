@@ -1,86 +1,28 @@
 import { Link } from 'react-router-dom';
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import { toast } from 'react-toastify';
 
 const AdminLogin = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-
+    console.log(import.meta.env.VITE_ADMIN_USERNAME, import.meta.env.VITE_ADMIN_PASSWORD)
     try {
-      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/api/admin/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      const responseText = await res.text();
-      let data;
-      
-      try {
-        data = JSON.parse(responseText);
-      } catch (e) {
-        data = { message: responseText };
-      }
-
-      if (!res.ok) {
-        if (res.status === 401) {
-          toast.error('Invalid admin credentials', {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true
-          });
-          throw new Error('Invalid credentials');
-        } else {
-          toast.error(`Login failed: ${data.message || 'Server error'}`, {
-            position: "top-right",
-            autoClose: 3000
-          });
-          throw new Error('Login failed');
-        }
-      }
-
-      // Success case
-      login(data.token);
-      localStorage.setItem('userProfile', JSON.stringify(data.profile));
-      
-      toast.success('Admin login successful!', {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true
-      });
-      
-      // Navigate to admin dashboard
-      setTimeout(() => {
+      // Verify against environment variables
+      if (username === import.meta.env.VITE_ADMIN_USERNAME && 
+          password === import.meta.env.VITE_ADMIN_PASSWORD) {
+        // Store admin status in localStorage
+        localStorage.setItem('isAdmin', 'true');
         navigate('/admin-dashboard');
-      }, 500);
-      
-    } catch (err) {
-      console.error('Login error:', err);
-      if (err.message !== 'Invalid credentials' && err.message !== 'Login failed') {
-        toast.error('Connection error. Please try again later.', {
-          position: "top-right",
-          autoClose: 3000
-        });
+      } else {
+        throw new Error('Invalid admin credentials');
       }
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      console.error('Admin login error:', err);
+      alert('Invalid admin credentials');
     }
   };
 
@@ -94,26 +36,24 @@ const AdminLogin = () => {
             
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-200">Username</label>
+                <label className="block text-sm font-medium text-blue-200">Admin Username</label>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
-                  disabled={isLoading}
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                   placeholder="Enter admin username"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-200">Password</label>
+                <label className="block text-sm font-medium text-blue-200">Admin Password</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  disabled={isLoading}
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                   placeholder="Enter admin password"
                 />
@@ -121,22 +61,16 @@ const AdminLogin = () => {
 
               <button
                 type="submit"
-                disabled={isLoading}
-                className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transform transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
               >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="mr-2 animate-spin w-5 h-5 border-t-2 border-white rounded-full"></div>
-                    <span>Signing In...</span>
-                  </div>
-                ) : 'Sign In'}
+                Admin Sign In
               </button>
             </form>
 
             <div className="mt-6 text-center">
               <p className="text-sm text-blue-200">
-                <Link to="/" className="text-white hover:text-blue-300 font-medium transition-colors duration-300">
-                  Back to Home
+                <Link to="/login" className="text-white hover:text-blue-300 font-medium transition-colors duration-300">
+                  Back to User Login
                 </Link>
               </p>
             </div>
@@ -148,10 +82,10 @@ const AdminLogin = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-gradient-to-br from-blue-900/50 to-black/50">
         <div className="max-w-lg text-center">
           <h1 className="text-5xl font-bold text-white mb-6 animate-fade-in">
-            Admin Portal
+            BidSphere Admin Portal
           </h1>
           <p className="text-xl text-blue-200 leading-relaxed animate-fade-in-delay">
-            Access the administrative dashboard to manage auctions, users, and platform settings.
+            Access the administrative dashboard to manage users, monitor activities, and control platform settings.
           </p>
           <div className="mt-8 flex justify-center space-x-4">
             <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
@@ -164,4 +98,4 @@ const AdminLogin = () => {
   );
 };
 
-export default AdminLogin; 
+export default AdminLogin;

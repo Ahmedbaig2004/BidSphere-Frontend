@@ -74,6 +74,31 @@ const Product = () => {
     }
   };
 
+  // Add function to check MetaMask connection
+  const checkMetaMaskConnection = async () => {
+    try {
+      if (window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+          console.log('MetaMask is connected. Accounts:', accounts);
+          return true;
+        } else {
+          console.log('MetaMask is installed but not connected');
+          setShowConnectWallet(true); // Show the wallet connection dialog
+          return false;
+        }
+      } else {
+        console.log('MetaMask is not installed');
+        setShowConnectWallet(true); // Show the wallet connection dialog
+        return false;
+      }
+    } catch (error) {
+      console.error('Error checking MetaMask connection:', error);
+      setShowConnectWallet(true); // Show the wallet connection dialog on error
+      return false;
+    }
+  };
+
   // Add a function to check if the wallet is already connected via MetaMask
   const checkWalletConnection = async () => {
     // Don't show any errors during initial check
@@ -188,6 +213,7 @@ const Product = () => {
       try {
         await fetchListingData();
         if (isMounted) {
+          await checkMetaMaskConnection(); // Check MetaMask connection
           await checkWalletConnection(); // Check wallet connection on page load
           await fetchWalletBalance(); // Fetch wallet balance
         }
@@ -567,7 +593,7 @@ const Product = () => {
       console.log('Bid amount in ETH:', bidAmountInEth);
 
       // Get the contract instance
-      const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || '0xbbb852126b0a6C42CD57Fa6A5d7F2D44B986A950';
+      const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || '0xaD55398662D91A509E3bDA08be50b4BeD5e33300';
       console.log('Contract Address:', contractAddress);
 
       // Create contract instance with explicit address
@@ -591,7 +617,7 @@ const Product = () => {
       console.log('Gas price:', gasPrice);
 
       // Estimate gas for the transaction
-      const gasEstimate = await contract.methods.placeBid(listingIdBytes16, bidAmountWei)
+      const gasEstimate = await contract.methods.placeBid(listingIdBytes16)
         .estimateGas({ from: walletAddress, value: bidAmountWei });
       console.log('Gas estimate:', gasEstimate);
 
@@ -619,7 +645,7 @@ const Product = () => {
       }
 
       // Execute the transaction
-      const transaction = await contract.methods.placeBid(listingIdBytes16, bidAmountWei)
+      const transaction = await contract.methods.placeBid(listingIdBytes16)
         .send({
           from: walletAddress,
           value: bidAmountWei,
