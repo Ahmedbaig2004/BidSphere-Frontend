@@ -4,6 +4,8 @@ import { ShopContext } from '../context/ShopContext';
 import assets from '../assets/assets';
 import RelatedProducts from '../components/RelatedProducts';
 import { toast } from 'react-toastify';
+import Web3 from 'web3/dist/web3.min.js';
+import BidsphereBiddingEscrow from '../contracts/BidsphereBiddingEscrow.json'; // We'll need to add this contract ABI file
 
 // Status code mapping
 const LISTING_STATUS_MAP = {
@@ -15,6 +17,14 @@ const LISTING_STATUS_MAP = {
   5: 'TERMINATED',
   6: 'ERRORED',
   7: 'MODERATED',
+};
+
+// Function to convert UUID to bytes16
+const uuidToBytes16 = (uuid) => {
+  // Remove hyphens and convert to hex
+  const hex = uuid.replace(/-/g, '');
+  // Convert to bytes16 (first 16 bytes)
+  return '0x' + hex.slice(0, 32);
 };
 
 const Product = () => {
@@ -42,7 +52,7 @@ const Product = () => {
 
   const fetchListingData = async () => {
     try {
-      const response = await fetch(`http://150.136.175.145:2278/api/listing/${productId}`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/listing/${productId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch listing data');
       }
@@ -51,7 +61,7 @@ const Product = () => {
       setSelectedImage(`http://150.136.175.145:2280/cdn/${data.mainImageId}.png`);
       
       // Fetch owner data
-      const ownerResponse = await fetch(`http://150.136.175.145:2278/api/user/${data.product.ownerId}`);
+      const ownerResponse = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/${data.product.ownerId}`);
       if (!ownerResponse.ok) {
         throw new Error('Failed to fetch owner data');
       }
@@ -61,6 +71,31 @@ const Product = () => {
       console.error('Error fetching data:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Add function to check MetaMask connection
+  const checkMetaMaskConnection = async () => {
+    try {
+      if (window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+          console.log('MetaMask is connected. Accounts:', accounts);
+          return true;
+        } else {
+          console.log('MetaMask is installed but not connected');
+          setShowConnectWallet(true); // Show the wallet connection dialog
+          return false;
+        }
+      } else {
+        console.log('MetaMask is not installed');
+        setShowConnectWallet(true); // Show the wallet connection dialog
+        return false;
+      }
+    } catch (error) {
+      console.error('Error checking MetaMask connection:', error);
+      setShowConnectWallet(true); // Show the wallet connection dialog on error
+      return false;
     }
   };
 
@@ -178,6 +213,7 @@ const Product = () => {
       try {
         await fetchListingData();
         if (isMounted) {
+          await checkMetaMaskConnection(); // Check MetaMask connection
           await checkWalletConnection(); // Check wallet connection on page load
           await fetchWalletBalance(); // Fetch wallet balance
         }
@@ -469,8 +505,11 @@ const Product = () => {
       // Calculate wallet balance in USD
       const balanceUsd = balanceInEth * ethPrice;
       
-      if (numAmount > balanceUsd) {
-        setBidError(`Insufficient funds. Your wallet balance: ${currency}${balanceUsd.toFixed(2)} (${balanceInEth.toFixed(4)} ETH)`);
+      // Add 20% buffer for gas fees
+      const requiredAmount = numAmount * 1.2;
+      
+      if (requiredAmount > balanceUsd) {
+        setBidError(`Insufficient funds. Your wallet balance: ${currency}${balanceUsd.toFixed(2)} (${balanceInEth.toFixed(4)} ETH). You need at least ${currency}${requiredAmount.toFixed(2)} to cover the bid and gas fees.`);
         setHasSufficientFunds(false);
         return false;
       }
@@ -494,7 +533,7 @@ const Product = () => {
   };
 
   const handlePlaceBid = async () => {
-    // Validate before proceeding - now we need to await the validation
+    // Validate before proceeding
     if (!(await validateBidAmount(bidAmount))) {
       return;
     }
@@ -515,97 +554,156 @@ const Product = () => {
       // Check if wallet is connected
       const walletAddress = storedProfile ? JSON.parse(storedProfile).walletAddress : null;
       
-      // Check if MetaMask is available and wallet is not connected
       if (!walletAddress) {
-        // First check if MetaMask is installed
-        const hasMetaMask = window.ethereum || 
-                          (window.web3 && window.web3.currentProvider) || 
-                          (window.ethereum && window.ethereum.providers && 
-                          window.ethereum.providers.find(p => p.isMetaMask));
-        
-        if (!hasMetaMask) {
-          // Just use troubleshootMetaMask directly instead of showing multiple errors
-          troubleshootMetaMask();
-          setIsPlacingBid(false);
-          return;
-        }
-        
-        // Show wallet connection modal
-        setIsPlacingBid(false);
-        setIsDrawerOpen(false);
         setShowConnectWallet(true);
+        setIsPlacingBid(false);
         return;
       }
-      
-      // Use category information from navigation state if present, otherwise use from listing data
-      const categoryDisplay = categoryFromNav || listingData.product.category || '';
-      const subCategory = subCategoryFromNav || listingData.product.subCategory || '';
-      
-      // Don't convert to enum format - backend may not handle it correctly
-      // Just pass the display category as-is
-      const category = categoryDisplay;
-      
-      console.log("Placing bid with category:", category, "subcategory:", subCategory);
-      
-      const response = await fetch('http://150.136.175.145:2278/api/bid/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify({
-          listingId: listingData.listingId,
-          userId,
-          amount: Number(bidAmount),
-          category,
-          subCategory
-        })
-      });
-      
-      // Handle different status codes with specific error messages
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API error response:', errorText, 'Status:', response.status);
-        
-        switch (response.status) {
-          case 401:
-            toast.error('Unauthorized: You cannot bid on your own listing or you do not have permission to place this bid.');
-            break;
-          case 404:
-            toast.error('Listing not found: This item may have been removed.');
-            break;
-          case 429:
-            toast.error('Too many requests: Please wait before placing another bid.');
-            break;
-          case 208:
-            toast.error('You already have the highest bid. Wait for someone else to bid before placing a new one.');
-            break;
-          case 400:
-            toast.error('Invalid bid: Your bid must be higher than the current highest bid.');
-            break;
-          case 406:
-            toast.error('Insufficient funds: Your bid amount exceeds your wallet balance.');
-            break;
-          default:
-            toast.error(`Failed to place bid: ${response.message}`);
+
+      // Initialize Web3
+      let web3;
+      try {
+        // Check if MetaMask is available
+        if (window.ethereum) {
+          web3 = new Web3(window.ethereum);
+        } else if (window.web3) {
+          web3 = new Web3(window.web3.currentProvider);
+        } else {
+          throw new Error('No Web3 provider detected');
         }
-        throw new Error(`${response.status}`);
+      } catch (error) {
+        toast.error('Failed to initialize Web3. Please make sure MetaMask is installed.');
+        setIsPlacingBid(false);
+        return;
       }
+
+      // Get current ETH price in USD
+      let ethPrice;
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+        const data = await response.json();
+        ethPrice = data.ethereum.usd;
+      } catch (error) {
+        console.error('Error fetching ETH price:', error);
+        ethPrice = 3000; // Fallback price
+      }
+
+      // Convert USD bid amount to ETH with proper decimal handling
+      const bidAmountInEth = (bidAmount / ethPrice).toFixed(8); // Limit to 8 decimal places
+      console.log('Bid amount in ETH:', bidAmountInEth);
+
+      // Get the contract instance
+      const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || '0xaD55398662D91A509E3bDA08be50b4BeD5e33300';
+      console.log('Contract Address:', contractAddress);
+
+      // Create contract instance with explicit address
+      const contract = new web3.eth.Contract(
+        BidsphereBiddingEscrow.abi,
+        contractAddress,
+        {
+          from: walletAddress
+        }
+      );
+
+      // Convert ETH amount to Wei with proper decimal handling
+      const bidAmountWei = web3.utils.toWei(bidAmountInEth, 'ether');
+      console.log('Bid amount in Wei:', bidAmountWei);
+
+      // Convert listingId to bytes16
+      const listingIdBytes16 = uuidToBytes16(listingData.listingId);
+
+      // Get the current gas price
+      const gasPrice = await web3.eth.getGasPrice();
+      console.log('Gas price:', gasPrice);
+
+      // Estimate gas for the transaction
+      const gasEstimate = await contract.methods.placeBid(listingIdBytes16)
+        .estimateGas({ from: walletAddress, value: bidAmountWei });
+      console.log('Gas estimate:', gasEstimate);
+
+      // Calculate total cost including gas
+      const totalCost = BigInt(bidAmountWei) + (BigInt(gasEstimate) * BigInt(gasPrice));
       
-      const data = await response.json();
-      setBidConfirmation({ bidPrice: data.bidPrice, bidDate: data.bidDate });
-      setIsDrawerOpen(false);
+      // Check if user has enough balance for the total cost
+      const balance = await web3.eth.getBalance(walletAddress);
+      const balanceInWei = BigInt(balance);
       
-      // Show category information in toast success
-      if (categoryDisplay) {
-        toast.success(`Bid placed in category: ${categoryDisplay}${subCategory ? ` (${subCategory})` : ''}`);
+      console.log('Debug values:', {
+        balanceInWei: balanceInWei.toString(),
+        totalCost: totalCost.toString(),
+        bidAmountWei: bidAmountWei,
+        gasEstimate: gasEstimate.toString(),
+        gasPrice: gasPrice.toString(),
+        bidAmountInEth: bidAmountInEth,
+        ethPrice: ethPrice
+      });
+
+      if (balanceInWei < totalCost) {
+        const balanceEth = web3.utils.fromWei(balanceInWei.toString(), 'ether');
+        const totalCostEth = web3.utils.fromWei(totalCost.toString(), 'ether');
+        throw new Error(`Insufficient funds. You need ${totalCostEth} ETH (including gas) but only have ${balanceEth} ETH.`);
+      }
+
+      // Execute the transaction
+      const transaction = await contract.methods.placeBid(listingIdBytes16)
+        .send({
+          from: walletAddress,
+          value: bidAmountWei,
+          gas: Math.round(gasEstimate * 1.2), // Add 20% buffer
+          gasPrice: gasPrice
+        });
+
+      // If transaction is successful, update the UI and create bid record
+      if (transaction.status) {
+        try {
+          // Create bid record in backend
+          const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/bid/create`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify({
+              listingId: listingData.listingId,
+              userId: userId,
+              amount: Number(bidAmount) // Send the original USD amount
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to create bid record: ${response.status}`);
+          }
+
+          // Update the listing data
+          await fetchListingData();
+          
+          // Show success message
+          toast.success('Bid placed successfully!');
+          
+          // Close the bid drawer
+          setIsDrawerOpen(false);
+          
+          // Show bid confirmation
+          setBidConfirmation({
+            bidPrice: bidAmount,
+            bidDate: new Date().toISOString()
+          });
+        } catch (error) {
+          console.error('Error creating bid record:', error);
+          toast.error('Bid placed on blockchain but failed to update records. Please contact support.');
+        }
+      }
+
+    } catch (error) {
+      console.error('Error placing bid:', error);
+      
+      // Handle specific error cases
+      if (error.code === 4001) {
+        toast.error('Transaction was rejected by user');
+      } else if (error.code === -32603 || error.message.includes('insufficient funds')) {
+        toast.error('Insufficient funds for transaction. Please ensure you have enough ETH to cover the bid amount and gas fees.');
       } else {
-        toast.success('Bid placed successfully!');
-      }
-    } catch (err) {
-      // This will only show for errors not caught by the status code handlers
-      if (!err.message.match(/^[0-9]+$/)) {
-        toast.error('Failed to place bid: ' + err.message);
+        toast.error(`Failed to place bid: ${error.message}`);
       }
     } finally {
       setIsPlacingBid(false);
@@ -737,7 +835,7 @@ const Product = () => {
                 </p>
                 <p className="flex items-center">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  PickUp Location: {ownerData?.deliveryLocation || 'Not specified'}
+                  Pickup Location: {ownerData?.deliveryLocation || 'Not specified'}
                 </p>
               </div>
             </div>

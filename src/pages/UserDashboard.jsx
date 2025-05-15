@@ -79,7 +79,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
       };
 
       // Use the working endpoint from Register.jsx
-      const mediaRes = await fetch('http://150.136.175.145:2278/api/media/upload', {
+      const mediaRes = await fetch(`${import.meta.env.VITE_BASE_URL}/api/media/upload`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
         currentPassword: currentPassword
       };
 
-      const response = await fetch('http://150.136.175.145:2278/api/user/update', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
         currentPassword: currentPassword
       };
 
-      const response = await fetch('http://150.136.175.145:2278/api/user/update', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -246,7 +246,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
         currentPassword: currentPassword
       };
 
-      const response = await fetch('http://150.136.175.145:2278/api/user/update', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -300,7 +300,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
         newPassword: newPassword
       };
 
-      const response = await fetch('http://150.136.175.145:2278/api/user/update', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -638,6 +638,13 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
   const [listingData, setListingData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
+  const [showListAuctionDialog, setShowListAuctionDialog] = useState(false);
+  const [auctionDetails, setAuctionDetails] = useState({
+    startingPrice: '',
+    startDate: '',
+    endDate: ''
+  });
+  const [buyerInfo, setBuyerInfo] = useState(null);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -649,12 +656,21 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
   const fetchListingData = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`http://150.136.175.145:2278/api/listing/${listingId}`);
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/listing/${listingId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch listing data');
       }
       const data = await response.json();
       setListingData(data);
+
+      // If there's a transaction, fetch buyer info
+      if (data.latestTransaction) {
+        const buyerResponse = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/${data.latestTransaction.nextOwnerId}`);
+        if (buyerResponse.ok) {
+          const buyerData = await buyerResponse.json();
+          setBuyerInfo(buyerData);
+        }
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load product details');
@@ -665,7 +681,7 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
 
   const handleTerminateAuction = async () => {
     try {
-      const response = await fetch(`http://150.136.175.145:2278/api/listing/terminate/${listingId}`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/listing/terminate/${listingId}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -680,10 +696,62 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
       toast.success('Auction terminated successfully');
       setShowCancelConfirmation(false);
       onClose();
-      // You might want to refresh the inventory list here
     } catch (error) {
       console.error('Error terminating auction:', error);
       toast.error('Failed to terminate auction');
+    }
+  };
+
+  const handleListAuction = async () => {
+    try {
+      // First create the product
+      const productResponse = await fetch(`${import.meta.env.VITE_BASE_URL}/api/product/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: listingData.product.name,
+          description: listingData.product.description,
+          category: listingData.product.category,
+          subCategory: listingData.product.subCategory
+        })
+      });
+
+      if (!productResponse.ok) {
+        throw new Error('Failed to create product');
+      }
+
+      const productData = await productResponse.json();
+
+      // Then publish the auction
+      const auctionResponse = await fetch(`${import.meta.env.VITE_BASE_URL}/api/product/publish`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          productId: productData.productId,
+          startingPrice: parseFloat(auctionDetails.startingPrice),
+          startDate: new Date(auctionDetails.startDate).toISOString(),
+          endDate: new Date(auctionDetails.endDate).toISOString(),
+          mainImageId: listingData.mainImageId,
+          displayImageIds: listingData.displayImageIds
+        })
+      });
+
+      if (!auctionResponse.ok) {
+        throw new Error('Failed to publish auction');
+      }
+
+      toast.success('Auction listed successfully');
+      setShowListAuctionDialog(false);
+      onClose();
+    } catch (error) {
+      console.error('Error listing auction:', error);
+      toast.error('Failed to list auction');
     }
   };
 
@@ -790,17 +858,37 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
                     <h4 className="text-lg font-medium text-white">Description</h4>
                     <p className="text-blue-200">{listingData.product.description}</p>
                   </div>
+
+                  {/* Transaction Details */}
+                  {listingData.latestTransaction && buyerInfo && (
+                    <div className="space-y-2">
+                      <h4 className="text-lg font-medium text-white">Transaction Details</h4>
+                      <div className="bg-white/5 p-4 rounded-lg space-y-2">
+                        <p className="text-blue-200">Final Price: ${listingData.latestBid.bidPrice}</p>
+                        <p className="text-blue-200">Buyer: {buyerInfo.name}</p>
+                        <p className="text-blue-200">Wallet Address: {buyerInfo.walletAddress}</p>
+                        <p className="text-blue-200">Transaction Date: {new Date(listingData.latestBid.bidDate).toLocaleString()}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="mt-8 flex justify-end gap-4">
-                {listingData.status === 2 && isAuctionStarted && (
+                {listingData.status === 2 && isAuctionStarted ? (
                   <button
                     onClick={() => setShowCancelConfirmation(true)}
                     className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                   >
                     Cancel Auction
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowListAuctionDialog(true)}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    List Auction
                   </button>
                 )}
               </div>
@@ -833,6 +921,71 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >
                   Yes, Cancel Auction
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* List Auction Dialog */}
+      {showListAuctionDialog && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-screen items-center justify-center px-4">
+            <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onClick={() => setShowListAuctionDialog(false)}></div>
+            <div className="relative bg-gray-800 rounded-lg p-6 max-w-md w-full">
+              <h3 className="text-lg font-medium text-white mb-4">List New Auction</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-blue-200 mb-1">
+                    Starting Price
+                  </label>
+                  <input
+                    type="number"
+                    value={auctionDetails.startingPrice}
+                    onChange={(e) => setAuctionDetails(prev => ({ ...prev, startingPrice: e.target.value }))}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    placeholder="Enter starting price"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-blue-200 mb-1">
+                    Start Date
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={auctionDetails.startDate}
+                    onChange={(e) => setAuctionDetails(prev => ({ ...prev, startDate: e.target.value }))}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-blue-200 mb-1">
+                    End Date
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={auctionDetails.endDate}
+                    onChange={(e) => setAuctionDetails(prev => ({ ...prev, endDate: e.target.value }))}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end gap-4">
+                <button
+                  onClick={() => setShowListAuctionDialog(false)}
+                  className="px-4 py-2 text-white hover:text-blue-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleListAuction}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  List Auction
                 </button>
               </div>
             </div>
@@ -884,7 +1037,7 @@ const UserDashboard = () => {
   const fetchUserData = async () => {
     setLoading(prev => ({ ...prev, profile: true }));
     try {
-      const res = await fetch(`http://150.136.175.145:2278/api/user/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -903,7 +1056,7 @@ const UserDashboard = () => {
   const fetchInventory = async () => {
     setLoading(prev => ({ ...prev, inventory: true }));
     try {
-      const res = await fetch(`http://150.136.175.145:2278/api/user/inventory/${inventoryPage}`, {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/inventory/${inventoryPage}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -925,7 +1078,7 @@ const UserDashboard = () => {
   const fetchHistory = async () => {
     setLoading(prev => ({ ...prev, history: true }));
     try {
-      const res = await fetch(`http://150.136.175.145:2278/api/user/history/${historyPage}`, {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/history/${historyPage}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
