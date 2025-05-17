@@ -183,7 +183,7 @@ const ProductListing = ({ isOpen, onClose, onSuccess }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 mt-[400px]">
             <div className={`relative w-full max-w-xl mx-4 ${isLightTheme ? 'bg-white' : 'bg-gradient-to-b from-gray-900 to-black'} rounded-xl shadow-2xl p-6 ${isLightTheme ? 'border border-gray-300' : 'border border-white/20'}`}>
                 <div className="flex justify-between items-center mb-6">
                     <h2 className={`text-2xl font-bold ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>
