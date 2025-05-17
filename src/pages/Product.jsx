@@ -658,7 +658,7 @@ const Product = () => {
       // If transaction is successful, update the UI and create bid record
       if (transaction.status) {
         try {
-          // Create bid record in backend
+          // Create bid record in backend with transaction hash
           const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/bid/create`, {
             method: 'POST',
             headers: {
@@ -668,7 +668,8 @@ const Product = () => {
             body: JSON.stringify({
               listingId: listingData.listingId,
               userId: userId,
-              amount: Number(bidAmount) // Send the original USD amount
+              amount: Number(bidAmount), // Send the original USD amount
+              transactionHash: transaction.transactionHash // Add transaction hash
             })
           });
 
@@ -685,10 +686,11 @@ const Product = () => {
           // Close the bid drawer
           setIsDrawerOpen(false);
           
-          // Show bid confirmation
+          // Show bid confirmation with transaction hash
           setBidConfirmation({
             bidPrice: bidAmount,
-            bidDate: new Date().toISOString()
+            bidDate: new Date().toISOString(),
+            transactionHash: transaction.transactionHash
           });
         } catch (error) {
           console.error('Error creating bid record:', error);
@@ -982,6 +984,33 @@ const Product = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bid Confirmation Dialog */}
+      {bidConfirmation && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg p-8 shadow-xl text-center">
+            <h2 className="text-2xl font-bold mb-4 text-blue-700">Bid Placed Successfully!</h2>
+            <p className="text-lg text-gray-800 mb-2">Bid Amount: <span className="font-semibold">{currency}{bidConfirmation.bidPrice}</span></p>
+            <p className="text-lg text-gray-800 mb-2">Bid Date: <span className="font-semibold">{new Date(bidConfirmation.bidDate).toLocaleString()}</span></p>
+            <p className="text-lg text-gray-800 mb-4">
+              Transaction: <a 
+                href={`https://sepolia.etherscan.io/tx/${bidConfirmation.transactionHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 underline"
+              >
+                {bidConfirmation.transactionHash.slice(0, 10)}...{bidConfirmation.transactionHash.slice(-8)}
+              </a>
+            </p>
+            <button
+              onClick={() => setBidConfirmation(null)}
+              className="mt-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
