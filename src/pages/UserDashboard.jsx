@@ -633,10 +633,17 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
   );
 };
 
+// Utility to snip a hash (e.g., 0xB5aF6...113A0)
+function snipHash(hash) {
+  if (!hash || hash.length < 10) return hash;
+  return `${hash.slice(0, 7)}...${hash.slice(-5)}`;
+}
+
 // Product Detail Modal Component
 const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
   const [listingData, setListingData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isListingLoading, setIsListingLoading] = useState(false);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
   const [showListAuctionDialog, setShowListAuctionDialog] = useState(false);
   const [auctionDetails, setAuctionDetails] = useState({
@@ -645,6 +652,7 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
     endDate: ''
   });
   const [buyerInfo, setBuyerInfo] = useState(null);
+  const [bidderInfo, setBidderInfo] = useState(null);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -669,6 +677,15 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
         if (buyerResponse.ok) {
           const buyerData = await buyerResponse.json();
           setBuyerInfo(buyerData);
+        }
+      }
+
+      // If there's a latest bid, fetch bidder info
+      if (data.latestBid) {
+        const bidderResponse = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/${data.latestBid.userId}`);
+        if (bidderResponse.ok) {
+          const bidderData = await bidderResponse.json();
+          setBidderInfo(bidderData);
         }
       }
     } catch (error) {
@@ -703,6 +720,7 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
   };
 
   const handleListAuction = async () => {
+    setIsListingLoading(true);
     try {
       // First create the product
       const productResponse = await fetch(`${import.meta.env.VITE_BASE_URL}/api/product/create`, {
@@ -752,6 +770,8 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
     } catch (error) {
       console.error('Error listing auction:', error);
       toast.error('Failed to list auction');
+    } finally {
+      setIsListingLoading(false);
     }
   };
 
@@ -775,11 +795,24 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">
                 <h3 className="text-2xl font-bold text-white">{listingData.product.name}</h3>
-                <button onClick={onClose} className="text-gray-400 hover:text-white">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+                <div className="flex flex-col items-end">
+                  <button onClick={onClose} className="text-gray-400 hover:text-white mb-2">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                  {listingData.transactionHash && (
+                    <a
+                      href={`https://sepolia.etherscan.io/tx/${listingData.transactionHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-200 hover:underline flex items-center gap-1"
+                    >
+                      {snipHash(listingData.transactionHash)}
+                      <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 015.656 5.656l-5.657 5.657a4 4 0 01-5.656-5.657m5.657-5.656L15 5m0 0V3m0 2h2" /></svg>
+                    </a>
+                  )}
+                </div>
               </div>
 
               {/* Status Badge */}
@@ -828,11 +861,26 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
                   <div className="space-y-2">
                     <h4 className="text-lg font-medium text-white">Price Information</h4>
                     <p className="text-blue-200">Starting Price: ${listingData.startingPrice}</p>
-                    {listingData.latestBid && (
-                      <p className="text-green-400">
-                        {listingData.status === 2 ? "Latest Bid: " : "Winning Bid: "}
-                        ${listingData.latestBid.bidPrice}
-                      </p>
+                    {listingData.latestBid && listingData.status === 2 && (
+                      <>
+                        <p className="text-green-400">
+                          Latest Bid: ${listingData.latestBid.bidPrice}
+                        </p>
+                        {bidderInfo && (
+                          <p className="text-blue-200">Bidder: {bidderInfo.name}</p>
+                        )}
+                        {listingData.latestBid.transactionHash && (
+                          <a
+                            href={`https://sepolia.etherscan.io/tx/${listingData.latestBid.transactionHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-200 hover:underline flex items-center gap-1"
+                          >
+                            {snipHash(listingData.latestBid.transactionHash)}
+                            <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 015.656 5.656l-5.657 5.657a4 4 0 01-5.656-5.657m5.657-5.656L15 5m0 0V3m0 2h2" /></svg>
+                          </a>
+                        )}
+                      </>
                     )}
                   </div>
 
@@ -859,8 +907,8 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
                     <p className="text-blue-200">{listingData.product.description}</p>
                   </div>
 
-                  {/* Transaction Details */}
-                  {listingData.latestTransaction && buyerInfo && (
+                  {/* Transaction Details - Only show in history view */}
+                  {listingData.latestTransaction && buyerInfo && activeTab === 'history' && (
                     <div className="space-y-2">
                       <h4 className="text-lg font-medium text-white">Transaction Details</h4>
                       <div className="bg-white/5 p-4 rounded-lg space-y-2">
@@ -886,9 +934,10 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
                 ) : (
                   <button
                     onClick={() => setShowListAuctionDialog(true)}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    disabled={isListingLoading}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    List Auction
+                    {isListingLoading ? 'Listing...' : 'List Auction'}
                   </button>
                 )}
               </div>
