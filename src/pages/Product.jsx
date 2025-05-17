@@ -47,6 +47,11 @@ const Product = () => {
   const [isConnectingWallet, setIsConnectingWallet] = useState(false);
   const [walletBalance, setWalletBalance] = useState({ eth: 0, usd: 0 });
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
+  const [walletValidationState, setWalletValidationState] = useState({
+    isValid: false,
+    message: '',
+    checking: false
+  });
   
   // Extract category and subcategory from location state if available
   const categoryFromNav = location.state?.category || '';
@@ -240,12 +245,16 @@ const Product = () => {
     // Only add listeners if we have a valid provider
     if (ethereum) {
       // Listen for account changes
-      const handleAccountsChanged = (accounts) => {
+      const handleAccountsChanged = async (accounts) => {
         if (!isMounted) return; // Don't update state if component unmounted
         
         console.log("MetaMask accounts changed:", accounts);
+        
+        // Check if the new account matches the profile
+        await checkWalletMatch();
+        
         if (accounts.length > 0) {
-          // Update stored wallet address
+          // Update stored wallet address if changed (existing code remains)
           const storedProfile = localStorage.getItem("userProfile");
           if (storedProfile) {
             const profile = JSON.parse(storedProfile);
@@ -258,7 +267,7 @@ const Product = () => {
             }
           }
         } else {
-          // User disconnected their wallet in MetaMask
+          // User disconnected their wallet in MetaMask (existing code remains)
           const storedProfile = localStorage.getItem("userProfile");
           if (storedProfile) {
             const profile = JSON.parse(storedProfile);
@@ -270,6 +279,13 @@ const Product = () => {
               toast.warning("Wallet disconnected");
             }
           }
+          
+          // Update validation state for disconnected wallet
+          setWalletValidationState({
+            isValid: false,
+            message: 'No wallet connected. Please connect your wallet first.',
+            checking: false
+          });
         }
       };
       
@@ -303,24 +319,67 @@ const Product = () => {
     }
   }, [listingData]);
 
-  const handleBidClick = () => {
-    // Check if wallet is connected before opening bid drawer
+  const handleBidClick = async () => {
+    // Check if user is logged in
     const storedProfile = localStorage.getItem("userProfile");
-    const walletAddress = storedProfile ? JSON.parse(storedProfile).walletAddress : null;
     
     if (!storedProfile) {
-      // User not logged in - redirect to login
       toast.error('Please log in to place a bid');
       window.location.href = '/login';
       return;
     }
     
-    if (!walletAddress) {
+    // First validate the wallet match
+    await checkWalletMatch();
+    
+    // Check the validation state AFTER the check has been performed
+    if (!walletValidationState.isValid) {
+      // Different handling based on the error reason
+      const storedWalletAddress = storedProfile ? JSON.parse(storedProfile).walletAddress?.toLowerCase() : null;
+      
+      if (!storedWalletAddress) {
+        toast.error('No wallet address found in your profile');
+        return;
+      }
+      
+      // Check if any wallet is connected at all
+      let ethereum = window.ethereum || 
+                    (window.web3 && window.web3.currentProvider) || 
+                    (window.ethereum && window.ethereum.providers && 
+                    window.ethereum.providers.find(p => p.isMetaMask));
+                    
+      if (!ethereum) {
+        toast.error('MetaMask not detected. Please install MetaMask to continue.');
+        return;
+      }
+      
+      try {
+        const accounts = await ethereum.request({ method: 'eth_accounts' });
+        
+        if (accounts.length === 0) {
+          // No wallet connected - show connect wallet modal
+          toast.error('No wallet connected. Please connect your wallet.');
       setShowConnectWallet(true);
     } else {
+          // Wrong wallet connected - show specific error
+          const connectedAddress = accounts[0].toLowerCase();
+          toast.error(
+            `Wrong wallet connected! Please switch to ${storedWalletAddress.substring(0, 6)}...${storedWalletAddress.substring(storedWalletAddress.length - 4)} in MetaMask.`,
+            { autoClose: 5000 }
+          );
+        }
+      } catch (err) {
+        console.error("Error checking accounts:", err);
+        toast.error('Failed to validate wallet connection');
+      }
+      
+      return; // Don't open the drawer if validation failed
+    }
+    
+    // If we get here, the wallet validation passed
+    console.log("Wallet validation passed, opening bid drawer");
       fetchWalletBalance(); // Refresh balance when opening drawer
       setIsDrawerOpen(true);
-    }
   };
 
   // Function to help users troubleshoot MetaMask connection issues
@@ -367,56 +426,88 @@ const Product = () => {
     // Clear existing notifications first
     toast.dismiss();
     
+    // Check profile wallet first
+    const storedProfile = localStorage.getItem("userProfile");
+    const storedWalletAddress = storedProfile ? JSON.parse(storedProfile).walletAddress?.toLowerCase() : null;
+    
+    if (!storedWalletAddress) {
+      toast.error('No wallet address found in your profile');
+      return;
+    }
+    
     // Directly connect wallet instead of redirecting to register page
     setIsConnectingWallet(true);
     
     // Check for MetaMask or any other Ethereum provider
-    // Providers can be in window.ethereum or in window.ethereum.providers array
     let ethereum = null;
     
     if (window.ethereum) {
-      // Modern dapp browsers
       ethereum = window.ethereum;
     } else if (window.web3) {
-      // Legacy dapp browsers
       ethereum = window.web3.currentProvider;
-    } else {
-      // Try to find MetaMask in the providers list (some browsers put it there)
-      if (window.ethereum && window.ethereum.providers) {
-        const metaMaskProvider = window.ethereum.providers.find(p => p.isMetaMask);
-        if (metaMaskProvider) {
-          ethereum = metaMaskProvider;
-        }
+    } else if (window.ethereum && window.ethereum.providers) {
+      const metaMaskProvider = window.ethereum.providers.find(p => p.isMetaMask);
+      if (metaMaskProvider) {
+        ethereum = metaMaskProvider;
       }
     }
     
     if (!ethereum) {
-      // Just use troubleshootMetaMask directly instead of showing multiple errors
       troubleshootMetaMask();
       setIsConnectingWallet(false);
       return;
     }
-  
+
     try {
+      // Get current accounts first to check
+      const currentAccounts = await ethereum.request({ method: 'eth_accounts' });
+      
+      if (currentAccounts.length > 0) {
+        const connectedAddress = currentAccounts[0].toLowerCase();
+        if (connectedAddress !== storedWalletAddress) {
+          toast.error(`Wrong wallet connected! Please switch to ${storedWalletAddress.substring(0, 6)}...${storedWalletAddress.substring(storedWalletAddress.length - 4)} in MetaMask.`, {
+            autoClose: 7000
+          });
+          setIsConnectingWallet(false);
+          return;
+        }
+      }
+      
       // Request accounts
       const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
       if (accounts.length > 0) {
-        const walletAddress = accounts[0];
+        const walletAddress = accounts[0].toLowerCase();
+        
+        // Double-check against expected wallet
+        if (walletAddress !== storedWalletAddress) {
+          toast.error(`Wrong wallet connected! Please switch to ${storedWalletAddress.substring(0, 6)}...${storedWalletAddress.substring(storedWalletAddress.length - 4)} in MetaMask.`, {
+            autoClose: 7000
+          });
+          setIsConnectingWallet(false);
+          return;
+        }
         
         // Update user profile in localStorage with the wallet address
-        const storedProfile = localStorage.getItem("userProfile");
         if (storedProfile) {
           const profile = JSON.parse(storedProfile);
-          profile.walletAddress = walletAddress;
+          profile.walletAddress = accounts[0]; // keep original case
           localStorage.setItem("userProfile", JSON.stringify(profile));
           
           toast.success('Wallet connected successfully!');
           setShowConnectWallet(false);
           
+          // Run validation after connection
+          await checkWalletMatch();
+          
           // Fetch the updated wallet balance
           await fetchWalletBalance();
           
-          setIsDrawerOpen(true); // Open bid drawer after wallet is connected
+          // Only open the drawer if wallet validation passed
+          if (walletValidationState.isValid) {
+            setIsDrawerOpen(true);
+          } else {
+            toast.error(walletValidationState.message);
+          }
         }
       }
     } catch (err) {
@@ -432,8 +523,103 @@ const Product = () => {
     }
   };
 
-  // Add a function to validate bid input
+  // Add this function to check if connected wallet matches profile wallet
+  const checkWalletMatch = async () => {
+    console.log("Starting wallet validation check");
+    setWalletValidationState(prev => ({ ...prev, checking: true }));
+    
+    const storedProfile = localStorage.getItem("userProfile");
+    const storedWalletAddress = storedProfile ? JSON.parse(storedProfile).walletAddress?.toLowerCase() : null;
+    
+    if (!storedWalletAddress) {
+      console.log("No wallet address in profile");
+      setWalletValidationState({
+        isValid: false,
+        message: 'No wallet address found in your profile',
+        checking: false,
+        reason: 'no_wallet_in_profile'
+      });
+      return false;
+    }
+    
+    // Get the currently connected wallet in MetaMask
+    let ethereum = window.ethereum || 
+                  (window.web3 && window.web3.currentProvider) || 
+                  (window.ethereum && window.ethereum.providers && 
+                  window.ethereum.providers.find(p => p.isMetaMask));
+    
+    if (!ethereum) {
+      console.log("No Ethereum provider detected");
+      setWalletValidationState({
+        isValid: false,
+        message: 'MetaMask not detected. Please install MetaMask to continue.',
+        checking: false,
+        reason: 'no_provider'
+      });
+      return false;
+    }
+    
+    try {
+      const accounts = await ethereum.request({ method: 'eth_accounts' });
+      console.log("Got accounts:", accounts);
+      
+      if (accounts.length === 0) {
+        console.log("No accounts connected");
+        setWalletValidationState({
+          isValid: false,
+          message: 'No wallet connected. Please connect your wallet first.',
+          checking: false,
+          reason: 'no_accounts'
+        });
+        return false;
+      }
+      
+      const connectedAddress = accounts[0].toLowerCase();
+      console.log(`Comparing connected (${connectedAddress}) with stored (${storedWalletAddress})`);
+      
+      if (connectedAddress !== storedWalletAddress) {
+        console.log("Wallet mismatch");
+        setWalletValidationState({
+          isValid: false,
+          message: `Connected wallet (${connectedAddress.substring(0, 6)}...) does not match your profile wallet (${storedWalletAddress.substring(0, 6)}...).`,
+          checking: false,
+          reason: 'wallet_mismatch',
+          connectedWallet: connectedAddress,
+          expectedWallet: storedWalletAddress
+        });
+        return false;
+      }
+      
+      console.log("Wallet validation passed");
+      setWalletValidationState({
+        isValid: true,
+        message: '',
+        checking: false,
+        reason: 'success'
+      });
+      return true;
+    } catch (error) {
+      console.error('Error validating wallet:', error);
+      setWalletValidationState({
+        isValid: false,
+        message: 'Failed to validate wallet connection',
+        checking: false,
+        reason: 'error',
+        error: error.message
+      });
+      return false;
+    }
+  };
+
+  // Modify validateBidAmount to use the walletValidationState
   const validateBidAmount = async (amount) => {
+    // Skip other validations if wallet doesn't match
+    if (!walletValidationState.isValid) {
+      setBidError(walletValidationState.message);
+      setHasSufficientFunds(false);
+      return false;
+    }
+    
     const numAmount = Number(amount);
     const minBid = listingData.latestBid?.bidPrice || listingData.startingPrice;
     
@@ -444,6 +630,14 @@ const Product = () => {
     
     if (numAmount <= minBid) {
       setBidError(`Bid must be higher than ${currency}${minBid}`);
+      return false;
+    }
+    
+    // Re-validate wallet match before proceeding with balance check
+    const isWalletValid = await checkWalletMatch();
+    if (!isWalletValid) {
+      setBidError(walletValidationState.message);
+      setHasSufficientFunds(false);
       return false;
     }
     
@@ -470,17 +664,6 @@ const Product = () => {
       }
 
       const connectedAddress = accounts[0].toLowerCase();
-      
-      // Get stored address from localStorage for comparison
-      const storedProfile = localStorage.getItem("userProfile");
-      const storedAddress = storedProfile ? JSON.parse(storedProfile).walletAddress?.toLowerCase() : null;
-      
-      // If stored address exists but doesn't match connected address
-      if (storedAddress && storedAddress !== connectedAddress) {
-        setBidError('Connected wallet does not match your registered wallet. Please connect the correct wallet.');
-        setHasSufficientFunds(false);
-        return false;
-      }
       
       // Get ETH balance in Wei
       const balanceInWei = await ethereum.request({
@@ -534,8 +717,44 @@ const Product = () => {
     validateBidAmount(value); // This is now async but we don't need to await it here
   };
 
+  // Enhance the useEffect for continuous checking while modal is open
+  useEffect(() => {
+    if (isDrawerOpen) {
+      // Immediately check wallet when drawer opens
+      checkWalletMatch();
+      
+      // Create a more responsive interval for continuous checking
+      const intervalId = setInterval(async () => {
+        const wasValid = walletValidationState.isValid;
+        await checkWalletMatch();
+        
+        // If validation state changed from valid to invalid, alert the user
+        if (wasValid && !walletValidationState.isValid) {
+          console.log("Wallet validation changed from valid to invalid!");
+          toast.error(walletValidationState.message, {
+            position: "top-center",
+            autoClose: 5000
+          });
+        }
+      }, 1000); // Check every second
+      
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
+  }, [isDrawerOpen, walletValidationState.isValid]);
+
+  // Restore the handlePlaceBid function while keeping the new wallet validation
   const handlePlaceBid = async () => {
-    // Validate before proceeding
+    // Force a fresh wallet check right when the user clicks "Place Bid"
+    const isCurrentlyValid = await checkWalletMatch();
+    
+    if (!isCurrentlyValid) {
+      toast.error(walletValidationState.message);
+      return;
+    }
+    
+    // Then validate the bid amount which also checks wallet
     if (!(await validateBidAmount(bidAmount))) {
       return;
     }
@@ -545,23 +764,48 @@ const Product = () => {
       const storedProfile = localStorage.getItem("userProfile");
       const userId = storedProfile ? JSON.parse(storedProfile).id : null;
       const token = localStorage.getItem("token");
-      
-      // Check if user is logged in
-      if (!userId) {
-        toast.error('You need to be logged in to place a bid.');
-        setIsPlacingBid(false);
-        return;
-      }
-      
-      // Check if wallet is connected
       const walletAddress = storedProfile ? JSON.parse(storedProfile).walletAddress : null;
       
-      if (!walletAddress) {
-        setShowConnectWallet(true);
+      // Final wallet check right before transaction
+      const isFinallyValid = await checkWalletMatch();
+      if (!isFinallyValid) {
+        toast.error(walletValidationState.message);
         setIsPlacingBid(false);
         return;
       }
-
+      
+      // Get current wallet to double-check it's matching what we expect
+      let ethereum = window.ethereum || 
+                          (window.web3 && window.web3.currentProvider) || 
+                          (window.ethereum && window.ethereum.providers && 
+                          window.ethereum.providers.find(p => p.isMetaMask));
+        
+      if (!ethereum) {
+        toast.error('MetaMask not detected. Please install MetaMask to continue.');
+          setIsPlacingBid(false);
+          return;
+        }
+        
+      // Get the actual accounts before proceeding
+      const accounts = await ethereum.request({ method: 'eth_accounts' });
+      
+      if (accounts.length === 0) {
+        toast.error('No wallet connected. Please connect your wallet.');
+        setIsPlacingBid(false);
+        return;
+      }
+      
+      const connectedAddress = accounts[0].toLowerCase();
+      const storedAddress = walletAddress?.toLowerCase();
+      
+      // Triple-check wallet match - belt and suspenders approach
+      if (connectedAddress !== storedAddress) {
+        toast.error(`Connected wallet (${connectedAddress.substring(0, 6)}...) doesn't match your profile wallet (${storedAddress.substring(0, 6)}...).`);
+        setIsPlacingBid(false);
+        return;
+      }
+      
+      // Now proceed with Web3 and transaction
       // Initialize Web3
       let web3;
       try {
@@ -646,6 +890,14 @@ const Product = () => {
         throw new Error(`Insufficient funds. You need ${totalCostEth} ETH (including gas) but only have ${balanceEth} ETH.`);
       }
 
+      // Do one final wallet check before executing the transaction
+      const finalAccounts = await ethereum.request({ method: 'eth_accounts' });
+      if (finalAccounts.length === 0 || finalAccounts[0].toLowerCase() !== storedAddress) {
+        toast.error('Wallet changed during transaction preparation! Transaction aborted.');
+        setIsPlacingBid(false);
+        return;
+      }
+
       // Execute the transaction
       const transaction = await contract.methods.placeBid(listingIdBytes16)
         .send({
@@ -660,28 +912,36 @@ const Product = () => {
         try {
           // Create bid record in backend with transaction hash
           const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/bid/create`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              ...(token ? { Authorization: `Bearer ${token}` } : {})
-            },
-            body: JSON.stringify({
-              listingId: listingData.listingId,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          listingId: listingData.listingId,
               userId: userId,
-              amount: Number(bidAmount), // Send the original USD amount
-              transactionHash: transaction.transactionHash // Add transaction hash
-            })
-          });
-
-          if (!response.ok) {
-            throw new Error(`Failed to create bid record: ${response.status}`);
+              amount: Math.floor(Number(bidAmount)), // Ensure it's an integer
+              transactionHash: transaction.transactionHash
+        })
+      });
+      
+      if (!response.ok) {
+            let errorMessage = `Failed to create bid record: ${response.status}`;
+            try {
+        const errorText = await response.text();
+              errorMessage += ` - ${errorText}`;
+            } catch (e) {
+              // If we can't get the text, just use the status code
+            }
+            
+            throw new Error(errorMessage);
           }
 
           // Update the listing data
           await fetchListingData();
           
           // Show success message
-          toast.success('Bid placed successfully!');
+        toast.success('Bid placed successfully!');
           
           // Close the bid drawer
           setIsDrawerOpen(false);
@@ -690,14 +950,25 @@ const Product = () => {
           setBidConfirmation({
             bidPrice: bidAmount,
             bidDate: new Date().toISOString(),
-            transactionHash: transaction.transactionHash
+            transactionHash: transaction.transactionHash,
+            error: false
           });
         } catch (error) {
           console.error('Error creating bid record:', error);
-          toast.error('Bid placed on blockchain but failed to update records. Please contact support.');
+          toast.error('Bid placed on blockchain but failed to update records. Please contact support with your transaction hash.');
+          
+          // Still show the confirmation with the transaction hash for reference
+          setBidConfirmation({
+            bidPrice: bidAmount,
+            bidDate: new Date().toISOString(),
+            transactionHash: transaction.transactionHash,
+            error: true
+          });
+          
+          // Close the drawer regardless
+          setIsDrawerOpen(false);
         }
       }
-
     } catch (error) {
       console.error('Error placing bid:', error);
       
@@ -713,6 +984,64 @@ const Product = () => {
       setIsPlacingBid(false);
     }
   };
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    const setupEthereumListeners = async () => {
+      let ethereum = null;
+      try {
+        ethereum = window.ethereum || 
+                  (window.web3 && window.web3.currentProvider) || 
+                  (window.ethereum && window.ethereum.providers && 
+                  window.ethereum.providers.find(p => p.isMetaMask));
+      } catch (err) {
+        console.error("Error accessing Ethereum provider:", err);
+      }
+      
+      if (ethereum) {
+        // Initial wallet validation
+        await checkWalletMatch();
+        
+        // Listen for account changes
+        try {
+          ethereum.on('accountsChanged', handleAccountsChanged);
+        } catch (err) {
+          console.error("Error adding accountsChanged listener:", err);
+        }
+      }
+      
+      return ethereum;
+    };
+    
+    setupEthereumListeners();
+    
+    // Cleanup
+    return () => {
+      isMounted = false;
+      const cleanupEthereum = async () => {
+        let ethereum = null;
+        try {
+          ethereum = window.ethereum || 
+                    (window.web3 && window.web3.currentProvider) || 
+                    (window.ethereum && window.ethereum.providers && 
+                    window.ethereum.providers.find(p => p.isMetaMask));
+                    
+          if (ethereum) {
+            try {
+              ethereum.removeListener('accountsChanged', handleAccountsChanged);
+            } catch (err) {
+              console.error("Error removing accountsChanged listener:", err);
+            }
+          }
+        } catch (err) {
+          console.error("Error during cleanup:", err);
+        }
+      };
+      
+      cleanupEthereum();
+    };
+  }, []);
 
   if (isLoading) {
     return (
@@ -752,10 +1081,10 @@ const Product = () => {
             )}
             <span className={`${isLightTheme ? 'text-gray-800' : 'text-white'}`}>{listingData.product.name}</span>
           </div>
-        </div>
+          </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Product Images */}
+            {/* Product Images */}
           <div className="md:col-span-2">
             <div className="space-y-4">
               <div className={`h-96 overflow-hidden rounded-xl ${isLightTheme ? 'bg-white border border-gray-300' : 'bg-white/5 border border-white/10'}`}>
@@ -782,10 +1111,10 @@ const Product = () => {
                   />
                 ))}
               </div>
+              </div>
             </div>
-          </div>
 
-          {/* Product Details */}
+            {/* Product Details */}
           <div className="md:col-span-1">
             <div className={`rounded-xl p-6 space-y-6 ${isLightTheme ? 'bg-white border border-gray-300' : 'bg-white/5 border border-white/10'}`}>
               {/* Status Badge */}
@@ -937,6 +1266,24 @@ const Product = () => {
                     </div>
                   </div>
                   
+                  {!walletValidationState.isValid && (
+                    <div className={`p-3 mb-3 rounded-lg ${isLightTheme ? 'bg-red-100 border border-red-300 text-red-800' : 'bg-red-900/20 border border-red-500/30 text-red-400'}`}>
+                      <div className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span className="font-medium">Wallet Error</span>
+                      </div>
+                      <p className="mt-1 text-sm">{walletValidationState.message}</p>
+                      <button 
+                        onClick={() => setIsDrawerOpen(false)}
+                        className={`mt-2 px-3 py-1 text-xs font-medium rounded ${isLightTheme ? 'bg-red-700 text-white hover:bg-red-800' : 'bg-red-700/70 text-white hover:bg-red-700'}`}
+                      >
+                        Close & Switch Wallet
+                      </button>
+                    </div>
+                  )}
+                  
                   <div className="flex flex-col gap-2">
                     <label className={`text-sm ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Your Bid Amount</label>
                     <input
@@ -957,7 +1304,7 @@ const Product = () => {
                     )}
                     <button
                       onClick={handlePlaceBid}
-                      disabled={isPlacingBid || bidError !== ''}
+                      disabled={isPlacingBid || bidError !== '' || !walletValidationState.isValid}
                       className="w-full py-2 mt-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isPlacingBid ? 'Placing Bid...' : 'Place Bid'}
@@ -991,11 +1338,13 @@ const Product = () => {
       {/* Bid Confirmation Dialog */}
       {bidConfirmation && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-          <div className="bg-white rounded-lg p-8 shadow-xl text-center">
-            <h2 className="text-2xl font-bold mb-4 text-blue-700">Bid Placed Successfully!</h2>
-            <p className="text-lg text-gray-800 mb-2">Bid Amount: <span className="font-semibold">{currency}{bidConfirmation.bidPrice}</span></p>
-            <p className="text-lg text-gray-800 mb-2">Bid Date: <span className="font-semibold">{new Date(bidConfirmation.bidDate).toLocaleString()}</span></p>
-            <p className="text-lg text-gray-800 mb-4">
+          <div className={`${isLightTheme ? 'bg-white' : 'bg-gradient-to-b from-gray-900 to-black'} rounded-lg p-8 shadow-xl text-center`}>
+            <h2 className={`text-2xl font-bold mb-4 ${isLightTheme ? 'text-blue-700' : 'text-blue-400'}`}>
+              {bidConfirmation?.error ? 'Bid Processing Issue' : 'Bid Placed Successfully!'}
+            </h2>
+            <p className={`text-lg ${isLightTheme ? 'text-gray-800' : 'text-blue-200'} mb-2`}>Bid Amount: <span className="font-semibold">{currency}{bidConfirmation.bidPrice}</span></p>
+            <p className={`text-lg ${isLightTheme ? 'text-gray-800' : 'text-blue-200'} mb-2`}>Bid Date: <span className="font-semibold">{new Date(bidConfirmation.bidDate).toLocaleString()}</span></p>
+            <p className={`text-lg ${isLightTheme ? 'text-gray-800' : 'text-blue-200'} mb-4`}>
               Transaction: <a 
                 href={`https://sepolia.etherscan.io/tx/${bidConfirmation.transactionHash}`}
                 target="_blank"
@@ -1005,6 +1354,12 @@ const Product = () => {
                 {bidConfirmation.transactionHash.slice(0, 10)}...{bidConfirmation.transactionHash.slice(-8)}
               </a>
             </p>
+            {bidConfirmation?.error && (
+              <p className={`text-sm mb-4 ${isLightTheme ? 'text-red-600' : 'text-red-400'}`}>
+                Your transaction was processed on the blockchain, but there was a problem recording it in our system. 
+                Please save your transaction hash and contact support.
+              </p>
+            )}
             <button
               onClick={() => setBidConfirmation(null)}
               className="mt-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
@@ -1087,21 +1442,11 @@ const Product = () => {
         </div>
       )}
 
-      {/* Bid Confirmation Dialog */}
-      {bidConfirmation && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-          <div className={`${isLightTheme ? 'bg-white' : 'bg-gradient-to-b from-gray-900 to-black'} rounded-lg p-8 shadow-xl text-center`}>
-            <h2 className={`text-2xl font-bold mb-4 ${isLightTheme ? 'text-blue-700' : 'text-blue-400'}`}>Bid Placed Successfully!</h2>
-            <p className={`text-lg ${isLightTheme ? 'text-gray-800' : 'text-blue-200'} mb-2`}>Bid Amount: <span className="font-semibold">{currency}{bidConfirmation.bidPrice}</span></p>
-            <p className={`text-lg ${isLightTheme ? 'text-gray-800' : 'text-blue-200'} mb-4`}>Bid Date: <span className="font-semibold">{new Date(bidConfirmation.bidDate).toLocaleString()}</span></p>
-            <button
-              onClick={() => setBidConfirmation(null)}
-              className="mt-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
-            >
-              Close
-            </button>
-          </div>
-        </div>
+      {/* Display wallet validation error in the bidding panel */}
+      {!walletValidationState.isValid && walletValidationState.message && (
+        <p className={`text-xs ${isLightTheme ? 'text-red-700' : 'text-red-400'} mt-1`}>
+          {walletValidationState.message}
+        </p>
       )}
     </div>
   );
