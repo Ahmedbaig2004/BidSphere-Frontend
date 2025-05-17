@@ -1,6 +1,10 @@
 import React from 'react';
+import { useContext } from 'react';
+import { ThemeContext } from '../context/ThemeContext';
 
 const PrivacyPolicy = () => {
+  const { isLightTheme } = useContext(ThemeContext);
+
   return (
     <div className="max-w-4xl mx-auto py-12">
       <div className="backdrop-blur-lg bg-white/10 p-8 rounded-2xl shadow-2xl border border-white/20">
@@ -8,14 +12,14 @@ const PrivacyPolicy = () => {
         
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4 text-blue-300">Privacy Policy</h2>
-          <div className="space-y-4 text-blue-100">
+          <div className={`space-y-4 ${isLightTheme ? 'text-black' : 'text-blue-100'}`}>
             <p>
               At BidSphere, we take your privacy seriously. This Privacy Policy describes how we collect, use, 
               and share information when you use our blockchain-based bidding platform.
             </p>
             
             <h3 className="text-xl font-medium text-blue-300 mt-6">Information We Collect</h3>
-            <ul className="list-disc pl-6 space-y-2">
+            <ul  className={`list-disc pl-6 space-y-2 ${isLightTheme ? 'text-black' : 'text-blue-100'}`}>
               <li>Personal information that you provide (name, email address, phone number)</li>
               <li>Wallet addresses and transaction history on the platform</li>
               <li>Bidding activity and history</li>
@@ -45,7 +49,7 @@ const PrivacyPolicy = () => {
         
         <section id="bidding-rules" className="mb-8 pt-4">
           <h2 className="text-2xl font-semibold mb-4 text-blue-300">Bidding Rules</h2>
-          <div className="space-y-4 text-blue-100">
+          <div className={`space-y-4 ${isLightTheme ? 'text-black' : 'text-blue-100'}`}>
             <p>
               To ensure a fair and transparent bidding environment, all users must adhere to the following rules:
             </p>
@@ -77,7 +81,7 @@ const PrivacyPolicy = () => {
         
         <section id="platform-rules" className="mb-8 pt-4">
           <h2 className="text-2xl font-semibold mb-4 text-blue-300">Platform Rules & Code of Conduct</h2>
-          <div className="space-y-4 text-blue-100">
+          <div className={`space-y-4 ${isLightTheme ? 'text-black' : 'text-blue-100'}`}>
             <p>
               BidSphere is committed to maintaining a respectful, secure, and transparent environment. All users must follow these guidelines:
             </p>
@@ -109,7 +113,7 @@ const PrivacyPolicy = () => {
         
         <section id="terms" className="mb-8 pt-4">
           <h2 className="text-2xl font-semibold mb-4 text-blue-300">Terms of Service</h2>
-          <div className="space-y-4 text-blue-100">
+          <div className={`space-y-4 ${isLightTheme ? 'text-black' : 'text-blue-100'}`}>
             <p>
               By using BidSphere, you agree to abide by the following terms and conditions:
             </p>
@@ -138,11 +142,11 @@ const PrivacyPolicy = () => {
           </div>
         </section>
         
-        <div className="mt-12 text-center text-blue-200">
+        <div className={`mt-12 text-center ${isLightTheme ? 'text-blue-900' : 'text-blue-400'}`}>
           <p>Last updated: November 2023</p>
           <p className="mt-2">
             If you have any questions about our Privacy Policy or Platform Rules,<br />
-            please contact us at <span className="text-blue-300">support@bidsphere.com</span>
+            please contact us at <span className="">support@bidsphere.com</span>
           </p>
         </div>
       </div>

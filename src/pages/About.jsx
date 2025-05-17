@@ -1,8 +1,11 @@
-
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import { ThemeContext } from '../context/ThemeContext';
 
 const About = () => {
+  const { isLightTheme } = useContext(ThemeContext);
+  
   const founders = [
     {
       name: "Shahroz Asif",
@@ -31,7 +34,7 @@ const About = () => {
   ];
 
   return (
-    <div className="min-h-screen px-4 py-16 sm:px-10 dark:bg-gray-900 dark:text-white   border-4 border-blue-400 p-6 rounded-lg">
+    <div className={`min-h-screen px-4 py-16 sm:px-10 ${isLightTheme ? 'bg-blue-50 text-gray-800' : 'dark:bg-gray-900 dark:text-white'} border-4 border-blue-400 p-6  rounded-lg mt-20`}>
       <motion.div 
         initial={{ opacity: 0, y: 40 }} 
         animate={{ opacity: 1, y: 0 }} 
@@ -42,22 +45,22 @@ const About = () => {
           Welcome to BidSphere
         </h1>
 
-        <p className="text-xl mb-8 text-center dark:text-white text-white">
+        <p className={`text-xl mb-8 text-center ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>
           Revolutionizing online auctions in Pakistan with blockchain innovation.
         </p>
 
-        <div className="space-y-8 text-lg leading-relaxed dark:text-white text-white">
+        <div className={`space-y-8 text-lg leading-relaxed ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>
           <motion.p initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2, duration: 0.6 }}>
-            <span className="text-yellow-400 font-semibold">BidSphere</span> is Pakistan’s <span className="text-green-400 font-semibold">first blockchain-based bidding platform</span>, designed to bring a new level of trust, security, and transparency to online auctions.
+            <span className="text-yellow-400 font-semibold">BidSphere</span> is Pakistan's <span className="text-green-400 font-semibold">first blockchain-based bidding platform</span>, designed to bring a new level of trust, security, and transparency to online auctions.
           </motion.p>
           <motion.p initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.6 }}>
             We offer both <span className="text-blue-400 font-medium"></span> <span className="text-green-400 font-medium">blockchain-powered bidding</span> so everyone can bid with confidence 
           </motion.p>
           <motion.p initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4, duration: 0.6 }}>
-            Every transaction is logged immutably, meaning no hidden changes, fake bids, or shady dealings. We’re here to empower <span className="font-semibold text-purple-400">buyers and sellers</span> with the freedom of transparency.
+            Every transaction is logged immutably, meaning no hidden changes, fake bids, or shady dealings. We're here to empower <span className="font-semibold text-purple-400">buyers and sellers</span> with the freedom of transparency.
           </motion.p>
           <motion.p initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5, duration: 0.6 }}>
-            <span className="text-yellow-400 font-semibold">BidSphere</span> is more than just an auction site — it’s a community where trust meets technology.
+            <span className="text-yellow-400 font-semibold">BidSphere</span> is more than just an auction site — it's a community where trust meets technology.
           </motion.p>
         </div>
 
@@ -67,7 +70,7 @@ const About = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6, duration: 0.5 }}
         >
-          <p className="text-xl font-medium dark:text-white text-white mb-4">Ready to experience the future of online bidding?</p>
+          <p className={`text-xl font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'} mb-4`}>Ready to experience the future of online bidding?</p>
           <Link 
             to="/register" 
             className="inline-block bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-6 rounded-full transition"
@@ -84,7 +87,7 @@ const About = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7, duration: 0.6 }}
       >
-        <h2 className="text-4xl font-bold text-center   mb-10 flex items-center justify-center gap-2">
+        <h2 className={`text-4xl font-bold text-center ${isLightTheme ? 'text-gray-800' : ''} mb-10 flex items-center justify-center gap-2`}>
           <div className=" " /> Meet the Founders
         </h2>
 
@@ -95,11 +98,11 @@ const About = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + index * 0.2, duration: 0.5 }}
-              className="bg-gray-800 rounded-xl p-5 text-center shadow hover:shadow-xl transition"
+              className={`${isLightTheme ? 'bg-white shadow-md' : 'bg-gray-800'} rounded-xl p-5 text-center shadow hover:shadow-xl transition`}
             >
               
-              <h3 className="text-xl font-bold text-white">{founder.name}</h3>
-              <p className="text-sm text-gray-400 mb-2">{founder.role}</p>
+              <h3 className={`text-xl font-bold ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>{founder.name}</h3>
+              <p className={`text-sm ${isLightTheme ? 'text-gray-600' : 'text-gray-400'} mb-2`}>{founder.role}</p>
               
             </motion.div>
           ))}

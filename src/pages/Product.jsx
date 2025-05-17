@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
+import { ThemeContext } from '../context/ThemeContext';
 import assets from '../assets/assets';
 import RelatedProducts from '../components/RelatedProducts';
 import { toast } from 'react-toastify';
@@ -31,6 +32,7 @@ const Product = () => {
   const { productId } = useParams();
   const location = useLocation();
   const { currency } = useContext(ShopContext);
+  const { isLightTheme } = useContext(ThemeContext);
   const [listingData, setListingData] = useState(null);
   const [ownerData, setOwnerData] = useState(null);
   const [selectedImage, setSelectedImage] = useState('');
@@ -712,109 +714,129 @@ const Product = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-blue-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="flex justify-center items-center h-screen">
+        <div className={`animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 ${isLightTheme ? 'border-blue-600' : 'border-blue-500'}`}></div>
       </div>
     );
   }
 
   if (!listingData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-blue-900 flex items-center justify-center">
-        <p className="text-white text-xl">Product not found</p>
+      <div className={`flex justify-center items-center h-screen ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>
+        <p>Product not found</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div className={`py-12 px-4 sm:px-6 lg:px-8 min-h-screen ${isLightTheme ? 'bg-blue-50' : 'bg-gradient-to-b from-blue-900 via-black to-blue-900'}`}>
       <div className="max-w-7xl mx-auto">
-        <div className="backdrop-blur-lg bg-white/10 p-8 rounded-2xl shadow-2xl border border-white/20 transform transition-all duration-500">
-          {/* Listing Status */}
-          <div className="mb-4 flex items-center gap-3">
-            <span className="px-4 py-1 rounded-full text-sm font-semibold"
-              style={{
-                backgroundColor: listingData.status === 2 ? '#22c55e' : '#64748b', // green for ACTIVE, gray for others
-                color: 'white',
-              }}
-            >
-              {LISTING_STATUS_MAP[listingData.status] || 'UNKNOWN'}
-            </span>
-            {listingData.status !== 2 && (
-              <span className="text-red-400 text-sm">This bid is not active.</span>
+        <div className="mb-8">
+          <h1 className={`text-3xl font-bold ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>{listingData.product.name}</h1>
+          <div className="flex flex-wrap text-sm mt-2">
+            <a href="/" className={`${isLightTheme ? 'text-gray-600 hover:text-blue-600' : 'text-gray-400 hover:text-white'}`}>Home</a>
+            <span className={`mx-2 ${isLightTheme ? 'text-gray-600' : 'text-gray-400'}`}>/</span>
+            {categoryFromNav && (
+              <>
+                <a href={`/category/${categoryFromNav}`} className={`${isLightTheme ? 'text-gray-600 hover:text-blue-600' : 'text-gray-400 hover:text-white'}`}>{categoryFromNav}</a>
+                <span className={`mx-2 ${isLightTheme ? 'text-gray-600' : 'text-gray-400'}`}>/</span>
+              </>
             )}
-            {listingData.status === 2 && (
-              <span className="text-green-400 text-sm">Bidding is active!</span>
+            {subCategoryFromNav && (
+              <>
+                <a href={`/category/${categoryFromNav}/${subCategoryFromNav}`} className={`${isLightTheme ? 'text-gray-600 hover:text-blue-600' : 'text-gray-400 hover:text-white'}`}>{subCategoryFromNav}</a>
+                <span className={`mx-2 ${isLightTheme ? 'text-gray-600' : 'text-gray-400'}`}>/</span>
+              </>
             )}
+            <span className={`${isLightTheme ? 'text-gray-800' : 'text-white'}`}>{listingData.product.name}</span>
           </div>
+        </div>
 
-          {/* Product Images and Details */}
-          <div className="flex gap-12 flex-col sm:flex-row">
-            {/* Product Images */}
-            <div className="flex flex-1 flex-col gap-3">
-              <div className="w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Product Images */}
+          <div className="md:col-span-2">
+            <div className="space-y-4">
+              <div className={`h-96 overflow-hidden rounded-xl ${isLightTheme ? 'bg-white border border-gray-300' : 'bg-white/5 border border-white/10'}`}>
                 <img
                   src={selectedImage}
-                  className="w-full h-auto rounded-lg border border-white/10"
                   alt={listingData.product.name}
+                  className="w-full h-full object-contain p-4"
                 />
               </div>
-              <div className="flex overflow-x-auto gap-3">
+              <div className="flex gap-2 overflow-x-auto pb-2">
                 <img
-                  onClick={() => setSelectedImage(`http://150.136.175.145:2280/cdn/${listingData.mainImageId}.png`)}
                   src={`http://150.136.175.145:2280/cdn/${listingData.mainImageId}.png`}
-                  className="w-24 h-24 flex-shrink-0 cursor-pointer rounded-lg border border-white/10 hover:border-blue-500/50 transition-all duration-300 object-cover"
                   alt="Main"
+                  className={`h-24 w-24 object-cover rounded-lg cursor-pointer ${isLightTheme ? 'border border-gray-300 hover:border-blue-500' : 'border border-white/20 hover:border-blue-500'}`}
+                  onClick={() => setSelectedImage(`http://150.136.175.145:2280/cdn/${listingData.mainImageId}.png`)}
                 />
                 {listingData.displayImageIds.map((imageId, index) => (
                   <img
                     key={index}
-                    onClick={() => setSelectedImage(`http://150.136.175.145:2280/cdn/${imageId}.png`)}
                     src={`http://150.136.175.145:2280/cdn/${imageId}.png`}
-                    className="w-24 h-24 flex-shrink-0 cursor-pointer rounded-lg border border-white/10 hover:border-blue-500/50 transition-all duration-300 object-cover"
                     alt={`Display ${index + 1}`}
+                    className={`h-24 w-24 object-cover rounded-lg cursor-pointer ${isLightTheme ? 'border border-gray-300 hover:border-blue-500' : 'border border-white/20 hover:border-blue-500'}`}
+                    onClick={() => setSelectedImage(`http://150.136.175.145:2280/cdn/${imageId}.png`)}
                   />
                 ))}
               </div>
             </div>
+          </div>
 
-            {/* Product Details */}
-            <div className="flex-1 space-y-6">
-              <h1 className="text-3xl font-bold text-white">{listingData.product.name}</h1>
+          {/* Product Details */}
+          <div className="md:col-span-1">
+            <div className={`rounded-xl p-6 space-y-6 ${isLightTheme ? 'bg-white border border-gray-300' : 'bg-white/5 border border-white/10'}`}>
+              {/* Status Badge */}
+              <div className="flex items-center mb-4">
+                <span className="px-4 py-1 rounded-full text-sm font-semibold"
+                  style={{
+                    backgroundColor: listingData.status === 2 ? '#22c55e' : '#64748b',
+                    color: 'white',
+                  }}
+                >
+                  {LISTING_STATUS_MAP[listingData.status] || 'UNKNOWN'}
+                </span>
+                {listingData.status !== 2 && (
+                  <span className={`ml-2 text-sm ${isLightTheme ? 'text-red-600' : 'text-red-400'}`}>Bidding is not active.</span>
+                )}
+              </div>
               
-              {/* Owner Information */}
-              <div className="flex items-center gap-3 text-blue-200">
-                <img 
-                  src={ownerData?.avatarId ? `http://150.136.175.145:2280/cdn/${ownerData.avatarId}.png` : assets.default_avatar} 
-                  alt={ownerData?.name} 
-                  className="w-10 h-10 rounded-full"
+              {/* Seller Info */}
+              <div className="flex items-center mb-6">
+                <img
+                  src={`http://150.136.175.145:2280/cdn/${ownerData?.avatarId || 'default'}.png`}
+                  alt="Seller"
+                  className="w-12 h-12 rounded-full mr-4"
+                  onError={(e) => {
+                    e.target.src = assets.avatar_placeholder;
+                  }}
                 />
                 <div>
-                  <p className="font-medium">Listed by {ownerData?.name}</p>
-                  <p className="text-sm">Member since {new Date(ownerData?.registrationDate).toLocaleDateString()}</p>
+                  <p className={`font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>Seller: {ownerData?.name || 'Unknown'}</p>
+                  <p className={`text-sm ${isLightTheme ? 'text-gray-600' : 'text-blue-200'}`}>Member since {ownerData ? new Date(ownerData.registrationDate).toLocaleDateString() : 'Unknown'}</p>
                 </div>
               </div>
 
               {/* Price Information */}
-              <div className="space-y-2">
-                <p className="text-2xl text-blue-200">Starting Price: {currency}{listingData.startingPrice}</p>
+              <div className="mb-6">
+                <p className={`text-2xl ${isLightTheme ? 'text-gray-800' : 'text-blue-200'}`}>Starting Price: {currency}{listingData.startingPrice}</p>
                 {listingData.latestBid && (
-                  <p className="text-2xl text-green-400">Latest Bid: {currency}{listingData.latestBid.bidPrice}</p>
+                  <p className={`text-2xl ${isLightTheme ? 'text-green-600' : 'text-green-400'}`}>Latest Bid: {currency}{listingData.latestBid.bidPrice}</p>
                 )}
               </div>
 
               {/* Category Information */}
               <div className="flex gap-2">
-                <span className="px-3 py-1 bg-blue-600/20 text-blue-200 rounded-full text-sm">
+                <span className={`px-3 py-1 ${isLightTheme ? 'bg-blue-100 text-blue-800' : 'bg-blue-600/20 text-blue-200'} rounded-full text-sm`}>
                   {listingData.product.category}
                 </span>
-                <span className="px-3 py-1 bg-blue-600/20 text-blue-200 rounded-full text-sm">
+                <span className={`px-3 py-1 ${isLightTheme ? 'bg-blue-100 text-blue-800' : 'bg-blue-600/20 text-blue-200'} rounded-full text-sm`}>
                   {listingData.product.subCategory}
                 </span>
               </div>
 
               {/* Auction Dates */}
-              <div className="space-y-2 text-blue-200">
+              <div className={`space-y-2 ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>
                 <p>Start Date: {new Date(listingData.startDate).toLocaleString()}</p>
                 <p>End Date: {new Date(listingData.endDate).toLocaleString()}</p>
               </div>
@@ -826,9 +848,9 @@ const Product = () => {
                 PLACE BID
               </button>
 
-              <hr className="border-white/10" />
+              <hr className={isLightTheme ? 'border-gray-300' : 'border-white/10'} />
 
-              <div className="space-y-3 text-sm text-blue-200">
+              <div className={`space-y-3 text-sm ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>
                 <p className="flex items-center">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                   Seller Reputation: {ownerData?.reputation || 0}
@@ -844,11 +866,11 @@ const Product = () => {
           {/* Product Description */}
           <div className="mt-12">
             <div className="flex">
-              <button className="px-6 py-3 bg-blue-600/20 text-white rounded-t-lg border border-white/10 border-b-0">
+              <button className={`px-6 py-3 ${isLightTheme ? 'bg-blue-100 text-blue-800' : 'bg-blue-600/20 text-white'} rounded-t-lg ${isLightTheme ? 'border border-gray-300 border-b-0' : 'border border-white/10 border-b-0'}`}>
                 Description
               </button>
             </div>
-            <div className="p-6 border border-white/10 rounded-b-lg rounded-tr-lg bg-white/5 text-blue-200 space-y-4">
+            <div className={`p-6 ${isLightTheme ? 'border border-gray-300 bg-white' : 'border border-white/10 bg-white/5'} rounded-b-lg rounded-tr-lg ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} space-y-4`}>
               <p>{listingData.product.description}</p>
             </div>
           </div>
@@ -869,43 +891,43 @@ const Product = () => {
           <div className="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={() => setIsDrawerOpen(false)}></div>
             <span className="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
-            <div className="relative inline-block transform overflow-hidden rounded-lg bg-gradient-to-b from-gray-900 to-black text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+            <div className={`relative inline-block transform overflow-hidden rounded-lg ${isLightTheme ? 'bg-white' : 'bg-gradient-to-b from-gray-900 to-black'} text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle`}>
               <div className="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <h3 className="text-2xl font-bold text-white mb-6">Place Your Bid</h3>
+                <h3 className={`text-2xl font-bold ${isLightTheme ? 'text-gray-800' : 'text-white'} mb-6`}>Place Your Bid</h3>
 
                 <div className="space-y-4">
-                  <p className="text-blue-200">Current highest bid: {currency}{listingData.latestBid?.bidPrice || listingData.startingPrice}</p>
-                  <div className="bg-white/5 p-4 rounded-lg border border-white/10">
-                    <p className="text-white font-medium">{listingData.product.name}</p>
-                    <p className="text-blue-200 mt-2">Starting Price: {currency}{listingData.startingPrice}</p>
+                  <p className={isLightTheme ? 'text-gray-700' : 'text-blue-200'}>Current highest bid: {currency}{listingData.latestBid?.bidPrice || listingData.startingPrice}</p>
+                  <div className={`${isLightTheme ? 'bg-gray-100' : 'bg-white/5'} p-4 rounded-lg ${isLightTheme ? 'border border-gray-300' : 'border border-white/10'}`}>
+                    <p className={`font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>{listingData.product.name}</p>
+                    <p className={`mt-2 ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Starting Price: {currency}{listingData.startingPrice}</p>
                   </div>
                   
                   {/* Wallet Balance Information */}
-                  <div className="bg-blue-900/20 p-3 rounded-lg border border-blue-500/20">
+                  <div className={`${isLightTheme ? 'bg-blue-50 border border-blue-300' : 'bg-blue-900/20 border border-blue-500/20'} p-3 rounded-lg`}>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-blue-200">Your Wallet Balance:</span>
+                      <span className={`text-sm ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Your Wallet Balance:</span>
                       {isLoadingBalance ? (
                         <div className="animate-pulse flex space-x-1">
-                          <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
-                          <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
-                          <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
+                          <div className={`h-2 w-2 ${isLightTheme ? 'bg-blue-600' : 'bg-blue-400'} rounded-full`}></div>
+                          <div className={`h-2 w-2 ${isLightTheme ? 'bg-blue-600' : 'bg-blue-400'} rounded-full`}></div>
+                          <div className={`h-2 w-2 ${isLightTheme ? 'bg-blue-600' : 'bg-blue-400'} rounded-full`}></div>
                         </div>
                       ) : (
-                        <span className="text-sm font-medium text-blue-200">
+                        <span className={`text-sm font-medium ${isLightTheme ? 'text-gray-800' : 'text-blue-200'}`}>
                           {walletBalance.eth.toFixed(4)} ETH
                         </span>
                       )}
                     </div>
                     <div className="flex justify-between items-center mt-1">
-                      <span className="text-sm text-blue-200">Approx USD Value:</span>
-                      <span className="text-sm font-medium text-blue-200">
+                      <span className={`text-sm ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Approx USD Value:</span>
+                      <span className={`text-sm font-medium ${isLightTheme ? 'text-gray-800' : 'text-blue-200'}`}>
                         {isLoadingBalance ? "Loading..." : `${currency}${walletBalance.usd.toFixed(2)}`}
                       </span>
                     </div>
                     <div className="mt-2 flex justify-end">
                       <button 
                         onClick={fetchWalletBalance} 
-                        className="text-xs text-blue-300 hover:text-blue-200"
+                        className={`text-xs ${isLightTheme ? 'text-blue-700 hover:text-blue-900' : 'text-blue-300 hover:text-blue-200'}`}
                         disabled={isLoadingBalance}
                       >
                         {isLoadingBalance ? 'Refreshing...' : 'Refresh Balance'}
@@ -914,7 +936,7 @@ const Product = () => {
                   </div>
                   
                   <div className="flex flex-col gap-2">
-                    <label className="text-blue-200 text-sm">Your Bid Amount</label>
+                    <label className={`text-sm ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Your Bid Amount</label>
                     <input
                       type="number"
                       min={listingData.latestBid?.bidPrice || listingData.startingPrice}
@@ -922,14 +944,14 @@ const Product = () => {
                       onChange={handleBidAmountChange}
                       className={`px-3 py-2 rounded border ${
                         bidError 
-                          ? 'border-red-500 bg-red-900/20' 
+                          ? isLightTheme ? 'border-red-500 bg-red-100 text-red-800' : 'border-red-500 bg-red-900/20 text-white' 
                           : hasSufficientFunds 
-                            ? 'border-white/20 bg-white/10 focus:border-blue-500' 
-                            : 'border-orange-500/50 bg-orange-900/20'
-                      } text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                            ? isLightTheme ? 'border-gray-300 bg-white text-gray-800 focus:border-blue-500' : 'border-white/20 bg-white/10 text-white focus:border-blue-500' 
+                            : isLightTheme ? 'border-orange-500 bg-orange-100 text-orange-800' : 'border-orange-500/50 bg-orange-900/20 text-white'
+                      } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                     />
                     {bidError && (
-                      <p className="text-xs text-red-400 mt-1">{bidError}</p>
+                      <p className={`text-xs ${isLightTheme ? 'text-red-700' : 'text-red-400'} mt-1`}>{bidError}</p>
                     )}
                     <button
                       onClick={handlePlaceBid}
@@ -939,22 +961,22 @@ const Product = () => {
                       {isPlacingBid ? 'Placing Bid...' : 'Place Bid'}
                     </button>
                   </div>
-                  <p className="text-sm text-blue-200">
+                  <p className={`text-sm ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>
                     Auction ends on {new Date(listingData.endDate).toLocaleString()}
                   </p>
                   
                   {/* Bidding Rules and Information */}
-                  <div className="mt-4 p-4 bg-blue-900/30 rounded-lg border border-blue-500/20">
-                    <h4 className="font-medium text-blue-200 mb-2">Bidding Rules:</h4>
-                    <ul className="text-xs text-blue-300 space-y-1 list-disc pl-5">
+                  <div className={`mt-4 p-4 ${isLightTheme ? 'bg-blue-50 border border-blue-300' : 'bg-blue-900/30 border border-blue-500/20'} rounded-lg`}>
+                    <h4 className={`font-medium ${isLightTheme ? 'text-gray-800' : 'text-blue-200'} mb-2`}>Bidding Rules:</h4>
+                    <ul className={`text-xs ${isLightTheme ? 'text-gray-700' : 'text-blue-300'} space-y-1 list-disc pl-5`}>
                       <li>Your bid must be higher than the current highest bid</li>
                       <li>You must have sufficient funds in your wallet</li>
                       <li>You cannot bid on your own listings</li>
                       <li>You cannot place consecutive bids without another bidder in between</li>
                       <li>There is a cooldown period of 1 minute between bids</li>
                     </ul>
-                    <div className="mt-3 pt-3 border-t border-blue-500/20">
-                      <p className="text-xs text-blue-300">Need help? If you encounter any issues, please check your wallet connection and balance, or contact support.</p>
+                    <div className={`mt-3 pt-3 ${isLightTheme ? 'border-t border-blue-300' : 'border-t border-blue-500/20'}`}>
+                      <p className={`text-xs ${isLightTheme ? 'text-gray-700' : 'text-blue-300'}`}>Need help? If you encounter any issues, please check your wallet connection and balance, or contact support.</p>
                     </div>
                   </div>
                 </div>
@@ -964,44 +986,27 @@ const Product = () => {
         </div>
       )}
 
-      {/* Bid Confirmation Dialog */}
-      {bidConfirmation && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-          <div className="bg-white rounded-lg p-8 shadow-xl text-center">
-            <h2 className="text-2xl font-bold mb-4 text-blue-700">Bid Placed Successfully!</h2>
-            <p className="text-lg text-gray-800 mb-2">Bid Amount: <span className="font-semibold">{currency}{bidConfirmation.bidPrice}</span></p>
-            <p className="text-lg text-gray-800 mb-4">Bid Date: <span className="font-semibold">{new Date(bidConfirmation.bidDate).toLocaleString()}</span></p>
-            <button
-              onClick={() => setBidConfirmation(null)}
-              className="mt-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Wallet Connection Dialog */}
       {showConnectWallet && (
         <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="wallet-dialog" role="dialog" aria-modal="true">
           <div className="flex min-h-screen items-center justify-center px-4 text-center">
             <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={() => setShowConnectWallet(false)}></div>
-            <div className="relative inline-block transform overflow-hidden rounded-lg bg-gradient-to-b from-gray-900 to-blue-900 text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md sm:align-middle">
+            <div className={`relative inline-block transform overflow-hidden rounded-lg ${isLightTheme ? 'bg-white' : 'bg-gradient-to-b from-gray-900 to-blue-900'} text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md sm:align-middle`}>
               <div className="px-6 pt-5 pb-6">
                 <div className="text-center">
-                  <svg className="mx-auto h-16 w-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <svg className={`mx-auto h-16 w-16 ${isLightTheme ? 'text-blue-600' : 'text-blue-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                   </svg>
-                  <h3 className="mt-4 text-2xl font-bold text-white">Connect Your Wallet</h3>
-                  <p className="mt-2 text-sm text-blue-200">
+                  <h3 className={`mt-4 text-2xl font-bold ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>Connect Your Wallet</h3>
+                  <p className={`mt-2 text-sm ${isLightTheme ? 'text-gray-600' : 'text-blue-200'}`}>
                     You need to connect a cryptocurrency wallet to place bids on our platform.
                   </p>
                 </div>
                 <div className="mt-6 space-y-4">
-                  <p className="text-xs text-blue-300">
+                  <p className={`text-xs ${isLightTheme ? 'text-gray-700' : 'text-blue-300'}`}>
                     Connecting your wallet will allow you to:
                   </p>
-                  <ul className="text-xs text-blue-300 list-disc pl-5 space-y-1">
+                  <ul className={`text-xs ${isLightTheme ? 'text-gray-700' : 'text-blue-300'} list-disc pl-5 space-y-1`}>
                     <li>Place bids on items</li>
                     <li>Create and sell your own items</li>
                     <li>Receive funds from sales</li>
@@ -1009,18 +1014,18 @@ const Product = () => {
                   </ul>
                   
                   {/* Troubleshooting guide */}
-                  <div className="mt-4 p-3 bg-blue-900/40 rounded-lg">
-                    <h4 className="text-sm font-medium text-blue-200 mb-2">Having trouble?</h4>
-                    <ol className="text-xs text-blue-300 list-decimal pl-5 space-y-1">
+                  <div className={`mt-4 p-3 ${isLightTheme ? 'bg-blue-50 rounded-lg' : 'bg-blue-900/40 rounded-lg'}`}>
+                    <h4 className={`text-sm font-medium ${isLightTheme ? 'text-gray-800' : 'text-blue-200'} mb-2`}>Having trouble?</h4>
+                    <ol className={`text-xs ${isLightTheme ? 'text-gray-700' : 'text-blue-300'} list-decimal pl-5 space-y-1`}>
                       <li>Make sure MetaMask is installed in your browser</li>
                       <li>Check that the MetaMask extension is enabled</li>
                       <li>Unlock your MetaMask wallet if it's locked</li>
                       <li>Refresh this page and try again</li>
                     </ol>
-                    <p className="text-xs text-blue-300 mt-2">
+                    <p className={`text-xs ${isLightTheme ? 'text-gray-700' : 'text-blue-300'} mt-2`}>
                       <button 
                         onClick={() => window.open('https://metamask.io/download/', '_blank')}
-                        className="text-blue-400 underline">
+                        className={isLightTheme ? 'text-blue-700 underline' : 'text-blue-400 underline'}>
                         Get MetaMask
                       </button> if you don't have it installed.
                     </p>
@@ -1041,7 +1046,7 @@ const Product = () => {
                     </button>
                     <button
                       onClick={() => setShowConnectWallet(false)}
-                      className="w-full border border-white/20 py-3 text-white rounded-lg hover:bg-white/10 transition-colors"
+                      className={`w-full py-3 rounded-lg hover:bg-white/10 transition-colors ${isLightTheme ? 'border border-gray-300 text-gray-800 hover:bg-gray-100' : 'border border-white/20 text-white'}`}
                     >
                       Cancel
                     </button>
@@ -1049,6 +1054,23 @@ const Product = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bid Confirmation Dialog */}
+      {bidConfirmation && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+          <div className={`${isLightTheme ? 'bg-white' : 'bg-gradient-to-b from-gray-900 to-black'} rounded-lg p-8 shadow-xl text-center`}>
+            <h2 className={`text-2xl font-bold mb-4 ${isLightTheme ? 'text-blue-700' : 'text-blue-400'}`}>Bid Placed Successfully!</h2>
+            <p className={`text-lg ${isLightTheme ? 'text-gray-800' : 'text-blue-200'} mb-2`}>Bid Amount: <span className="font-semibold">{currency}{bidConfirmation.bidPrice}</span></p>
+            <p className={`text-lg ${isLightTheme ? 'text-gray-800' : 'text-blue-200'} mb-4`}>Bid Date: <span className="font-semibold">{new Date(bidConfirmation.bidDate).toLocaleString()}</span></p>
+            <button
+              onClick={() => setBidConfirmation(null)}
+              className="mt-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

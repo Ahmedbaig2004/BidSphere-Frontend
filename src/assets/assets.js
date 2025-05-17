@@ -72,6 +72,8 @@ import stripe_logo from './stripe_logo.png'
 import cross_icon from './cross_icon.png'
 import bidsphere from './bidsphere.png'
 import herologo from './herologo.png'
+import bidsphereblack from './bidsphereblack.png'
+import herologoblack from './herologoblack.png'
 
 const assets = {
     
@@ -91,7 +93,9 @@ const assets = {
     razorpay_logo,
     stripe_logo,
     cross_icon,bidsphere,
-    herologo
+    herologo,
+    bidsphereblack,
+    herologoblack
 }
 
 export const products = [

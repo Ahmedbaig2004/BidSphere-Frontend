@@ -1,15 +1,18 @@
 import { motion, useAnimation } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import assets from "../assets/assets";
+import { ThemeContext } from "../context/ThemeContext";
 
 // Particle component for background effect
 const Particle = ({ className }) => {
+  const { isLightTheme } = useContext(ThemeContext);
+  
   return (
     <motion.div
-      className={`absolute rounded-full bg-blue-400 opacity-70 ${className}`}
+      className={`absolute rounded-full ${isLightTheme ? 'bg-blue-500' : 'bg-blue-400'} ${isLightTheme ? 'opacity-40' : 'opacity-70'} ${className}`}
       initial={{ opacity: 0, scale: 0 }}
       animate={{ 
-        opacity: [0, 0.4, 0], 
+        opacity: isLightTheme ? [0, 0.2, 0] : [0, 0.4, 0], 
         scale: [0, 1, 0.5],
         y: [0, -100],
         x: Math.random() > 0.5 ? [0, 50] : [0, -50] 
@@ -28,6 +31,7 @@ const Particle = ({ className }) => {
 const Hero = () => {
   const [isHovered, setIsHovered] = useState(false);
   const controls = useAnimation();
+  const { isLightTheme } = useContext(ThemeContext);
   
   // Generate an array of letters from the slogan for letter animation
   const slogan = "The Future of Bidding Starts Here!";
@@ -63,8 +67,9 @@ const Hero = () => {
       <div className="relative z-10">
         {/* Logo with improved animation and hover effect */}
         <motion.img
-          className="w-full sm:w-1/2 md:w-2/5 lg:w-[1000px] mx-auto cursor-pointer"
-          src={assets.herologo}
+          className="w-full sm:w-1/2 md:w-2/5 lg:w-[1000px] mx-auto cursor-pointer" 
+
+          src={isLightTheme ? assets.herologoblack : assets.herologo}
           alt="Logo"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -82,16 +87,16 @@ const Hero = () => {
         
         {/* Glowing effect that appears on hover */}
         <motion.div
-          className="absolute top-0 left-0 w-full h-full rounded-full bg-blue-500 filter blur-3xl"
+          className={`absolute top-0 left-0 w-full h-full rounded-full ${isLightTheme ? 'bg-blue-300' : 'bg-blue-500'} filter blur-3xl`}
           initial={{ opacity: 0 }}
-          animate={{ opacity: isHovered ? 0.15 : 0 }}
+          animate={{ opacity: isHovered ? (isLightTheme ? 0.1 : 0.15) : 0 }}
           transition={{ duration: 0.5 }}
           style={{ zIndex: -1 }}
         />
         
         {/* Animated letter-by-letter slogan */}
         <div 
-          className="absolute text-center text-xl text-gray-300"
+          className={`absolute text-center text-xl ${isLightTheme ? 'text-gray-800' : 'text-gray-300'}`}
           style={{ 
             top: "70%", 
             right: "13%",

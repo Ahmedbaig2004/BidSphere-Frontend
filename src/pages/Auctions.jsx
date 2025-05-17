@@ -5,6 +5,7 @@ import Title from '../components/Title';
 import ProductItem from '../components/ProductItem';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ThemeContext } from '../context/ThemeContext';
 
 const Auctions = () => {
   // Define categories with proper formatting for API compatibility
@@ -27,6 +28,7 @@ const Auctions = () => {
   };
 
   const { search, showsearch } = useContext(ShopContext);
+  const { isLightTheme } = useContext(ThemeContext);
   const [showfilter, setshowfilter] = useState(false);
   const [listings, setListings] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -159,10 +161,10 @@ const Auctions = () => {
           {/* Filters Sidebar */}
           <div className="w-full lg:w-72 shrink-0">
             <div className="sticky top-24">
-              <div className="backdrop-blur-lg bg-white/10 rounded-2xl border border-white/20 p-6">
+              <div className={`backdrop-blur-lg ${isLightTheme ? 'bg-white/50 border-gray-300' : 'bg-white/10 border-white/20'} rounded-2xl border p-6`}>
                 <button
                   onClick={() => setshowfilter(!showfilter)}
-                  className="w-full flex items-center justify-between text-white text-lg font-medium mb-4 hover:text-blue-300 transition-colors duration-300"
+                  className={`w-full flex items-center justify-between ${isLightTheme ? 'text-gray-800' : 'text-white'} text-lg font-medium mb-4 hover:${isLightTheme ? 'text-gray-600' : 'text-blue-300'} transition-colors duration-300`}
                 >
                   <span>FILTERS</span>
                   <img
@@ -175,18 +177,18 @@ const Auctions = () => {
                 <div className={`space-y-6 ${showfilter ? '' : 'hidden'} lg:block`}>
                   {/* Categories */}
                   <div>
-                    <h3 className="text-sm font-medium text-blue-200 mb-3">CATEGORIES</h3>
+                    <h3 className={`text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} mb-3`}>CATEGORIES</h3>
                     <div className="space-y-2">
                       {Object.keys(categorySubcategoriesMap).map((category) => (
                         <label
                           key={category}
-                          className="flex items-center gap-2 text-white hover:text-blue-300 transition-colors duration-300 cursor-pointer"
+                          className={`flex items-center gap-2 ${isLightTheme ? 'text-gray-800 hover:text-gray-600' : 'text-white hover:text-blue-300'} transition-colors duration-300 cursor-pointer`}
                         >
                           <input
                             type="checkbox"
                             checked={selectedCategory === category}
                             onChange={() => toggleCategory(category)}
-                            className="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-blue-600 checked:border-blue-600 focus:ring-blue-500"
+                            className={`w-4 h-4 rounded ${isLightTheme ? 'border-gray-300 bg-white/50' : 'border-white/20 bg-white/5'} checked:bg-blue-600 checked:border-blue-600 focus:ring-blue-500`}
                           />
                           <span>{category}</span>
                         </label>
@@ -205,18 +207,18 @@ const Auctions = () => {
                         transition={{ duration: 0.3 }}
                         className="overflow-hidden"
                       >
-                        <h3 className="text-sm font-medium text-blue-200 mb-3">SUBCATEGORIES</h3>
+                        <h3 className={`text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} mb-3`}>SUBCATEGORIES</h3>
                         <div className="space-y-2">
                           {subcategoriesToShow.map((subcategory) => (
                             <label
                               key={subcategory}
-                              className="flex items-center gap-2 text-white hover:text-blue-300 transition-colors duration-300 cursor-pointer"
+                              className={`flex items-center gap-2 ${isLightTheme ? 'text-gray-800 hover:text-gray-600' : 'text-white hover:text-blue-300'} transition-colors duration-300 cursor-pointer`}
                             >
                               <input
                                 type="checkbox"
                                 checked={selectedSubcategories.includes(subcategory)}
                                 onChange={() => toggleSubcategory(subcategory)}
-                                className="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-blue-600 checked:border-blue-600 focus:ring-blue-500"
+                                className={`w-4 h-4 rounded ${isLightTheme ? 'border-gray-300 bg-white/50' : 'border-white/20 bg-white/5'} checked:bg-blue-600 checked:border-blue-600 focus:ring-blue-500`}
                               />
                               <span>{subcategory}</span>
                             </label>
@@ -232,25 +234,25 @@ const Auctions = () => {
 
           {/* Products Grid */}
           <div className="flex-1">
-            <div className="backdrop-blur-lg bg-white/10 rounded-2xl border border-white/20 p-6">
+            <div className={`backdrop-blur-lg ${isLightTheme ? 'bg-white/50 border-gray-300' : 'bg-white/10 border-white/20'} rounded-2xl border p-6`}>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                <Title  text1="ALL" text2="AUCTIONS" />
+                <Title text1="ALL" text2="AUCTIONS" />
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                  
                   <select
                     onChange={(e) => setsorttype(e.target.value)}
-                    className="px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={`px-4 py-2 ${isLightTheme ? 'bg-white/70 text-gray-800 border-gray-300' : 'bg-white/5 text-white border-white/20'} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                   >
-                    <option className='text-black' value="relevant">Sort By: Relevant</option>
-                    <option className='text-black' value="low-high">Sort By: Low to High</option>
-                    <option className='text-black' value="high-low">Sort By: High to Low</option>
+                    <option className={isLightTheme ? 'text-gray-800' : 'text-black'} value="relevant">Sort By: Relevant</option>
+                    <option className={isLightTheme ? 'text-gray-800' : 'text-black'} value="low-high">Sort By: Low to High</option>
+                    <option className={isLightTheme ? 'text-gray-800' : 'text-black'} value="high-low">Sort By: High to Low</option>
                   </select>
                 </div>
               </div>
 
               {isLoading ? (
                 <div className="flex justify-center items-center py-20">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                  <div className={`animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 ${isLightTheme ? 'border-blue-700' : 'border-blue-500'}`}></div>
                 </div>
               ) : (
                 <>
@@ -269,7 +271,7 @@ const Auctions = () => {
                       ))
                     ) : (
                       <div className="col-span-full text-center py-12">
-                        <p className="text-white text-lg">No products found.</p>
+                        <p className={isLightTheme ? 'text-gray-800 text-lg' : 'text-white text-lg'}>No products found.</p>
                       </div>
                     )}
                   </div>
@@ -282,8 +284,8 @@ const Auctions = () => {
                         disabled={page === 0}
                         className={`px-4 py-2 rounded-lg ${
                           page === 0
-                            ? 'bg-white/10 text-white/50 cursor-not-allowed'
-                            : 'bg-white/20 text-white hover:bg-white/30'
+                            ? isLightTheme ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white/10 text-white/50 cursor-not-allowed'
+                            : isLightTheme ? 'bg-gray-300 text-gray-800 hover:bg-gray-400' : 'bg-white/20 text-white hover:bg-white/30'
                         }`}
                       >
                         Previous
@@ -297,7 +299,7 @@ const Auctions = () => {
                             className={`w-8 h-8 rounded-lg ${
                               page === index
                                 ? 'bg-blue-600 text-white'
-                                : 'bg-white/20 text-white hover:bg-white/30'
+                                : isLightTheme ? 'bg-gray-300 text-gray-800 hover:bg-gray-400' : 'bg-white/20 text-white hover:bg-white/30'
                             }`}
                           >
                             {index + 1}
@@ -310,8 +312,8 @@ const Auctions = () => {
                         disabled={page === totalPages - 1}
                         className={`px-4 py-2 rounded-lg ${
                           page === totalPages - 1
-                            ? 'bg-white/10 text-white/50 cursor-not-allowed'
-                            : 'bg-white/20 text-white hover:bg-white/30'
+                            ? isLightTheme ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white/10 text-white/50 cursor-not-allowed'
+                            : isLightTheme ? 'bg-gray-300 text-gray-800 hover:bg-gray-400' : 'bg-white/20 text-white hover:bg-white/30'
                         }`}
                       >
                         Next

@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { ThemeContext } from '../context/ThemeContext';
 
 const Register = () => {
+  const { isLightTheme } = useContext(ThemeContext);
   const [role, setRole] = useState('customer');
   const [name, setName] = useState('');
   const [pickupLocation, setPickupLocation] = useState('');
@@ -482,7 +484,7 @@ const Register = () => {
   }, [usernameError, emailError, walletAddressError, passwordError, confirmPasswordError]);
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-blue-900 via-black to-blue-900">
+    <div className={`min-h-screen flex ${isLightTheme ? 'bg-blue-50' : 'bg-gradient-to-br from-blue-900 via-black to-blue-900'}`}>
       <ToastContainer
         position="top-center"
         autoClose={5000}
@@ -498,24 +500,24 @@ const Register = () => {
       {/* Left side - Register Form */}
       <div className="w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
-          <div className="backdrop-blur-lg bg-white/10 p-8 rounded-2xl shadow-2xl border border-white/20 transform transition-all duration-500 hover:scale-[1.02]">
-            <h2 className="text-3xl font-bold mb-8 text-center text-white">Create Account</h2>
+          <div className={`backdrop-blur-lg ${isLightTheme ? 'bg-white/50 border-gray-300' : 'bg-white/10 border-white/20'} p-8 rounded-2xl shadow-2xl border transform transition-all duration-500 hover:scale-[1.02]`}>
+            <h2 className={`text-3xl font-bold mb-8 text-center ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>Create Account</h2>
 
             {errorMessage && (
-              <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 text-red-200 rounded-lg">
+              <div className={`mb-6 p-4 ${isLightTheme ? 'bg-red-100 border-red-300 text-red-700' : 'bg-red-500/20 border-red-500/50 text-red-200'} rounded-lg border`}>
                 {errorMessage}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-200">Name</label>
+                <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  className={`w-full px-4 py-3 ${isLightTheme ? 'bg-white/70 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-blue-200/50'} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
                   placeholder="Enter your full name"
                   disabled={isLoading}
                 />
@@ -523,13 +525,13 @@ const Register = () => {
 
               {role === 'seller' && (
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-blue-200">Pickup Location</label>
+                  <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Pickup Location</label>
                   <input
                     type="text"
                     value={pickupLocation}
                     onChange={e => setPickupLocation(e.target.value)}
                     required={role === 'seller'}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                    className={`w-full px-4 py-3 ${isLightTheme ? 'bg-white/70 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-blue-200/50'} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
                     placeholder="Enter pickup location"
                     disabled={isLoading}
                   />
@@ -537,7 +539,7 @@ const Register = () => {
               )}
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-200">Email</label>
+                <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Email</label>
                 <div className="relative">
                   <input
                     type="email"
@@ -545,7 +547,7 @@ const Register = () => {
                     onChange={handleEmailChange}
                     onBlur={handleEmailBlur}
                     required
-                    className={`w-full px-4 py-3 bg-white/5 border ${emailError ? 'border-red-500' : 'border-white/10'} rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
+                    className={`w-full px-4 py-3 ${isLightTheme ? 'bg-white/70 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-blue-200/50'} border ${emailError ? (isLightTheme ? 'border-red-500' : 'border-red-500') : isLightTheme ? 'border-gray-300' : 'border-white/10'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
                     placeholder="Enter your email address"
                     disabled={isLoading}
                   />
@@ -557,7 +559,7 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-200">Username</label>
+                <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Username</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -565,7 +567,7 @@ const Register = () => {
                     onChange={handleUsernameChange}
                     onBlur={handleUsernameBlur}
                     required
-                    className={`w-full px-4 py-3 bg-white/5 border ${usernameError ? 'border-red-500' : 'border-white/10'} rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
+                    className={`w-full px-4 py-3 ${isLightTheme ? 'bg-white/70 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-blue-200/50'} border ${usernameError ? 'border-red-500' : isLightTheme ? 'border-gray-300' : 'border-white/10'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
                     placeholder="Choose a username"
                     disabled={isLoading}
                   />
@@ -577,19 +579,19 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-200">Password</label>
+                <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Password</label>
                 <input
                   type="password"
                   value={password}
                   onChange={handlePasswordChange}
                   required
-                  className={`w-full px-4 py-3 bg-white/5 border ${passwordError ? 'border-red-500' : 'border-white/10'} rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
+                  className={`w-full px-4 py-3 ${isLightTheme ? 'bg-white/70 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-blue-200/50'} border ${passwordError ? 'border-red-500' : isLightTheme ? 'border-gray-300' : 'border-white/10'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
                   placeholder="Create a password"
                   disabled={isLoading}
                 />
                 {passwordError && <p className="text-xs text-red-400 mt-1">{passwordError}</p>}
                 <div className="mt-1">
-                  <ul className="text-xs text-blue-300 space-y-1">
+                  <ul className={`text-xs ${isLightTheme ? 'text-gray-600' : 'text-blue-300'} space-y-1`}>
                     <li className={password.length >= 8 ? 'text-green-400' : ''}>• At least 8 characters</li>
                     <li className={/[A-Z]/.test(password) ? 'text-green-400' : ''}>• At least one uppercase letter</li>
                     <li className={/[a-z]/.test(password) ? 'text-green-400' : ''}>• At least one lowercase letter</li>
@@ -599,13 +601,13 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-200">Confirm Password</label>
+                <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Confirm Password</label>
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={handleConfirmPasswordChange}
                   required
-                  className={`w-full px-4 py-3 bg-white/5 border ${confirmPasswordError ? 'border-red-500' : 'border-white/10'} rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
+                  className={`w-full px-4 py-3 ${isLightTheme ? 'bg-white/70 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-blue-200/50'} border ${confirmPasswordError ? 'border-red-500' : isLightTheme ? 'border-gray-300' : 'border-white/10'} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
                   placeholder="Confirm your password"
                   disabled={isLoading}
                 />
@@ -613,19 +615,19 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-200">
+                <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>
                   Wallet Address <span className="text-red-400">*</span> <span className="text-xs">(required)</span>
                 </label>
                 <div className="relative">
                   {walletAddress ? (
                     <div className="flex flex-col space-y-2">
-                      <div className={`w-full px-4 py-3 bg-blue-600/20 border ${walletAddressError ? 'border-red-500' : 'border-blue-500/50'} rounded-lg text-white`}>
+                      <div className={`w-full px-4 py-3 ${isLightTheme ? 'bg-blue-100 border-blue-300 text-gray-800' : 'bg-blue-600/20 border-blue-500/50 text-white'} border rounded-lg ${walletAddressError ? 'border-red-500' : ''}`}>
                         Connected: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
                       </div>
                       <button
                         type="button"
                         onClick={disconnectWallet}
-                        className="w-full px-4 py-2 bg-red-600/20 border border-red-500/50 rounded-lg text-white hover:bg-red-600/30 transition-all duration-300 focus:outline-none"
+                        className={`w-full px-4 py-2 ${isLightTheme ? 'bg-red-100 border-red-300 text-red-700 hover:bg-red-200' : 'bg-red-600/20 border-red-500/50 text-white hover:bg-red-600/30'} border rounded-lg transition-all duration-300 focus:outline-none`}
                         disabled={isLoading}
                       >
                         Disconnect Wallet
@@ -635,7 +637,7 @@ const Register = () => {
                     <button
                       type="button"
                       onClick={connectWallet}
-                      className="w-full px-4 py-3 bg-blue-600/20 border border-blue-500/50 rounded-lg text-white hover:bg-blue-600/30 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                      className={`w-full px-4 py-3 ${isLightTheme ? 'bg-blue-100 border-blue-300 text-gray-800 hover:bg-blue-200' : 'bg-blue-600/20 border-blue-500/50 text-white hover:bg-blue-600/30'} border rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isLightTheme ? 'focus:ring-offset-white' : 'focus:ring-offset-gray-900'}`}
                       disabled={isLoading}
                     >
                       Connect Wallet (Required)
@@ -646,24 +648,24 @@ const Register = () => {
                   )}
                 </div>
                 {!walletAddress && (
-                  <p className="text-xs text-red-400 mt-1">
+                  <p className={`text-xs ${isLightTheme ? 'text-red-600' : 'text-red-400'} mt-1`}>
                     A wallet address is required to register. Please connect your wallet.
                   </p>
                 )}
                 {walletAddressError && (
-                  <p className="text-xs text-red-400 mt-1">
+                  <p className={`text-xs ${isLightTheme ? 'text-red-600' : 'text-red-400'} mt-1`}>
                     {walletAddressError} Please disconnect and try a different wallet.
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-200">Profile Picture</label>
+                <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Profile Picture</label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  className={`w-full px-4 py-3 ${isLightTheme ? 'bg-white/70 border-gray-300 text-gray-800' : 'bg-white/5 border-white/10 text-white'} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
                   disabled={isLoading}
                 />
               </div>
@@ -683,9 +685,9 @@ const Register = () => {
             </form>
 
             <div className="mt-6 text-center">
-              <p className="text-sm text-blue-200">
+              <p className={`text-sm ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>
                 Already have an account?{' '}
-                <Link to="/login" className="text-white hover:text-blue-300 font-medium transition-colors duration-300">
+                <Link to="/login" className={`${isLightTheme ? 'text-blue-600 hover:text-blue-800' : 'text-white hover:text-blue-300'} font-medium transition-colors duration-300`}>
                   Sign In
                 </Link>
               </p>
@@ -695,12 +697,12 @@ const Register = () => {
       </div>
 
       {/* Right side - Splash Text */}
-      <div className="w-1/2 flex items-center justify-center p-8 bg-gradient-to-br from-blue-900/50 to-black/50">
+      <div className={`w-1/2 flex items-center justify-center p-8 ${isLightTheme ? 'bg-blue-100/50' : 'bg-gradient-to-br from-blue-900/50 to-black/50'}`}>
         <div className="max-w-lg text-center">
-          <h1 className="text-5xl font-bold text-white mb-6 animate-fade-in">
+          <h1 className={`text-5xl font-bold ${isLightTheme ? 'text-gray-800' : 'text-white'} mb-6 animate-fade-in`}>
             Join BidSphere Today
           </h1>
-          <p className="text-xl text-blue-200 leading-relaxed animate-fade-in-delay">
+          <p className={`text-xl ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} leading-relaxed animate-fade-in-delay`}>
             Experience the future of digital commerce. Create your account and start your journey with BidSphere - where innovation meets opportunity.
           </p>
           <div className="mt-8 flex justify-center space-x-4">

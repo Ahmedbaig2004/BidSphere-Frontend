@@ -4,6 +4,7 @@ import Title from './Title.jsx';
 import ProductItem from './ProductItem.jsx';
 import ProductDrawer from './ProductDrawer.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ThemeContext } from '../context/ThemeContext';
 
 const LatestAuctions = () => {
   const [latestProducts, setLatestProducts] = useState([]);
@@ -13,6 +14,7 @@ const LatestAuctions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const drawerTimer = useRef(null);
+  const { isLightTheme } = useContext(ThemeContext);
 
   useEffect(() => {
     fetchHomepageData();
@@ -87,15 +89,15 @@ const LatestAuctions = () => {
     <div className="py-20 relative">
       <div className="text-center text-3xl py-8">
         <Title text1="LATEST" text2="AUCTIONS" />
-        <p className="max-w-2xl mx-auto mt-4 text-sm text-white/70">
+        <p className={`max-w-2xl mx-auto mt-4 text-sm ${isLightTheme ? 'text-gray-700' : 'text-white/70'}`}>
           Discover the most recent items attracting attention. These listings have just received bids and are heating up fast — don't miss your chance to make a move!
         </p>
       </div>
 
       {loading ? (
         <div className="text-center py-10">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
-          <p className="mt-2 text-white">Loading latest listings...</p>
+          <div className={`inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 ${isLightTheme ? 'border-gray-800' : 'border-white'}`}></div>
+          <p className={`mt-2 ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>Loading latest listings...</p>
         </div>
       ) : error ? (
         <div className="text-center py-10">
@@ -103,7 +105,7 @@ const LatestAuctions = () => {
         </div>
       ) : latestProducts.length === 0 ? (
         <div className="text-center py-10">
-          <p className="text-white">No listings available at the moment.</p>
+          <p className={isLightTheme ? 'text-gray-800' : 'text-white'}>No listings available at the moment.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -140,13 +142,13 @@ const LatestAuctions = () => {
             onMouseLeave={handleDrawerLeave}
             style={{ maxWidth: '100vw' }}
           >
-            <div className="h-full w-80 backdrop-blur-lg bg-white/10 border-l border-white/20 shadow-2xl overflow-y-auto">
-              <div className="sticky top-0 right-0 w-full p-4 bg-white/10 backdrop-blur-lg border-b border-white/20">
+            <div className={`h-full w-80 backdrop-blur-lg ${isLightTheme ? 'bg-white/70 border-gray-300' : 'bg-white/10 border-white/20'} border-l shadow-2xl overflow-y-auto`}>
+              <div className={`sticky top-0 right-0 w-full p-4 ${isLightTheme ? 'bg-white/70' : 'bg-white/10'} backdrop-blur-lg ${isLightTheme ? 'border-gray-300' : 'border-white/20'} border-b`}>
                 <button
                   onClick={() => setIsDrawerVisible(false)}
-                  className="float-right p-2 hover:bg-white/10 rounded-full transition-colors duration-200"
+                  className={`float-right p-2 hover:${isLightTheme ? 'bg-gray-200/50' : 'bg-white/10'} rounded-full transition-colors duration-200`}
                 >
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-4 h-4 ${isLightTheme ? 'text-gray-800' : 'text-white'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>

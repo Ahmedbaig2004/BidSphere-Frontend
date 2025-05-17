@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import ProductListing from "./ProductListing";
 import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
+import { ThemeContext } from '../context/ThemeContext';
 
 // Status code mapping
 const LISTING_STATUS_MAP = {
@@ -18,6 +19,7 @@ const LISTING_STATUS_MAP = {
 
 // Edit Profile Modal Component
 const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
+  const { isLightTheme } = useContext(ThemeContext);
   const [activeSection, setActiveSection] = useState('general');
   const [avatarBase64, setAvatarBase64] = useState('');
   const [avatarId, setAvatarId] = useState(profile?.avatarId || '');
@@ -339,11 +341,11 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
         <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={onClose}></div>
         <span className="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
         
-        <div className="relative inline-block transform overflow-hidden rounded-lg bg-gradient-to-b from-gray-900 to-black text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+        <div className={`relative inline-block transform overflow-hidden rounded-lg ${isLightTheme ? 'bg-white' : 'bg-gradient-to-b from-gray-900 to-black'} text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle`}>
           <div className="p-6">
             <div className="flex justify-between items-start mb-6">
-              <h3 className="text-2xl font-bold text-white">Profile Settings</h3>
-              <button onClick={onClose} className="text-gray-400 hover:text-white">
+              <h3 className={`text-2xl font-bold ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>Profile Settings</h3>
+              <button onClick={onClose} className={`${isLightTheme ? 'text-gray-500 hover:text-gray-800' : 'text-gray-400 hover:text-white'}`}>
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -351,13 +353,13 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
             </div>
 
             {/* Tab Navigation */}
-            <div className="flex border-b border-white/10 mb-6">
+            <div className={`flex border-b ${isLightTheme ? 'border-gray-200' : 'border-white/10'} mb-6`}>
               <button
                 onClick={() => setActiveSection('general')}
                 className={`px-4 py-2 text-sm font-medium ${
                   activeSection === 'general' 
-                    ? 'text-blue-400 border-b-2 border-blue-400' 
-                    : 'text-white hover:text-blue-300'
+                    ? isLightTheme ? 'text-blue-600 border-b-2 border-blue-600' : 'text-blue-400 border-b-2 border-blue-400' 
+                    : isLightTheme ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'
                 }`}
               >
                 Profile
@@ -366,8 +368,8 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                 onClick={() => setActiveSection('avatar')}
                 className={`px-4 py-2 text-sm font-medium ${
                   activeSection === 'avatar' 
-                    ? 'text-blue-400 border-b-2 border-blue-400' 
-                    : 'text-white hover:text-blue-300'
+                    ? isLightTheme ? 'text-blue-600 border-b-2 border-blue-600' : 'text-blue-400 border-b-2 border-blue-400' 
+                    : isLightTheme ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'
                 }`}
               >
                 Avatar
@@ -376,8 +378,8 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                 onClick={() => setActiveSection('email')}
                 className={`px-4 py-2 text-sm font-medium ${
                   activeSection === 'email' 
-                    ? 'text-blue-400 border-b-2 border-blue-400' 
-                    : 'text-white hover:text-blue-300'
+                    ? isLightTheme ? 'text-blue-600 border-b-2 border-blue-600' : 'text-blue-400 border-b-2 border-blue-400' 
+                    : isLightTheme ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'
                 }`}
               >
                 Email
@@ -386,8 +388,8 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                 onClick={() => setActiveSection('password')}
                 className={`px-4 py-2 text-sm font-medium ${
                   activeSection === 'password' 
-                    ? 'text-blue-400 border-b-2 border-blue-400' 
-                    : 'text-white hover:text-blue-300'
+                    ? isLightTheme ? 'text-blue-600 border-b-2 border-blue-600' : 'text-blue-400 border-b-2 border-blue-400' 
+                    : isLightTheme ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-300'
                 }`}
               >
                 Password
@@ -395,13 +397,13 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
             </div>
 
             {errorMessage && (
-              <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300">
+              <div className={`mb-4 p-3 ${isLightTheme ? 'bg-red-100 border-red-300 text-red-700' : 'bg-red-500/20 border-red-500/30 text-red-300'} rounded-lg border`}>
                 {errorMessage}
               </div>
             )}
 
             {successMessage && (
-              <div className="mb-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg text-green-300">
+              <div className={`mb-4 p-3 ${isLightTheme ? 'bg-green-100 border-green-300 text-green-700' : 'bg-green-500/20 border-green-500/30 text-green-300'} rounded-lg border`}>
                 {successMessage}
               </div>
             )}
@@ -411,7 +413,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
               <form onSubmit={handleSubmitLocation}>
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="deliveryLocation" className="block text-sm font-medium text-blue-200 mb-1">
+                    <label htmlFor="deliveryLocation" className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} mb-1`}>
                       Delivery Location
                     </label>
                     <input
@@ -419,13 +421,13 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                       id="deliveryLocation"
                       value={deliveryLocation}
                       onChange={(e) => setDeliveryLocation(e.target.value)}
-                      className="w-full px-4 py-2 bg-blue-900/30 border border-blue-800/50 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                      className={`w-full px-4 py-2 ${isLightTheme ? 'bg-white border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-blue-900/30 border-blue-800/50 text-white placeholder-blue-300/50'} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
                       placeholder="Enter your delivery address"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="currentPasswordLocation" className="block text-sm font-medium text-blue-200 mb-1">
+                    <label htmlFor="currentPasswordLocation" className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} mb-1`}>
                       Current Password (required)
                     </label>
                     <input
@@ -433,7 +435,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                       id="currentPasswordLocation"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full px-4 py-2 bg-blue-900/30 border border-blue-800/50 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                      className={`w-full px-4 py-2 ${isLightTheme ? 'bg-white border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-blue-900/30 border-blue-800/50 text-white placeholder-blue-300/50'} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
                       placeholder="Enter your current password"
                       required
                     />
@@ -444,7 +446,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                    className={`px-4 py-2 ${isLightTheme ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 'bg-gray-800 text-white hover:bg-gray-700'} rounded-lg transition-colors`}
                   >
                     Cancel
                   </button>
@@ -464,7 +466,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
               <form onSubmit={handleSubmitAvatar}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-blue-200 mb-1">
+                    <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} mb-1`}>
                       Profile Picture
                     </label>
                     <div className="flex flex-col gap-4">
@@ -472,20 +474,20 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                         <img
                           src={avatarBase64 || `http://150.136.175.145:2280/cdn/${profile.avatarId}.png`}
                           alt="Avatar"
-                          className="w-32 h-32 rounded-full object-cover border border-white/20"
+                          className={`w-32 h-32 rounded-full object-cover border ${isLightTheme ? 'border-gray-300' : 'border-white/20'}`}
                         />
                       </div>
                       <input
                         type="file"
                         accept="image/*"
                         onChange={handleImageUpload}
-                        className="w-full text-sm text-blue-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-500/20 file:text-blue-200 hover:file:bg-blue-500/30"
+                        className={`w-full text-sm ${isLightTheme ? 'text-gray-700 file:bg-blue-100 file:text-blue-700' : 'text-blue-200 file:bg-blue-500/20 file:text-blue-200'} file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold hover:file:bg-blue-500/30`}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="currentPasswordAvatar" className="block text-sm font-medium text-blue-200 mb-1">
+                    <label htmlFor="currentPasswordAvatar" className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} mb-1`}>
                       Current Password (required)
                     </label>
                     <input
@@ -493,7 +495,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                       id="currentPasswordAvatar"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full px-4 py-2 bg-blue-900/30 border border-blue-800/50 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                      className={`w-full px-4 py-2 ${isLightTheme ? 'bg-white border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-blue-900/30 border-blue-800/50 text-white placeholder-blue-300/50'} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
                       placeholder="Enter your current password"
                       required
                     />
@@ -504,13 +506,13 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                    className={`px-4 py-2 ${isLightTheme ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 'bg-gray-800 text-white hover:bg-gray-700'} rounded-lg transition-colors`}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    disabled={isLoading || !avatarBase64}
+                    disabled={isLoading}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? 'Updating...' : 'Update Avatar'}
@@ -524,7 +526,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
               <form onSubmit={handleSubmitEmail}>
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-blue-200 mb-1">
+                    <label htmlFor="email" className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} mb-1`}>
                       New Email
                     </label>
                     <input
@@ -532,14 +534,14 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                       id="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-2 bg-blue-900/30 border border-blue-800/50 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                      placeholder="Enter your new email"
+                      className={`w-full px-4 py-2 ${isLightTheme ? 'bg-white border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-blue-900/30 border-blue-800/50 text-white placeholder-blue-300/50'} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
+                      placeholder="Enter your new email address"
                       required
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="currentPasswordEmail" className="block text-sm font-medium text-blue-200 mb-1">
+                    <label htmlFor="currentPasswordEmail" className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} mb-1`}>
                       Current Password (required)
                     </label>
                     <input
@@ -547,7 +549,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                       id="currentPasswordEmail"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full px-4 py-2 bg-blue-900/30 border border-blue-800/50 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                      className={`w-full px-4 py-2 ${isLightTheme ? 'bg-white border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-blue-900/30 border-blue-800/50 text-white placeholder-blue-300/50'} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
                       placeholder="Enter your current password"
                       required
                     />
@@ -558,7 +560,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                    className={`px-4 py-2 ${isLightTheme ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 'bg-gray-800 text-white hover:bg-gray-700'} rounded-lg transition-colors`}
                   >
                     Cancel
                   </button>
@@ -578,7 +580,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
               <form onSubmit={handleSubmitPassword}>
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="currentPasswordChange" className="block text-sm font-medium text-blue-200 mb-1">
+                    <label htmlFor="currentPasswordChange" className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} mb-1`}>
                       Current Password
                     </label>
                     <input
@@ -586,14 +588,14 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                       id="currentPasswordChange"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full px-4 py-2 bg-blue-900/30 border border-blue-800/50 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                      className={`w-full px-4 py-2 ${isLightTheme ? 'bg-white border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-blue-900/30 border-blue-800/50 text-white placeholder-blue-300/50'} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
                       placeholder="Enter your current password"
                       required
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="newPassword" className="block text-sm font-medium text-blue-200 mb-1">
+                    <label htmlFor="newPassword" className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} mb-1`}>
                       New Password
                     </label>
                     <input
@@ -601,7 +603,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                       id="newPassword"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full px-4 py-2 bg-blue-900/30 border border-blue-800/50 rounded-lg text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                      className={`w-full px-4 py-2 ${isLightTheme ? 'bg-white border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-blue-900/30 border-blue-800/50 text-white placeholder-blue-300/50'} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
                       placeholder="Enter your new password"
                       required
                     />
@@ -612,7 +614,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                    className={`px-4 py-2 ${isLightTheme ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 'bg-gray-800 text-white hover:bg-gray-700'} rounded-lg transition-colors`}
                   >
                     Cancel
                   </button>
@@ -635,6 +637,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }) => {
 
 // Product Detail Modal Component
 const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
+  const { isLightTheme } = useContext(ThemeContext);
   const [listingData, setListingData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
@@ -766,16 +769,16 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
         <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={onClose}></div>
         <span className="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
         
-        <div className="relative inline-block transform overflow-hidden rounded-lg bg-gradient-to-b from-gray-900 to-black text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl sm:align-middle">
+        <div className={`relative inline-block transform overflow-hidden rounded-lg ${isLightTheme ? 'bg-white' : 'bg-gradient-to-b from-gray-900 to-black'} text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl sm:align-middle`}>
           {isLoading ? (
             <div className="p-8 flex justify-center items-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+              <div className={`animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 ${isLightTheme ? 'border-blue-600' : 'border-blue-500'}`}></div>
             </div>
           ) : listingData ? (
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">
-                <h3 className="text-2xl font-bold text-white">{listingData.product.name}</h3>
-                <button onClick={onClose} className="text-gray-400 hover:text-white">
+                <h3 className={`text-2xl font-bold ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>{listingData.product.name}</h3>
+                <button onClick={onClose} className={`${isLightTheme ? 'text-gray-500 hover:text-gray-800' : 'text-gray-400 hover:text-white'}`}>
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -793,13 +796,13 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
                   {LISTING_STATUS_MAP[listingData.status] || 'UNKNOWN'}
                 </span>
                 {listingData.status !== 2 && (
-                  <span className="text-red-400 text-sm">This bid is not active.</span>
+                  <span className={`text-sm ${isLightTheme ? 'text-red-600' : 'text-red-400'}`}>This bid is not active.</span>
                 )}
                 {listingData.status === 2 && !isAuctionStarted && (
-                  <span className="text-yellow-400 text-sm">Auction scheduled but not yet started.</span>
+                  <span className={`text-sm ${isLightTheme ? 'text-yellow-600' : 'text-yellow-400'}`}>Auction scheduled but not yet started.</span>
                 )}
                 {listingData.status === 2 && isAuctionStarted && (
-                  <span className="text-green-400 text-sm">Bidding is active!</span>
+                  <span className={`text-sm ${isLightTheme ? 'text-green-600' : 'text-green-400'}`}>Bidding is active!</span>
                 )}
               </div>
 
@@ -826,10 +829,10 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
                 {/* Right Column - Details */}
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <h4 className="text-lg font-medium text-white">Price Information</h4>
-                    <p className="text-blue-200">Starting Price: ${listingData.startingPrice}</p>
+                    <h4 className={`text-lg font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>Price Information</h4>
+                    <p className={isLightTheme ? 'text-gray-700' : 'text-blue-200'}>Starting Price: ${listingData.startingPrice}</p>
                     {listingData.latestBid && (
-                      <p className="text-green-400">
+                      <p className={isLightTheme ? 'text-green-600' : 'text-green-400'}>
                         {listingData.status === 2 ? "Latest Bid: " : "Winning Bid: "}
                         ${listingData.latestBid.bidPrice}
                       </p>
@@ -837,37 +840,37 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
                   </div>
 
                   <div className="space-y-2">
-                    <h4 className="text-lg font-medium text-white">Category Information</h4>
+                    <h4 className={`text-lg font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>Category Information</h4>
                     <div className="flex gap-2">
-                      <span className="px-3 py-1 bg-blue-600/20 text-blue-200 rounded-full text-sm">
+                      <span className={`px-3 py-1 ${isLightTheme ? 'bg-blue-100 text-blue-800' : 'bg-blue-600/20 text-blue-200'} rounded-full text-sm`}>
                         {listingData.product.category}
                       </span>
-                      <span className="px-3 py-1 bg-blue-600/20 text-blue-200 rounded-full text-sm">
+                      <span className={`px-3 py-1 ${isLightTheme ? 'bg-blue-100 text-blue-800' : 'bg-blue-600/20 text-blue-200'} rounded-full text-sm`}>
                         {listingData.product.subCategory}
                       </span>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <h4 className="text-lg font-medium text-white">Auction Dates</h4>
-                    <p className="text-blue-200">Start Date: {new Date(listingData.startDate).toLocaleString()}</p>
-                    <p className="text-blue-200">End Date: {new Date(listingData.endDate).toLocaleString()}</p>
+                    <h4 className={`text-lg font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>Auction Dates</h4>
+                    <p className={isLightTheme ? 'text-gray-700' : 'text-blue-200'}>Start Date: {new Date(listingData.startDate).toLocaleString()}</p>
+                    <p className={isLightTheme ? 'text-gray-700' : 'text-blue-200'}>End Date: {new Date(listingData.endDate).toLocaleString()}</p>
                   </div>
 
                   <div className="space-y-2">
-                    <h4 className="text-lg font-medium text-white">Description</h4>
-                    <p className="text-blue-200">{listingData.product.description}</p>
+                    <h4 className={`text-lg font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>Description</h4>
+                    <p className={isLightTheme ? 'text-gray-700' : 'text-blue-200'}>{listingData.product.description}</p>
                   </div>
 
                   {/* Transaction Details */}
                   {listingData.latestTransaction && buyerInfo && (
                     <div className="space-y-2">
-                      <h4 className="text-lg font-medium text-white">Transaction Details</h4>
-                      <div className="bg-white/5 p-4 rounded-lg space-y-2">
-                        <p className="text-blue-200">Final Price: ${listingData.latestBid.bidPrice}</p>
-                        <p className="text-blue-200">Buyer: {buyerInfo.name}</p>
-                        <p className="text-blue-200">Wallet Address: {buyerInfo.walletAddress}</p>
-                        <p className="text-blue-200">Transaction Date: {new Date(listingData.latestBid.bidDate).toLocaleString()}</p>
+                      <h4 className={`text-lg font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>Transaction Details</h4>
+                      <div className={`${isLightTheme ? 'bg-gray-100' : 'bg-white/5'} p-4 rounded-lg space-y-2`}>
+                        <p className={isLightTheme ? 'text-gray-700' : 'text-blue-200'}>Final Price: ${listingData.latestBid.bidPrice}</p>
+                        <p className={isLightTheme ? 'text-gray-700' : 'text-blue-200'}>Buyer: {buyerInfo.name}</p>
+                        <p className={isLightTheme ? 'text-gray-700' : 'text-blue-200'}>Wallet Address: {buyerInfo.walletAddress}</p>
+                        <p className={isLightTheme ? 'text-gray-700' : 'text-blue-200'}>Transaction Date: {new Date(listingData.latestBid.bidDate).toLocaleString()}</p>
                       </div>
                     </div>
                   )}
@@ -895,7 +898,7 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
             </div>
           ) : (
             <div className="p-8 text-center">
-              <p className="text-white">Failed to load product details</p>
+              <p className={isLightTheme ? 'text-gray-800' : 'text-white'}>Failed to load product details</p>
             </div>
           )}
         </div>
@@ -906,13 +909,13 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-screen items-center justify-center px-4">
             <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onClick={() => setShowCancelConfirmation(false)}></div>
-            <div className="relative bg-gray-800 rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-lg font-medium text-white mb-4">Confirm Auction Cancellation</h3>
-              <p className="text-blue-200 mb-6">Are you sure you want to cancel this auction? This action cannot be undone.</p>
+            <div className={`relative rounded-lg p-6 max-w-md w-full ${isLightTheme ? 'bg-white' : 'bg-gray-800'}`}>
+              <h3 className={`text-lg font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'} mb-4`}>Confirm Auction Cancellation</h3>
+              <p className={`mb-6 ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Are you sure you want to cancel this auction? This action cannot be undone.</p>
               <div className="flex justify-end gap-4">
                 <button
                   onClick={() => setShowCancelConfirmation(false)}
-                  className="px-4 py-2 text-white hover:text-blue-200"
+                  className={`px-4 py-2 ${isLightTheme ? 'text-gray-700 hover:text-gray-900' : 'text-white hover:text-blue-200'}`}
                 >
                   No, Keep Auction
                 </button>
@@ -933,43 +936,43 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-screen items-center justify-center px-4">
             <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onClick={() => setShowListAuctionDialog(false)}></div>
-            <div className="relative bg-gray-800 rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-lg font-medium text-white mb-4">List New Auction</h3>
+            <div className={`relative rounded-lg p-6 max-w-md w-full ${isLightTheme ? 'bg-white' : 'bg-gray-800'}`}>
+              <h3 className={`text-lg font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'} mb-4`}>List New Auction</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-blue-200 mb-1">
+                  <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} mb-1`}>
                     Starting Price
                   </label>
                   <input
                     type="number"
                     value={auctionDetails.startingPrice}
                     onChange={(e) => setAuctionDetails(prev => ({ ...prev, startingPrice: e.target.value }))}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    className={`w-full px-4 py-2 ${isLightTheme ? 'bg-white border-gray-300 text-gray-800' : 'bg-gray-700 border-gray-600 text-white'} border rounded-lg`}
                     placeholder="Enter starting price"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-blue-200 mb-1">
+                  <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} mb-1`}>
                     Start Date
                   </label>
                   <input
                     type="datetime-local"
                     value={auctionDetails.startDate}
                     onChange={(e) => setAuctionDetails(prev => ({ ...prev, startDate: e.target.value }))}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    className={`w-full px-4 py-2 ${isLightTheme ? 'bg-white border-gray-300 text-gray-800' : 'bg-gray-700 border-gray-600 text-white'} border rounded-lg`}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-blue-200 mb-1">
+                  <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} mb-1`}>
                     End Date
                   </label>
                   <input
                     type="datetime-local"
                     value={auctionDetails.endDate}
                     onChange={(e) => setAuctionDetails(prev => ({ ...prev, endDate: e.target.value }))}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    className={`w-full px-4 py-2 ${isLightTheme ? 'bg-white border-gray-300 text-gray-800' : 'bg-gray-700 border-gray-600 text-white'} border rounded-lg`}
                     required
                   />
                 </div>
@@ -977,7 +980,7 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
               <div className="mt-6 flex justify-end gap-4">
                 <button
                   onClick={() => setShowListAuctionDialog(false)}
-                  className="px-4 py-2 text-white hover:text-blue-200"
+                  className={`px-4 py-2 ${isLightTheme ? 'text-gray-700 hover:text-gray-900' : 'text-white hover:text-blue-200'}`}
                 >
                   Cancel
                 </button>
@@ -997,6 +1000,7 @@ const ProductDetailModal = ({ isOpen, onClose, listingId }) => {
 };
 
 const UserDashboard = () => {
+  const { isLightTheme } = useContext(ThemeContext);
   const storedProfile = localStorage.getItem("userProfile");
   const id = storedProfile ? JSON.parse(storedProfile).id : null;
   const token = localStorage.getItem("token");
@@ -1152,7 +1156,7 @@ const UserDashboard = () => {
           </div>
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-3xl font-bold text-white mb-2">{name}</h2>
+              <h2 className={`text-3xl font-bold ${isLightTheme ? 'text-gray-800' : 'text-white'} mb-2`}>{name}</h2>
               <button
                 onClick={() => setShowEditProfileModal(true)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
@@ -1160,22 +1164,22 @@ const UserDashboard = () => {
                 Edit Profile
               </button>
             </div>
-            <p className="text-blue-200 text-sm">Registered: {new Date(registrationDate).toLocaleDateString()}</p>
+            <p className={`${isLightTheme ? 'text-gray-600' : 'text-blue-200'} text-sm`}>Registered: {new Date(registrationDate).toLocaleDateString()}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="backdrop-blur-lg bg-white/5 p-6 rounded-xl border border-white/10">
-            <h3 className="text-lg font-medium text-white mb-2">Location</h3>
-            <p className="text-blue-200">{deliveryLocation}</p>
+          <div className={`backdrop-blur-lg ${isLightTheme ? 'bg-white/70 border-gray-300' : 'bg-white/5 border-white/10'} p-6 rounded-xl border`}>
+            <h3 className={`text-lg font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'} mb-2`}>Location</h3>
+            <p className={isLightTheme ? 'text-gray-700' : 'text-blue-200'}>{deliveryLocation}</p>
           </div>
-          <div className="backdrop-blur-lg bg-white/5 p-6 rounded-xl border border-white/10">
-            <h3 className="text-lg font-medium text-white mb-2">Platform Access</h3>
-            <p className="text-blue-200">{platformAccess}</p>
+          <div className={`backdrop-blur-lg ${isLightTheme ? 'bg-white/70 border-gray-300' : 'bg-white/5 border-white/10'} p-6 rounded-xl border`}>
+            <h3 className={`text-lg font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'} mb-2`}>Platform Access</h3>
+            <p className={isLightTheme ? 'text-gray-700' : 'text-blue-200'}>{platformAccess}</p>
           </div>
-          <div className="backdrop-blur-lg bg-white/5 p-6 rounded-xl border border-white/10">
-            <h3 className="text-lg font-medium text-white mb-2">Reputation</h3>
-            <p className="text-blue-200">{reputation}</p>
+          <div className={`backdrop-blur-lg ${isLightTheme ? 'bg-white/70 border-gray-300' : 'bg-white/5 border-white/10'} p-6 rounded-xl border`}>
+            <h3 className={`text-lg font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'} mb-2`}>Reputation</h3>
+            <p className={isLightTheme ? 'text-gray-700' : 'text-blue-200'}>{reputation}</p>
           </div>
         </div>
       </>
@@ -1185,22 +1189,22 @@ const UserDashboard = () => {
   const renderInventoryContent = () => {
     return (
       <div>
-        <h2 className="text-2xl font-bold text-white mb-6">Your Inventory</h2>
+        <h2 className={`text-2xl font-bold ${isLightTheme ? 'text-gray-800' : 'text-white'} mb-6`}>Your Inventory</h2>
         
         {loading.inventory ? (
           <div className="text-center py-10">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
-            <p className="mt-2 text-white">Loading inventory...</p>
+            <div className={`inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 ${isLightTheme ? 'border-blue-600' : 'border-white'}`}></div>
+            <p className={`mt-2 ${isLightTheme ? 'text-gray-700' : 'text-white'}`}>Loading inventory...</p>
           </div>
         ) : inventory.length === 0 ? (
           <div className="text-center py-10">
-            <p className="text-white">No items found in your inventory.</p>
+            <p className={isLightTheme ? 'text-gray-700' : 'text-white'}>No items found in your inventory.</p>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {inventory.map((listing) => (
-                <div key={listing.listingId || `inv-${Math.random()}`} className="backdrop-blur-lg bg-white/5 p-6 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
+                <div key={listing.listingId || `inv-${Math.random()}`} className={`backdrop-blur-lg ${isLightTheme ? 'bg-white/70 border-gray-300 hover:bg-white/90' : 'bg-white/5 border-white/10 hover:bg-white/10'} p-6 rounded-xl border transition-colors`}>
                   <div className="flex items-center space-x-4 mb-4">
                     {listing.listingImageIds && listing.listingImageIds.length > 0 && (
                       <img 
@@ -1210,7 +1214,7 @@ const UserDashboard = () => {
                       />
                     )}
                     <div>
-                      <h3 className="text-lg font-medium text-white">{listing.product ? listing.product.name : "Unnamed Product"}</h3>
+                      <h3 className={`text-lg font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>{listing.product ? listing.product.name : "Unnamed Product"}</h3>
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-0.5 rounded-full text-xs font-semibold"
                           style={{
@@ -1230,15 +1234,15 @@ const UserDashboard = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-blue-200">Starting price: ${listing.startingPrice || "N/A"}</p>
-                    <p className="text-sm text-blue-200">Category: {listing.product && listing.product.category ? listing.product.category : "Uncategorized"}</p>
+                    <p className={`text-sm ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Starting price: ${listing.startingPrice || "N/A"}</p>
+                    <p className={`text-sm ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Category: {listing.product && listing.product.category ? listing.product.category : "Uncategorized"}</p>
                     {listing.latestBid && (
-                      <p className="text-sm text-green-300">Current bid: ${listing.latestBid.bidPrice}</p>
+                      <p className="text-sm text-green-600">Current bid: ${listing.latestBid.bidPrice}</p>
                     )}
                     <div className="mt-4 flex gap-2">
                       <button
                         onClick={() => setSelectedListingId(listing.listingId)}
-                        className="text-blue-300 hover:text-blue-100 text-sm transition-colors"
+                        className={`${isLightTheme ? 'text-blue-600 hover:text-blue-800' : 'text-blue-300 hover:text-blue-100'} text-sm transition-colors`}
                       >
                         View details →
                       </button>
@@ -1253,19 +1257,19 @@ const UserDashboard = () => {
                 disabled={inventoryPage === 0}
                 className={`px-4 py-2 rounded-lg ${
                   inventoryPage === 0 
-                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
                     : 'bg-blue-600 text-white hover:bg-blue-700'
                 } transition-colors`}
               >
                 Previous
               </button>
-              <span className="text-white py-2">Page {inventoryPage + 1}</span>
+              <span className={isLightTheme ? 'text-gray-800 py-2' : 'text-white py-2'}>Page {inventoryPage + 1}</span>
               <button
                 onClick={handleNextInventoryPage}
                 disabled={inventory.length < 10}
                 className={`px-4 py-2 rounded-lg ${
                   inventory.length < 10
-                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-blue-600 text-white hover:bg-blue-700'
                 } transition-colors`}
               >
@@ -1281,22 +1285,22 @@ const UserDashboard = () => {
   const renderHistoryContent = () => {
     return (
       <div>
-        <h2 className="text-2xl font-bold text-white mb-6">Transaction History</h2>
+        <h2 className={`text-2xl font-bold ${isLightTheme ? 'text-gray-800' : 'text-white'} mb-6`}>Transaction History</h2>
         
         {loading.history ? (
           <div className="text-center py-10">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
-            <p className="mt-2 text-white">Loading history...</p>
+            <div className={`inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 ${isLightTheme ? 'border-blue-600' : 'border-white'}`}></div>
+            <p className={`mt-2 ${isLightTheme ? 'text-gray-700' : 'text-white'}`}>Loading history...</p>
           </div>
         ) : history.length === 0 ? (
           <div className="text-center py-10">
-            <p className="text-white">No transaction history found.</p>
+            <p className={isLightTheme ? 'text-gray-700' : 'text-white'}>No transaction history found.</p>
           </div>
         ) : (
           <>
             <div className="space-y-6 mb-8">
               {history.map((listing) => (
-                <div key={listing.listingId || `hist-${Math.random()}`} className="backdrop-blur-lg bg-white/5 p-6 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
+                <div key={listing.listingId || `hist-${Math.random()}`} className={`backdrop-blur-lg ${isLightTheme ? 'bg-white/70 border-gray-300 hover:bg-white/90' : 'bg-white/5 border-white/10 hover:bg-white/10'} p-6 rounded-xl border transition-colors`}>
                   <div className="flex items-center space-x-4 mb-4">
                     {listing.listingImageIds && listing.listingImageIds.length > 0 && (
                       <img 
@@ -1306,7 +1310,7 @@ const UserDashboard = () => {
                       />
                     )}
                     <div>
-                      <h3 className="text-lg font-medium text-white">{listing.product ? listing.product.name : "Unnamed Product"}</h3>
+                      <h3 className={`text-lg font-medium ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>{listing.product ? listing.product.name : "Unnamed Product"}</h3>
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-0.5 rounded-full text-xs font-semibold"
                           style={{
@@ -1329,14 +1333,14 @@ const UserDashboard = () => {
                   <div className="space-y-2">
                     {listing.transaction && (
                       <>
-                        <p className="text-sm text-blue-200">Sold for: ${listing.transaction.amount}</p>
-                        <p className="text-sm text-blue-200">Date: {new Date(listing.transaction.transactionDate).toLocaleString()}</p>
+                        <p className={`text-sm ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Sold for: ${listing.transaction.amount}</p>
+                        <p className={`text-sm ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Date: {new Date(listing.transaction.transactionDate).toLocaleString()}</p>
                       </>
                     )}
                     <div className="mt-4">
                       <button
                         onClick={() => setSelectedListingId(listing.listingId)}
-                        className="text-blue-300 hover:text-blue-100 text-sm transition-colors"
+                        className={`${isLightTheme ? 'text-blue-600 hover:text-blue-800' : 'text-blue-300 hover:text-blue-100'} text-sm transition-colors`}
                       >
                         View details →
                       </button>
@@ -1351,19 +1355,19 @@ const UserDashboard = () => {
                 disabled={historyPage === 0}
                 className={`px-4 py-2 rounded-lg ${
                   historyPage === 0 
-                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
                     : 'bg-blue-600 text-white hover:bg-blue-700'
                 } transition-colors`}
               >
                 Previous
               </button>
-              <span className="text-white py-2">Page {historyPage + 1}</span>
+              <span className={isLightTheme ? 'text-gray-800 py-2' : 'text-white py-2'}>Page {historyPage + 1}</span>
               <button
                 onClick={handleNextHistoryPage}
                 disabled={history.length < 10}
                 className={`px-4 py-2 rounded-lg ${
                   history.length < 10
-                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-blue-600 text-white hover:bg-blue-700'
                 } transition-colors`}
               >
@@ -1377,16 +1381,16 @@ const UserDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen from-blue-900 via-black to-blue-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className={`min-h-screen ${isLightTheme ? 'bg-blue-50' : 'from-blue-900 via-black to-blue-900'} py-12 px-4 sm:px-6 lg:px-8`}>
       <div className="max-w-7xl mx-auto">
-        <div className="backdrop-blur-lg bg-white/10 p-8 rounded-2xl shadow-2xl border border-white/20">
+        <div className={`backdrop-blur-lg ${isLightTheme ? 'bg-white/50 border-gray-300' : 'bg-white/10 border-white/20'} p-8 rounded-2xl shadow-2xl border`}>
           {/* Tabs Navigation */}
-          <div className="flex border-b border-white/20 mb-8">
+          <div className={`flex border-b ${isLightTheme ? 'border-gray-200' : 'border-white/20'} mb-8`}>
             <button
               className={`py-2 px-4 mr-2 text-lg font-medium ${
                 activeTab === 'profile'
-                  ? 'text-blue-400 border-b-2 border-blue-400'
-                  : 'text-white hover:text-blue-300'
+                  ? isLightTheme ? 'text-blue-600 border-b-2 border-blue-600' : 'text-blue-400 border-b-2 border-blue-400'
+                  : isLightTheme ? 'text-gray-800 hover:text-blue-600' : 'text-white hover:text-blue-300'
               }`}
               onClick={() => setActiveTab('profile')}
             >
@@ -1395,8 +1399,8 @@ const UserDashboard = () => {
             <button
               className={`py-2 px-4 mr-2 text-lg font-medium ${
                 activeTab === 'inventory'
-                  ? 'text-blue-400 border-b-2 border-blue-400'
-                  : 'text-white hover:text-blue-300'
+                  ? isLightTheme ? 'text-blue-600 border-b-2 border-blue-600' : 'text-blue-400 border-b-2 border-blue-400'
+                  : isLightTheme ? 'text-gray-800 hover:text-blue-600' : 'text-white hover:text-blue-300'
               }`}
               onClick={() => setActiveTab('inventory')}
             >
@@ -1405,8 +1409,8 @@ const UserDashboard = () => {
             <button
               className={`py-2 px-4 text-lg font-medium ${
                 activeTab === 'history'
-                  ? 'text-blue-400 border-b-2 border-blue-400'
-                  : 'text-white hover:text-blue-300'
+                  ? isLightTheme ? 'text-blue-600 border-b-2 border-blue-600' : 'text-blue-400 border-b-2 border-blue-400'
+                  : isLightTheme ? 'text-gray-800 hover:text-blue-600' : 'text-white hover:text-blue-300'
               }`}
               onClick={() => setActiveTab('history')}
             >

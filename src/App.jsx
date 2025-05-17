@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useContext } from 'react'
 import { Route,Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import Contact from './pages/Contact'
@@ -23,6 +23,7 @@ import ResendVerification from './pages/ResendVerification'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminLogin from './pages/AdminLogin'
+import { ThemeContext } from './context/ThemeContext'
 
 const App = () => {
   // Handle redirects for base path issues
@@ -39,12 +40,16 @@ const App = () => {
     }
   }, []);
 
+  const { isLightTheme } = useContext(ThemeContext);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-blue-900 overflow-x-hidden">
+    <div className={`min-h-screen overflow-x-hidden ${isLightTheme 
+      ? 'bg-sky-100' 
+      : 'bg-gradient-to-br from-blue-900 via-black to-blue-900'}`}>
       <Navbar/>
       <SearchBar/>
-      <main className="relative min-h-screen">
-        <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] text-white pb-20">
+      <main  className="relative min-h-screen mt-[40px]">
+        <div className={`px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] pb-20 ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>
           <ToastContainer
             position="top-right"
             autoClose={3000}
@@ -55,7 +60,7 @@ const App = () => {
             pauseOnFocusLoss
             draggable
             pauseOnHover
-            theme="dark"
+            theme={isLightTheme ? "light" : "dark"}
           />
           <Routes>
             <Route path='/' element={<Home/>} />

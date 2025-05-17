@@ -4,9 +4,11 @@ import Title from './Title.jsx';
 import ProductItem from './ProductItem.jsx';
 import ProductDrawer from './ProductDrawer.jsx';
 import { Link } from 'react-router-dom';
+import { ThemeContext } from '../context/ThemeContext';
 
 const PopularAuctions = () => {
   const { currency } = useContext(ShopContext);
+  const { isLightTheme } = useContext(ThemeContext);
   const [bestSeller, setBestSeller] = useState([]);
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
@@ -88,15 +90,15 @@ const PopularAuctions = () => {
     <div className="my-10">
       <div className="text-center text-3xl py-8">
         <Title text1={'POPULAR'} text2={'AUCTIONS'} />
-        <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-white/70">
+        <p className={`w-3/4 m-auto text-xs sm:text-sm md:text-base ${isLightTheme ? 'text-gray-700' : 'text-white/70'}`}>
           Explore the most sought-after listings with the highest number of bids. These trending items are in high demand — join the competition before they're gone!
         </p>
       </div>
 
       {loading ? (
         <div className="text-center py-10">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
-          <p className="mt-2 text-white">Loading popular listings...</p>
+          <div className={`inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 ${isLightTheme ? 'border-gray-800' : 'border-white'}`}></div>
+          <p className={`mt-2 ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>Loading popular listings...</p>
         </div>
       ) : error ? (
         <div className="text-center py-10">
@@ -104,7 +106,7 @@ const PopularAuctions = () => {
         </div>
       ) : bestSeller.length === 0 ? (
         <div className="text-center py-10">
-          <p className="text-white">No popular listings available at the moment.</p>
+          <p className={isLightTheme ? 'text-gray-800' : 'text-white'}>No popular listings available at the moment.</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6">
@@ -136,13 +138,13 @@ const PopularAuctions = () => {
           onMouseEnter={handleDrawerEnter}
           onMouseLeave={handleDrawerLeave}
         >
-          <div className="h-full w-72 backdrop-blur-lg bg-white/10 border-l border-white/20 shadow-2xl overflow-y-auto">
-            <div className="sticky top-0 right-0 w-full p-4 bg-white/10 backdrop-blur-lg border-b border-white/20">
+          <div className={`h-full w-72 backdrop-blur-lg ${isLightTheme ? 'bg-white/70 border-gray-300' : 'bg-white/10 border-white/20'} border-l shadow-2xl overflow-y-auto`}>
+            <div className={`sticky top-0 right-0 w-full p-4 ${isLightTheme ? 'bg-white/70' : 'bg-white/10'} backdrop-blur-lg ${isLightTheme ? 'border-gray-300' : 'border-white/20'} border-b`}>
               <button
                 onClick={() => setIsDrawerVisible(false)}
-                className="float-right p-2 hover:bg-white/10 rounded-full transition-colors duration-200"
+                className={`float-right p-2 hover:${isLightTheme ? 'bg-gray-200/50' : 'bg-white/10'} rounded-full transition-colors duration-200`}
               >
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className={`w-4 h-4 ${isLightTheme ? 'text-gray-800' : 'text-white'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>

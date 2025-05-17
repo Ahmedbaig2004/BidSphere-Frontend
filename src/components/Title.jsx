@@ -1,11 +1,15 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { ThemeContext } from '../context/ThemeContext'
 
 const Title = ({text1,text2}) => {
+  const { isLightTheme } = useContext(ThemeContext);
+  
   return (
-    <div className='inline-flex gap-2 items-center mb-5 '>
-        <p className='text-white dark:bg-gray-900'>{text1} <span className=' font-medium text-white dark:bg-gray-900'>{text2}</span></p>
-        <p className='w-8 sm:w-12 h-[1px] sm:h-[2px] bg-white dark:bg-gray-100'></p>
-      
+    <div className='inline-flex gap-2 items-center mb-5'>
+        <p className={`${isLightTheme ? 'text-gray-800' : 'text-white'}`}>
+          {text1} <span className={`font-medium ${isLightTheme ? 'text-gray-900' : 'text-white'}`}>{text2}</span>
+        </p>
+        <p className={`w-8 sm:w-12 h-[1px] sm:h-[2px] ${isLightTheme ? 'bg-gray-800' : 'bg-white'}`}></p>
     </div>
   )
 }

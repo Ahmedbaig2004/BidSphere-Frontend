@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { ThemeContext } from '../context/ThemeContext';
 import { toast } from 'react-toastify';
 
 const Login = () => {
@@ -9,6 +10,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useContext(AuthContext);
+  const { isLightTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -97,36 +99,36 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-black to-blue-900 overflow-x-hidden flex flex-col md:flex-row">
+    <div className={`min-h-screen ${isLightTheme ? 'bg-blue-50' : 'bg-gradient-to-br from-blue-900 via-black to-blue-900'} overflow-x-hidden flex flex-col md:flex-row`}>
       {/* Left side - Login Form */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
-          <div className="backdrop-blur-lg bg-white/10 p-8 rounded-2xl shadow-2xl border border-white/20 transform transition-all duration-500 hover:scale-[1.02]">
-            <h2 className="text-3xl font-bold mb-8 text-center text-white">Welcome Back</h2>
+          <div className={`backdrop-blur-lg ${isLightTheme ? 'bg-white/50 border-gray-300' : 'bg-white/10 border-white/20'} p-8 rounded-2xl shadow-2xl border transform transition-all duration-500 hover:scale-[1.02]`}>
+            <h2 className={`text-3xl font-bold mb-8 text-center ${isLightTheme ? 'text-gray-800' : 'text-white'}`}>Welcome Back</h2>
             
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-200">Username</label>
+                <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Username</label>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  className={`w-full px-4 py-3 ${isLightTheme ? 'bg-white/70 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-blue-200/50'} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
                   placeholder="Enter your username"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-blue-200">Password</label>
+                <label className={`block text-sm font-medium ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>Password</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  className={`w-full px-4 py-3 ${isLightTheme ? 'bg-white/70 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-blue-200/50'} border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
                   placeholder="Enter your password"
                 />
               </div>
@@ -146,9 +148,9 @@ const Login = () => {
             </form>
 
             <div className="mt-6 text-center">
-              <p className="text-sm text-blue-200">
+              <p className={`text-sm ${isLightTheme ? 'text-gray-700' : 'text-blue-200'}`}>
                 Don't have an account?{' '}
-                <Link to="/register" className="text-white hover:text-blue-300 font-medium transition-colors duration-300">
+                <Link to="/register" className={`${isLightTheme ? 'text-blue-600 hover:text-blue-800' : 'text-white hover:text-blue-300'} font-medium transition-colors duration-300`}>
                   Register Now
                 </Link>
               </p>
@@ -159,12 +161,12 @@ const Login = () => {
       </div>
 
       {/* Right side - Splash Text */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-gradient-to-br from-blue-900/50 to-black/50">
+      <div className={`w-full md:w-1/2 flex items-center justify-center p-8 ${isLightTheme ? 'bg-blue-100/50' : 'bg-gradient-to-br from-blue-900/50 to-black/50'}`}>
         <div className="max-w-lg text-center">
-          <h1 className="text-5xl font-bold text-white mb-6 animate-fade-in">
+          <h1 className={`text-5xl font-bold ${isLightTheme ? 'text-gray-800' : 'text-white'} mb-6 animate-fade-in`}>
             Welcome to BidSphere
           </h1>
-          <p className="text-xl text-blue-200 leading-relaxed animate-fade-in-delay">
+          <p className={`text-xl ${isLightTheme ? 'text-gray-700' : 'text-blue-200'} leading-relaxed animate-fade-in-delay`}>
             Your premier destination for seamless bidding and trading. Experience the future of digital commerce with our cutting-edge platform.
           </p>
           <div className="mt-8 flex justify-center space-x-4">
